@@ -2,9 +2,15 @@
 
 A few rules so we can all work on this without stepping on each other.
 
+## Branches
+
+- `main` - stable, protected. Only gets changes through a PR from `dev`,
+  e.g. right before a submission.
+- `dev` - where everyday work lands.
+
 ## Workflow
 
-1. Pull `main` before you start.
+1. Pull `dev` before you start, and branch off it.
 2. Make a branch for your task:
    - `feature/booking-controller`
    - `fix/seat-double-booking`
@@ -12,8 +18,8 @@ A few rules so we can all work on this without stepping on each other.
    - `chore/...` for build/tooling stuff
 3. Commit small and often - one change per commit.
 4. Run `mvn verify` before pushing. It runs Checkstyle and the tests.
-5. Open a PR into `main` and get one teammate to review it.
-6. Don't push straight to `main`. CI has to pass before merging.
+5. Open a PR into `dev` and get one teammate to review it.
+6. Don't push straight to `dev` or `main`. CI has to pass before merging.
 
 ## Commit messages
 
