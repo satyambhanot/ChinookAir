@@ -31,3 +31,8 @@ docs/                        design document and UML diagrams
 
 Screens call controllers, controllers use entities and DAOs.
 Nothing in `presentation` should touch the database directly.
+
+## Working on it
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before your first PR - it covers
+branches, commit messages and the style rules Checkstyle checks.
