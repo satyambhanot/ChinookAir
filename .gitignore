@@ -1,0 +1,20 @@
+# Maven build output
+target/
+
+# IDE stuff
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+bin/
+out/
+
+# Local database files (the app creates its own on first run)
+*.db
+*.sqlite
+
+# OS junk
+.DS_Store
+Thumbs.db
