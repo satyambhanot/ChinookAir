@@ -140,8 +140,6 @@ end
 puts "\nBacklog is consistent: all dependencies point backwards, every issue is #{MAX_HOURS}h or less."
 exit unless ARGV.first == "--create"
 
-abort "Refusing to create: repo has open issues already labelled from this backlog." if gh("issue", "list", "--repo", REPO, "--search", "in:title P0-01", "--json", "number", "-q", "length") != "0"
-
 existing = gh("api", "repos/#{REPO}/milestones?state=all&per_page=100", "-q", ".[] | .title").split("\n")
 issues.map(&:phase).uniq.each do |phase|
   next if existing.include?(phase)
@@ -154,11 +152,22 @@ have = gh("label", "list", "--repo", REPO, "--limit", "100", "--json", "name", "
   puts "label: #{l}"
 end
 
+# Safe to re-run after a failure: issues whose "<id>:" title already exists are skipped.
+already = gh("issue", "list", "--repo", REPO, "--state", "all", "--limit", "500", "--json", "number,title",
+             "-q", '.[] | "\(.number)\t\(.title)"').split("\n").to_h { |l| n, t = l.split("\t", 2); [t[/\AP\d+-\d+(?=:)/], n] }
+already.delete(nil)
+
 numbers = {}
 issues.each do |i|
+  if already[i.id]
+    numbers[i.id] = already[i.id]
+    puts "#{i.id} exists (##{already[i.id]})"
+    next
+  end
   url = gh("issue", "create", "--repo", REPO, "--title", "#{i.id}: #{i.title}", "--body-file", "-",
            "--milestone", i.phase, "--label", i.labels.join(","), stdin: body_for(i, numbers))
   numbers[i.id] = url[/\d+\z/]
   puts "#{i.id} -> #{url}"
+  sleep 0.7 # stay under GitHub's secondary rate limit
 end
-puts "created #{numbers.size} issues"
+puts "total #{numbers.size} issues"
