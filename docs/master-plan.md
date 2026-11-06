@@ -2,7 +2,7 @@
 
 A single-person, milestone-based plan that maps every part of the ENSF 614 term project guideline to small issues. It replaces the earlier [action plan](action-plan.md) and its 50 issues. The issue texts live in [backlog/](backlog/) and are created with [scripts/create_issues.rb](../scripts/create_issues.rb).
 
-Status: draft. The new issues have not been created on GitHub yet.
+Status: in use. The 75 issues exist on GitHub as #56 to #130 (linked in the index at the bottom). The old issues #4 to #53 were closed as superseded, each with a comment naming its replacements.
 
 ## 1. How this plan works
 
@@ -133,7 +133,9 @@ These come from P0-01 and are repeated in the code issues. Change them in one pl
 
 ## 7. Moving from the old issues
 
-Issues #4 to #53 were written for a team. Once this plan is approved they should be closed as superseded, the 75 new issues created from `docs/backlog/` (the script does this and checks the backlog first), and the project board updated. The old action plan stays in the repo for history.
+Issues #4 to #53 were written for a team and have been closed as superseded. The 75 new issues were created from `docs/backlog/` with `scripts/create_issues.rb`, which checks the backlog first and can be re-run safely (it skips issues that already exist). The old action plan stays in the repo for history.
+
+If an issue text needs to change, edit the backlog file and the GitHub issue together so the two never disagree.
 
 ## 8. Issue index
 
@@ -141,123 +143,123 @@ Issues #4 to #53 were written for a team. Once this plan is approved they should
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P0-01 | Record scope decisions and glossary | 1 | - |
-| P0-02 | Write and send the instructor question list | 1 | P0-01 |
-| P0-03 | Set up the diagram workflow and style rules | 1 | - |
-| P0-04 | Create the design report skeleton with double-underline support | 2 | - |
-| P0-05 | Add a pull request template with the pre-commit checklist | 1 | - |
+| P0-01 ([#56](https://github.com/satyambhanot/ChinookAir/issues/56)) | Record scope decisions and glossary | 1 | - |
+| P0-02 ([#57](https://github.com/satyambhanot/ChinookAir/issues/57)) | Write and send the instructor question list | 1 | P0-01 |
+| P0-03 ([#58](https://github.com/satyambhanot/ChinookAir/issues/58)) | Set up the diagram workflow and style rules | 1 | - |
+| P0-04 ([#59](https://github.com/satyambhanot/ChinookAir/issues/59)) | Create the design report skeleton with double-underline support | 2 | - |
+| P0-05 ([#60](https://github.com/satyambhanot/ChinookAir/issues/60)) | Add a pull request template with the pre-commit checklist | 1 | - |
 
 #### Phase 1: Requirements & Use Cases
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P1-01 | Write the functional requirements list (FR-1 to FR-14) | 2 | P0-01 |
-| P1-02 | Write the non-functional requirements with measurable evidence | 2 | P1-01 |
-| P1-03 | Build the use-case table (UC-01 to UC-17) | 2 | P1-01 |
-| P1-04 | Draw the use-case diagram | 3 | P1-03, P0-03 |
-| P1-05 | Write the system introduction and process descriptions | 2 | P1-03 |
+| P1-01 ([#61](https://github.com/satyambhanot/ChinookAir/issues/61)) | Write the functional requirements list (FR-1 to FR-14) | 2 | P0-01 |
+| P1-02 ([#62](https://github.com/satyambhanot/ChinookAir/issues/62)) | Write the non-functional requirements with measurable evidence | 2 | P1-01 |
+| P1-03 ([#63](https://github.com/satyambhanot/ChinookAir/issues/63)) | Build the use-case table (UC-01 to UC-17) | 2 | P1-01 |
+| P1-04 ([#64](https://github.com/satyambhanot/ChinookAir/issues/64)) | Draw the use-case diagram | 3 | P1-03, P0-03 |
+| P1-05 ([#65](https://github.com/satyambhanot/ChinookAir/issues/65)) | Write the system introduction and process descriptions | 2 | P1-03 |
 
 #### Phase 2: Scenarios & Domain Model
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P2-01 | Write the Book Flight use-case scenario | 3 | P1-03, P0-04 |
-| P2-02 | Write the Manage Flights use-case scenario | 2 | P2-01 |
-| P2-03 | Write the Modify Reservation use-case scenario | 2 | P2-01 |
-| P2-04 | Extract the candidate class and operation list and check coverage | 2 | P2-02, P2-03 |
-| P2-05 | Draw the first-cut class diagram: entities | 3 | P2-04 |
-| P2-06 | Draw the first-cut class diagram: controls and boundaries | 3 | P2-05 |
+| P2-01 ([#66](https://github.com/satyambhanot/ChinookAir/issues/66)) | Write the Book Flight use-case scenario | 3 | P1-03, P0-04 |
+| P2-02 ([#67](https://github.com/satyambhanot/ChinookAir/issues/67)) | Write the Manage Flights use-case scenario | 2 | P2-01 |
+| P2-03 ([#68](https://github.com/satyambhanot/ChinookAir/issues/68)) | Write the Modify Reservation use-case scenario | 2 | P2-01 |
+| P2-04 ([#69](https://github.com/satyambhanot/ChinookAir/issues/69)) | Extract the candidate class and operation list and check coverage | 2 | P2-02, P2-03 |
+| P2-05 ([#70](https://github.com/satyambhanot/ChinookAir/issues/70)) | Draw the first-cut class diagram: entities | 3 | P2-04 |
+| P2-06 ([#71](https://github.com/satyambhanot/ChinookAir/issues/71)) | Draw the first-cut class diagram: controls and boundaries | 3 | P2-05 |
 
 #### Phase 3: Behavioral Diagrams
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P3-01 | Draw the Login activity diagram | 2 | P2-01 |
-| P3-02 | Draw the Browse and Select Flight activity diagram | 2 | P2-01 |
-| P3-03 | Draw the Book Flight activity diagram | 2 | P3-02 |
-| P3-04 | Draw the Make Payment activity diagram | 2 | P3-03 |
-| P3-05 | Draw the Search Flights sequence diagram | 2 | P2-06 |
-| P3-06 | Draw the Book Flight sequence diagram | 2 | P2-06 |
-| P3-07 | Draw the Make Payment sequence diagram | 2 | P2-06 |
-| P3-08 | Draw the Manage Flights sequence diagram | 2 | P2-06 |
-| P3-09 | Draw the whole-system state diagram | 2 | P3-01 |
-| P3-10 | Draw the payment state diagram | 1.5 | P3-04 |
-| P3-11 | Draw the reservation state diagram | 1.5 | P3-03 |
+| P3-01 ([#72](https://github.com/satyambhanot/ChinookAir/issues/72)) | Draw the Login activity diagram | 2 | P2-01 |
+| P3-02 ([#73](https://github.com/satyambhanot/ChinookAir/issues/73)) | Draw the Browse and Select Flight activity diagram | 2 | P2-01 |
+| P3-03 ([#74](https://github.com/satyambhanot/ChinookAir/issues/74)) | Draw the Book Flight activity diagram | 2 | P3-02 |
+| P3-04 ([#75](https://github.com/satyambhanot/ChinookAir/issues/75)) | Draw the Make Payment activity diagram | 2 | P3-03 |
+| P3-05 ([#76](https://github.com/satyambhanot/ChinookAir/issues/76)) | Draw the Search Flights sequence diagram | 2 | P2-06 |
+| P3-06 ([#77](https://github.com/satyambhanot/ChinookAir/issues/77)) | Draw the Book Flight sequence diagram | 2 | P2-06 |
+| P3-07 ([#78](https://github.com/satyambhanot/ChinookAir/issues/78)) | Draw the Make Payment sequence diagram | 2 | P2-06 |
+| P3-08 ([#79](https://github.com/satyambhanot/ChinookAir/issues/79)) | Draw the Manage Flights sequence diagram | 2 | P2-06 |
+| P3-09 ([#80](https://github.com/satyambhanot/ChinookAir/issues/80)) | Draw the whole-system state diagram | 2 | P3-01 |
+| P3-10 ([#81](https://github.com/satyambhanot/ChinookAir/issues/81)) | Draw the payment state diagram | 1.5 | P3-04 |
+| P3-11 ([#82](https://github.com/satyambhanot/ChinookAir/issues/82)) | Draw the reservation state diagram | 1.5 | P3-03 |
 
 #### Phase 4: Architecture & Design Report
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P4-01 | Refine the class diagram with design patterns and DAO interfaces | 4 | P2-06, P3-11 |
-| P4-02 | Draw the package diagram with public and package-private classes | 2 | P4-01 |
-| P4-03 | Build the traceability matrix | 2 | P4-01 |
-| P4-04 | Run a consistency review across all diagrams and text | 3 | P4-02, P4-03 |
-| P4-05 | Assemble and export the design PDF, then tag design-v1 | 3 | P4-04 |
+| P4-01 ([#83](https://github.com/satyambhanot/ChinookAir/issues/83)) | Refine the class diagram with design patterns and DAO interfaces | 4 | P2-06, P3-11 |
+| P4-02 ([#84](https://github.com/satyambhanot/ChinookAir/issues/84)) | Draw the package diagram with public and package-private classes | 2 | P4-01 |
+| P4-03 ([#85](https://github.com/satyambhanot/ChinookAir/issues/85)) | Build the traceability matrix | 2 | P4-01 |
+| P4-04 ([#86](https://github.com/satyambhanot/ChinookAir/issues/86)) | Run a consistency review across all diagrams and text | 3 | P4-02, P4-03 |
+| P4-05 ([#87](https://github.com/satyambhanot/ChinookAir/issues/87)) | Assemble and export the design PDF, then tag design-v1 | 3 | P4-04 |
 
 #### Phase 5: Domain Model
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P5-01 | Implement the User hierarchy, Role, UserFactory and PasswordHasher | 3 | P4-05 |
-| P5-02 | Implement Airline, Airport, Route, Aircraft and Promotion entities | 3 | P5-01 |
-| P5-03 | Implement Flight, Seat, SeatLayout and PricingPolicy | 3 | P5-02 |
-| P5-04 | Implement Reservation with the State pattern | 3 | P5-03 |
-| P5-05 | Implement Payment, PaymentDetails and the PaymentMethod strategies | 3 | P5-03 |
+| P5-01 ([#88](https://github.com/satyambhanot/ChinookAir/issues/88)) | Implement the User hierarchy, Role, UserFactory and PasswordHasher | 3 | P4-05 |
+| P5-02 ([#89](https://github.com/satyambhanot/ChinookAir/issues/89)) | Implement Airline, Airport, Route, Aircraft and Promotion entities | 3 | P5-01 |
+| P5-03 ([#90](https://github.com/satyambhanot/ChinookAir/issues/90)) | Implement Flight, Seat, SeatLayout and PricingPolicy | 3 | P5-02 |
+| P5-04 ([#91](https://github.com/satyambhanot/ChinookAir/issues/91)) | Implement Reservation with the State pattern | 3 | P5-03 |
+| P5-05 ([#92](https://github.com/satyambhanot/ChinookAir/issues/92)) | Implement Payment, PaymentDetails and the PaymentMethod strategies | 3 | P5-03 |
 
 #### Phase 6: Data Layer
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P6-01 | Write the SQLite schema with constraints that prevent double booking | 3 | P5-05 |
-| P6-02 | Implement the DatabaseConnection singleton, initializer and test helper | 3 | P6-01 |
-| P6-03 | Implement the reference-data DAOs (Airline, Airport, Aircraft, Route) | 3 | P6-02, P5-02 |
-| P6-04 | Implement FlightDao and SeatDao with the flight search query | 4 | P6-03, P5-03 |
-| P6-05 | Implement UserDao and CustomerDao with transactional customer creation | 3 | P6-03, P5-01 |
-| P6-06 | Implement ReservationDao with double-booking protection | 4 | P6-04, P6-05, P5-04 |
-| P6-07 | Implement PaymentDao | 2 | P6-06, P5-05 |
-| P6-08 | Implement PromotionDao and AppStateDao | 2 | P6-02, P5-02 |
-| P6-09 | Add DaoFactory and the ArchUnit layer-rule tests | 3 | P6-08 |
-| P6-10 | Implement the idempotent DatabaseSeeder with demo data | 3 | P6-09, P5-01 |
+| P6-01 ([#93](https://github.com/satyambhanot/ChinookAir/issues/93)) | Write the SQLite schema with constraints that prevent double booking | 3 | P5-05 |
+| P6-02 ([#94](https://github.com/satyambhanot/ChinookAir/issues/94)) | Implement the DatabaseConnection singleton, initializer and test helper | 3 | P6-01 |
+| P6-03 ([#95](https://github.com/satyambhanot/ChinookAir/issues/95)) | Implement the reference-data DAOs (Airline, Airport, Aircraft, Route) | 3 | P6-02, P5-02 |
+| P6-04 ([#96](https://github.com/satyambhanot/ChinookAir/issues/96)) | Implement FlightDao and SeatDao with the flight search query | 4 | P6-03, P5-03 |
+| P6-05 ([#97](https://github.com/satyambhanot/ChinookAir/issues/97)) | Implement UserDao and CustomerDao with transactional customer creation | 3 | P6-03, P5-01 |
+| P6-06 ([#98](https://github.com/satyambhanot/ChinookAir/issues/98)) | Implement ReservationDao with double-booking protection | 4 | P6-04, P6-05, P5-04 |
+| P6-07 ([#99](https://github.com/satyambhanot/ChinookAir/issues/99)) | Implement PaymentDao | 2 | P6-06, P5-05 |
+| P6-08 ([#100](https://github.com/satyambhanot/ChinookAir/issues/100)) | Implement PromotionDao and AppStateDao | 2 | P6-02, P5-02 |
+| P6-09 ([#101](https://github.com/satyambhanot/ChinookAir/issues/101)) | Add DaoFactory and the ArchUnit layer-rule tests | 3 | P6-08 |
+| P6-10 ([#102](https://github.com/satyambhanot/ChinookAir/issues/102)) | Implement the idempotent DatabaseSeeder with demo data | 3 | P6-09, P5-01 |
 
 #### Phase 7: Business Logic
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P7-01 | Implement LoginController, SessionContext and the role check | 3 | P6-10 |
-| P7-02 | Implement PromotionController with the Observer pattern | 3 | P7-01 |
-| P7-03 | Implement FlightSearchController | 3 | P6-04 |
-| P7-04 | Implement BookingController with seat selection and pricing | 4 | P7-03, P5-04, P6-06 |
-| P7-05 | Implement ConfirmationWriter (booking confirmation text file) | 2 | P5-05 |
-| P7-06 | Implement PaymentController with simulated authorization and refunds | 3 | P7-04, P7-05 |
-| P7-07 | Implement ReservationController (history, cancel, modify) | 4 | P7-06 |
-| P7-08 | Implement CustomerController (register, view, edit, search) | 2 | P7-01, P6-05 |
-| P7-09 | Implement FlightManagementController (add, update, remove flights) | 4 | P7-01, P6-04 |
-| P7-10 | Implement RouteController, AircraftController and ScheduleController | 3 | P7-09 |
+| P7-01 ([#103](https://github.com/satyambhanot/ChinookAir/issues/103)) | Implement LoginController, SessionContext and the role check | 3 | P6-10 |
+| P7-02 ([#104](https://github.com/satyambhanot/ChinookAir/issues/104)) | Implement PromotionController with the Observer pattern | 3 | P7-01 |
+| P7-03 ([#105](https://github.com/satyambhanot/ChinookAir/issues/105)) | Implement FlightSearchController | 3 | P6-04 |
+| P7-04 ([#106](https://github.com/satyambhanot/ChinookAir/issues/106)) | Implement BookingController with seat selection and pricing | 4 | P7-03, P5-04, P6-06 |
+| P7-05 ([#107](https://github.com/satyambhanot/ChinookAir/issues/107)) | Implement ConfirmationWriter (booking confirmation text file) | 2 | P5-05 |
+| P7-06 ([#108](https://github.com/satyambhanot/ChinookAir/issues/108)) | Implement PaymentController with simulated authorization and refunds | 3 | P7-04, P7-05 |
+| P7-07 ([#109](https://github.com/satyambhanot/ChinookAir/issues/109)) | Implement ReservationController (history, cancel, modify) | 4 | P7-06 |
+| P7-08 ([#110](https://github.com/satyambhanot/ChinookAir/issues/110)) | Implement CustomerController (register, view, edit, search) | 2 | P7-01, P6-05 |
+| P7-09 ([#111](https://github.com/satyambhanot/ChinookAir/issues/111)) | Implement FlightManagementController (add, update, remove flights) | 4 | P7-01, P6-04 |
+| P7-10 ([#112](https://github.com/satyambhanot/ChinookAir/issues/112)) | Implement RouteController, AircraftController and ScheduleController | 3 | P7-09 |
 
 #### Phase 8: GUI
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P8-01 | Build the application shell, composition root and navigation | 3 | P7-10 |
-| P8-02 | Add input parsing helpers and the user-facing error messages | 2 | P8-01 |
-| P8-03 | Build the login view, registration view and role dashboards | 4 | P8-02 |
-| P8-04 | Show the monthly promotion dialog on startup | 2 | P8-03, P7-02 |
-| P8-05 | Build the flight search view and results table | 4 | P8-03, P7-03 |
-| P8-06 | Build the seat selection view | 4 | P8-05, P7-04 |
-| P8-07 | Build the payment and confirmation views | 3 | P8-06, P7-06 |
-| P8-08 | Build the My Reservations view with cancel and resume payment | 3 | P8-07, P7-07 |
-| P8-09 | Build customer management (agent) and the customer profile view | 4 | P8-03, P7-08 |
-| P8-10 | Build the agent modify-reservation view | 4 | P8-09, P8-06, P7-07 |
-| P8-11 | Build the payment records and schedule views | 3 | P8-09, P7-10 |
-| P8-12 | Build the administrator flight management view | 4 | P8-11, P7-09 |
-| P8-13 | Build the administrator route, aircraft and reschedule views | 3 | P8-12 |
+| P8-01 ([#113](https://github.com/satyambhanot/ChinookAir/issues/113)) | Build the application shell, composition root and navigation | 3 | P7-10 |
+| P8-02 ([#114](https://github.com/satyambhanot/ChinookAir/issues/114)) | Add input parsing helpers and the user-facing error messages | 2 | P8-01 |
+| P8-03 ([#115](https://github.com/satyambhanot/ChinookAir/issues/115)) | Build the login view, registration view and role dashboards | 4 | P8-02 |
+| P8-04 ([#116](https://github.com/satyambhanot/ChinookAir/issues/116)) | Show the monthly promotion dialog on startup | 2 | P8-03, P7-02 |
+| P8-05 ([#117](https://github.com/satyambhanot/ChinookAir/issues/117)) | Build the flight search view and results table | 4 | P8-03, P7-03 |
+| P8-06 ([#118](https://github.com/satyambhanot/ChinookAir/issues/118)) | Build the seat selection view | 4 | P8-05, P7-04 |
+| P8-07 ([#119](https://github.com/satyambhanot/ChinookAir/issues/119)) | Build the payment and confirmation views | 3 | P8-06, P7-06 |
+| P8-08 ([#120](https://github.com/satyambhanot/ChinookAir/issues/120)) | Build the My Reservations view with cancel and resume payment | 3 | P8-07, P7-07 |
+| P8-09 ([#121](https://github.com/satyambhanot/ChinookAir/issues/121)) | Build customer management (agent) and the customer profile view | 4 | P8-03, P7-08 |
+| P8-10 ([#122](https://github.com/satyambhanot/ChinookAir/issues/122)) | Build the agent modify-reservation view | 4 | P8-09, P8-06, P7-07 |
+| P8-11 ([#123](https://github.com/satyambhanot/ChinookAir/issues/123)) | Build the payment records and schedule views | 3 | P8-09, P7-10 |
+| P8-12 ([#124](https://github.com/satyambhanot/ChinookAir/issues/124)) | Build the administrator flight management view | 4 | P8-11, P7-09 |
+| P8-13 ([#125](https://github.com/satyambhanot/ChinookAir/issues/125)) | Build the administrator route, aircraft and reschedule views | 3 | P8-12 |
 
 #### Phase 9: Integration & Submission
 
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
-| P9-01 | Write the automated end-to-end flow test | 3 | P8-13 |
-| P9-02 | Write and run the manual test plan for every use case | 4 | P9-01 |
-| P9-03 | Update the UML and report so they match the final code | 3 | P9-02 |
-| P9-04 | Package the fat jar, add a self-test, and run CI on macOS, Windows and Linux | 3 | P9-01 |
-| P9-05 | Build the submission archive, verify it from scratch, and tag v1.0 | 2 | P9-03, P9-04 |
+| P9-01 ([#126](https://github.com/satyambhanot/ChinookAir/issues/126)) | Write the automated end-to-end flow test | 3 | P8-13 |
+| P9-02 ([#127](https://github.com/satyambhanot/ChinookAir/issues/127)) | Write and run the manual test plan for every use case | 4 | P9-01 |
+| P9-03 ([#128](https://github.com/satyambhanot/ChinookAir/issues/128)) | Update the UML and report so they match the final code | 3 | P9-02 |
+| P9-04 ([#129](https://github.com/satyambhanot/ChinookAir/issues/129)) | Package the fat jar, add a self-test, and run CI on macOS, Windows and Linux | 3 | P9-01 |
+| P9-05 ([#130](https://github.com/satyambhanot/ChinookAir/issues/130)) | Build the submission archive, verify it from scratch, and tag v1.0 | 2 | P9-03, P9-04 |

@@ -1,5 +1,7 @@
 # ChinookAir - Action Plan
 
+> **Superseded** by the [master plan](master-plan.md). Issues #4 to #53 linked below are closed; their replacements are #56 to #130. This file is kept for history.
+
 Our step-by-step plan for the ENSF 614 term project. Every step points back
 to the part of the guideline it covers, so nothing gets missed.
 
