@@ -1,2 +1,15 @@
 \section{Class Diagram}
-% First-cut and refined class diagrams (P2-05, P2-06, P4-01).
+
+\subsection*{First-cut class diagram: entities}
+
+Figure~\ref{fig:entities} shows the entity classes. Every entity comes from the
+candidate class table in section C. User is abstract (its name and its
+\texttt{role()} operation are in italics) and Customer, FlightAgent and
+Administrator inherit from it. Flight is composed of its Seats, and the other
+relationships are plain associations with multiplicities at both ends. Seat
+availability is derived (\texttt{/ available}) from the active Reservations.
+Promotion has no associations. The five enumerations hold the fixed value sets.
+
+\diagramland{10-class-entities}{First-cut class diagram: entity classes}{fig:entities}
+
+% The control and boundary classes (P2-06) and the refined diagram (P4-01) are added here.
