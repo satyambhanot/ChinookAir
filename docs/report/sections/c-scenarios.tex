@@ -66,5 +66,65 @@ for anyone else, the \cls{Payment} is recorded as approved with only the last
 four card digits, and the \cls{Confirmation} file is saved. On every other
 ending no \cls{Reservation} holds a \cls{Seat}.
 
-% UC-14 Manage Flights (P2-02), UC-10 Modify Reservation (P2-03) and the
-% candidate class and operation tables (P2-04) are added here.
+\subsection*{UC-14 Manage Flights}
+
+\begin{description}
+\item[Actor] \cls{Administrator}.
+\item[Preconditions] The \cls{Administrator} has an account, and at least one
+  \cls{Airline}, \cls{Route} and \cls{Aircraft} exist.
+\item[Trigger] The \cls{Administrator} wants to change the \cls{Flight}s that
+  customers can reserve.
+\end{description}
+
+\paragraph{Main success scenario}
+
+\begin{enumerate}
+\item The \cls{Administrator} \op{logs in} with a username and a password.
+\item The \cls{Administrator} \op{chooses} Manage Flights.
+\item The \cls{Administrator} \op{chooses} Add Flight.
+\item The \cls{Administrator} \op{picks} a \cls{Route}, an \cls{Airline} and an
+  \cls{Aircraft}.
+\item The \cls{Administrator} \op{enters} the flight number, the departure time,
+  the arrival time and the base price.
+\item The system \op{validates} the details: the flight number is new, the
+  arrival is after the departure, the departure is in the future, and the
+  \cls{Aircraft} is not on another \cls{Flight} at that time.
+\item The system \op{creates} the \cls{Flight} and \op{creates} its \cls{Seat}s
+  from the seat layout of the \cls{Aircraft}.
+\item The \cls{Administrator} \op{updates} the schedule of an existing
+  \cls{Flight} by entering a new departure time and a new arrival time.
+\item The system \op{saves} the new schedule.
+\item The \cls{Administrator} \op{removes} an outdated \cls{Flight}.
+\item The system \op{deletes} the \cls{Flight} if it has no \cls{Reservation},
+  and otherwise \op{archives} it so that old \cls{Reservation}s stay in the
+  history.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[4a. The \cls{Route} does not exist.] The \cls{Administrator} \op{adds} the
+  \cls{Route} first. The scenario continues at step 4.
+\item[6a. The flight number already exists or the times are not valid.] The
+  system \op{shows} a message that names the problem. The scenario continues at
+  step 5.
+\item[6b. The \cls{Aircraft} is already on another \cls{Flight} at that time.]
+  The system \op{shows} a message. The \cls{Administrator} picks another
+  \cls{Aircraft} or other times, and the scenario continues at step 4.
+\item[9a. The new times clash.] Another \cls{Flight} already uses the same
+  \cls{Aircraft} at that time. The system \op{rejects} the change and
+  \op{shows} a message. The scenario continues at step 8.
+\item[11a. The \cls{Flight} still has active \cls{Reservation}s.] The system
+  \op{blocks} the removal and \op{shows} a message. The \cls{Flight} stays
+  unchanged and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the new \cls{Flight} and its \cls{Seat}s exist and customers can find
+the \cls{Flight}, the changed schedule is saved, and the removed \cls{Flight}
+no longer appears in searches or schedules. On every other ending nothing has
+changed.
+
+% UC-10 Modify Reservation (P2-03) and the candidate class and operation
+% tables (P2-04) are added here.
