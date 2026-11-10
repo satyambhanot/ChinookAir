@@ -5,6 +5,7 @@
 #   ruby scripts/create_issues.rb              dry run: validate + summary
 #   ruby scripts/create_issues.rb --preview P5-04   print one finished issue body
 #   ruby scripts/create_issues.rb --create     create milestones, labels and issues
+#   ruby scripts/create_issues.rb --update P0-02 P9-03   rewrite those issues from the backlog
 
 require "open3"
 
@@ -127,6 +128,21 @@ if ARGV.first == "--index"
   issues.group_by(&:phase).each do |phase, list|
     puts "", "#### #{phase}", "", "| ID | Issue | Hours | Depends on |", "|---|---|---|---|"
     list.each { |i| puts "| #{i.id} | #{i.title} | #{i.hours.to_s.sub(/\.0\z/, '')} | #{i.deps.empty? ? '-' : i.deps.join(', ')} |" }
+  end
+  exit
+end
+
+if ARGV.first == "--update"
+  abort "consistency problems, fix them first:\n  #{problems.join("\n  ")}" if problems.any?
+  numbers = gh("issue", "list", "--repo", REPO, "--state", "all", "--limit", "500", "--json", "number,title",
+               "-q", '.[] | "\(.number)\t\(.title)"').split("\n")
+                .to_h { |l| n, t = l.split("\t", 2); [t[/\AP\d+-\d+(?=:)/], n] }
+  ARGV.drop(1).each do |id|
+    found = issues.find { |i| i.id == id } or abort "no such issue #{id}"
+    num = numbers[id] or abort "#{id} has no GitHub issue yet"
+    gh("issue", "edit", num, "--repo", REPO, "--title", "#{id}: #{found.title}", "--body-file", "-",
+       stdin: body_for(found, numbers))
+    puts "#{id} updated (##{num})"
   end
   exit
 end

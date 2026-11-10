@@ -36,7 +36,7 @@ Then business logic (Phase 7), then the GUI last (Phase 8), then integration and
 
 | Phase | Goal | Issues | Hours | Done when |
 |---|---|---|---|---|
-| 0: Setup & Decisions | Decisions recorded, diagram and report tooling ready, PR template | 5 | 6 | Glossary exists, `make pdf` works, instructor questions sent |
+| 0: Setup & Decisions | Decisions recorded, diagram and report tooling ready, PR template | 5 | 6 | Glossary exists, `make pdf` works, guideline checklist done |
 | 1: Requirements & Use Cases | FR and NFR lists, use-case table and diagram, introduction | 5 | 11 | Every guideline requirement has an FR; every FR has a use case |
 | 2: Scenarios & Domain Model | Three scenarios, candidate classes, first-cut class diagram | 6 | 15 | Every class traces to a scenario |
 | 3: Behavioral Diagrams | 4 activity, 4 sequence, 3 state diagrams | 11 | 21 | Names match the class diagram |
@@ -102,7 +102,7 @@ Rough calendar (deadlines are not in the guideline, see P0-02): at 20 hours a we
 
 ## 5. Rules the plan fixes (so tests and diagrams agree)
 
-These come from P0-01 and are repeated in the code issues. Change them in one place first if the instructor says otherwise.
+These come from P0-01 and are repeated in the code issues. Change them in one place first if a decision changes.
 
 | Topic | Rule |
 |---|---|
@@ -128,7 +128,7 @@ These come from P0-01 and are repeated in the code issues. Change them in one pl
 | Swing threading mistakes | Views are thin, all DB work is fast and called from event handlers; no background threads needed |
 | Double underline impossible in the report tool | P0-04 tests it on day one |
 | Jar fails on the grader's machine | P9-04 self-test and a three-OS CI matrix |
-| Instructor answers change a rule | Rules table above is the single place to update, then the affected issues |
+| A decision turns out to conflict with the guideline | Rules table above is the single place to update, then the affected issues |
 | Scope creep | Anything not in the guideline or this plan goes in a new issue, not into the current one |
 
 ## 7. Moving from the old issues
@@ -144,7 +144,7 @@ If an issue text needs to change, edit the backlog file and the GitHub issue tog
 | ID | Issue | Hours | Depends on |
 |---|---|---|---|
 | P0-01 ([#56](https://github.com/satyambhanot/ChinookAir/issues/56)) | Record scope decisions and glossary | 1 | - |
-| P0-02 ([#57](https://github.com/satyambhanot/ChinookAir/issues/57)) | Write and send the instructor question list | 1 | P0-01 |
+| P0-02 ([#57](https://github.com/satyambhanot/ChinookAir/issues/57)) | Check the plan against the guideline line by line | 1 | P0-01 |
 | P0-03 ([#58](https://github.com/satyambhanot/ChinookAir/issues/58)) | Set up the diagram workflow and style rules | 1 | - |
 | P0-04 ([#59](https://github.com/satyambhanot/ChinookAir/issues/59)) | Create the design report skeleton with double-underline support | 2 | - |
 | P0-05 ([#60](https://github.com/satyambhanot/ChinookAir/issues/60)) | Add a pull request template with the pre-commit checklist | 1 | - |

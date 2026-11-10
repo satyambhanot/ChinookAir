@@ -18,7 +18,7 @@ The guideline leaves a few things open: the promotion rule, what happens to rese
 ### Implementation Guide
 1. Open the Decisions table at the bottom of `docs/action-plan.md` and replace every open item with the defaults below.
 2. Create `docs/glossary.md` with one sentence each for: Reservation, Flight, Route, Airline, Airport, Aircraft, Seat, Payment, Promotion, Customer, Flight Agent, Administrator, Confirmation number.
-3. Add a "Confirmed by instructor?" column (yes / no / pending) so it is clear which defaults are still assumptions.
+3. Add a "Guideline basis" column: say which guideline section states the decision, or that the guideline is silent and the rule is ours.
 4. Link the glossary from `docs/README.md`.
 
 Defaults to record:
@@ -38,25 +38,28 @@ Defaults to record:
 
 ## P0-02
 
-**Issue Title:** Write and send the instructor question list
+**Issue Title:** Check the plan against the guideline line by line
 **Milestone/Phase:** Phase 0: Setup & Decisions
-**Labels:** setup, question
+**Labels:** setup
 **Estimate:** 1h
 **Depends on:** P0-01
 **Kind:** doc
-**Rubric check:** Section 7.1 and 7.2 deliverables - confirm what exactly is submitted and when
+**Rubric check:** Sections 6 and 7 - every requirement, deliverable and assessment criterion in the guideline maps to an issue
 
 ### Context & Objective
-The guideline does not give due dates, a page limit, or say whether an updated design PDF goes in with the implementation. Assessment criterion 5 marks the UML against the final application, so that last one matters. The goal is to ask once, with defaults written down so work is never blocked waiting for an answer.
+The guideline is the only source of truth, so nothing is sent to the instructor. This issue proves nothing in it was missed: every requirement, deliverable and assessment criterion gets a row that says where it is covered. Where the guideline is silent (due dates, page limit, report format, cancel rules) the row says which rule we use, so silence never blocks work.
 
 ### Implementation Guide
-1. Create `docs/instructor-questions.md` with one row per question: question, our default, answer, date answered.
-2. Questions: due dates for both phases; page limit and format of the design report; may an updated design PDF go in with the implementation; promotion rule (once per month for the app vs once per customer); is an ER diagram expected or optional; which languages are allowed (C# was mentioned verbally); what counts as the compiled file; is a demo required.
-3. Send as one short email. Paste the answers into the table and update the Decisions table from P0-01.
+1. Create `docs/guideline-checklist.md` with a table: Section, Requirement (short), Covered by (issue IDs and the deliverable), Basis (`stated` or `silent: our rule`).
+2. Add one row for each bullet in sections 2.1, 3.1 to 3.7, 4 and 5, each deliverable A to G in 7.1, the two items in 7.2, and each of the seven assessment criteria in section 6 (label those rows `Criterion 1` to `Criterion 7`).
+3. End with a "Silent in the guideline" list and the rule used for each: due dates, page limit and report format, whether an ER diagram is required (it is not listed, so it is optional), which compiled file to submit (a JAR, section 7.2), whether a demo is required (none listed).
+4. Check the Decisions table in `docs/action-plan.md` still agrees with the checklist, and link the checklist from `docs/README.md`.
 
 ### Testing Strategy
-- Every question has a written default, so each row can be marked "proceeding with default" without blocking.
-- After answers arrive, `grep -n "pending" docs/instructor-questions.md` returns no rows that already have answers.
+- `grep -c "^| Criterion" docs/guideline-checklist.md` returns 7.
+- Every issue ID in the file exists: `grep -oE "P[0-9]-[0-9]{2}" docs/guideline-checklist.md | sort -u` lists only IDs that appear in `docs/master-plan.md`.
+- No row has an empty "Covered by" cell and `grep -n TBD docs/guideline-checklist.md` returns nothing.
+- Each of deliverables A to G (7.1) appears in at least one row.
 
 ## P0-03
 
