@@ -403,11 +403,11 @@ State diagram 3 of 3 for a Reservation object. It later maps one-to-one onto the
 ### Implementation Guide
 1. In `docs/diagrams/src/42-state-reservation.drawio` states: Created, PendingPayment, Confirmed, Cancelled, Completed.
 2. Transitions: Created to PendingPayment on `assignSeat`; PendingPayment to Confirmed on `confirmPayment`; Confirmed to Completed on `complete [flight departed]`; Created, PendingPayment and Confirmed to Cancelled on `cancel`; Confirmed to Confirmed on `changeFlight [price unchanged]`; Confirmed to PendingPayment on `changeFlight [price differs]` (the old payment is refunded).
-3. Cancelled and Completed are final.
+3. Cancelled and Completed end the life of the reservation: each has only a completion arrow to a final node. Name the states exactly like the `ReservationStatus` values (`CREATED`, `PENDING_PAYMENT`, ...), because the sequence diagrams use those names in their state notes. Add entry actions (confirmation number, seat held, confirmation file, seat freed).
 
 ### Testing Strategy
 - Every transition above exists with its event and guard.
-- No transition leaves Cancelled or Completed.
+- No transition leaves Cancelled or Completed except to a final node.
 - State names equal the `ReservationStatus` enumeration values.
 
 ## P4-01
