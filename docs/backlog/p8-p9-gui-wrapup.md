@@ -421,7 +421,7 @@ The assessment compares the diagrams with what was actually built. Anything that
 1. List every class under `src/main/java`; compare with the class diagram and package diagram. Add, rename or remove boxes.
 2. Check each operation named in a sequence diagram exists in code with the same name.
 3. Re-export diagrams and rebuild the PDF (`make pdf`) with an "updated for implementation" note on the title page.
-4. If the instructor allows, include the updated PDF in the submission.
+4. Keep the updated PDF in `docs/`. The guideline (section 7.2) lists only the compiled file and the source ZIP, so do not add anything else to the submission archive.
 
 ### Testing Strategy
 - `find src/main/java -name "*.java" | wc -l` is explained by the class diagram (public classes appear; helpers listed in a footnote).
