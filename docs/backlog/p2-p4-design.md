@@ -120,8 +120,8 @@ First half of Deliverable F. The entity classes are the stable core that the dat
 ### Implementation Guide
 1. In `docs/diagrams/src/10-class-entities.drawio` draw all entities with `<<entity>>`, typed attributes (`- name: String`) and operations that matter (`+ hasDeparted(now): boolean`). No getters, setters or constructors.
 2. Inheritance: User (abstract) is the parent of Customer, FlightAgent and Administrator.
-3. Associations with multiplicity on both ends: Airline 1 - * Flight; Route 1 - * Flight; Aircraft 1 - * Flight; Airport 1 - * Route as origin and again as destination (two roles); Flight 1 composes * Seat; Customer 1 - * Reservation; Reservation * - 1 Flight; Reservation 0..1 - 1 Seat; Reservation 1 - * Payment.
-4. Enumerations shown as `<<enumeration>>`: Role, SeatClass, ReservationStatus, PaymentStatus.
+3. Associations with multiplicity on both ends: Airline 1 - 0..* Flight; Route 1 - 0..* Flight; Aircraft 1 - 0..* Flight; Airport 1 - 0..* Route as origin and again as destination (two roles); Flight 1 composes 0..* Seat; Customer 1 - 0..* Reservation; Reservation 0..* - 1 Flight; Reservation 0..1 - 0..1 Seat (the seat is chosen after the reservation is created, and a seat holds at most one active reservation); Reservation 1 - 0..* Payment. Write 0..* instead of a bare * (Module 12).
+4. Enumerations shown as `<<enumeration>>`: Role, SeatClass, ReservationStatus, PaymentStatus, PaymentMethodType.
 5. Promotion has no associations.
 
 ### Testing Strategy
