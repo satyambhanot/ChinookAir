@@ -43,7 +43,7 @@ Scenario 2 of 3. It covers what Book Flight does not: Administrator, Route, Airc
 1. Same template as P2-01.
 2. Main flow: the Administrator logs in and chooses Manage Flights; chooses Add Flight; picks a Route, an Airline and an Aircraft; enters flight number, departure, arrival and base price; the system validates and creates the Flight and its Seats; the Administrator updates the schedule of an existing Flight; the Administrator removes an outdated Flight.
 3. Validation rules inside the flow: flight number is unique; arrival is after departure; the Aircraft is not already on another Flight at that time.
-4. Extensions: route does not exist (the Administrator adds the Route first); aircraft busy; the Flight still has active Reservations (removal is blocked).
+4. Extensions: route does not exist (the Administrator adds the Route first); aircraft does not exist (the Administrator adds the Aircraft first); aircraft busy; the Flight still has active Reservations (removal is blocked).
 5. Underline classes once and operations twice.
 
 ### Testing Strategy
@@ -95,12 +95,14 @@ The guideline says marks may be deducted for classes that cannot be traced to th
 4. A class that appears in no scenario must either be added to a scenario or dropped from the design.
 5. Judge each noun with the selection characteristics from Module 12: retained information, needed services, multiple attributes, common attributes, common operations, essential requirement. Keep a noun when it meets most of them. A noun with a single attribute becomes an attribute of another class instead.
 6. Sort each verb into one of the four operation kinds from Module 12 (changes data, computes, inquires about state, monitors an event) so the operation list has a reason behind it.
+7. Add a third table that traces each of the 11 control classes to the scenario step that uses it, so no control class is left without a scenario.
 
 ### Testing Strategy
 - Every underlined word in the three scenarios appears in a table.
 - Every planned class appears in at least one scenario, or has a written reason to stay.
 - Rejected nouns (for example "system", "screen") each have a one-line reason.
 - Every kept class has a note of which selection characteristics it meets (at least four of the six).
+- Each of the 11 control classes names a scenario step or extension that uses it.
 
 ## P2-05
 
