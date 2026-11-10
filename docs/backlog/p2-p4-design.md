@@ -260,8 +260,8 @@ Activity diagram 4 of 4. Covers FR-9 with the simulated gateway.
 Sequence diagram 1 of 4. The control class must exist in the class diagram.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/30-sequence-find-flights.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, Flight.
-2. Messages: enter criteria; `search(criteria)`; `validate(criteria)`; `findByCriteria(origin, destination, date, airline)`; return flights; `countAvailableSeats(flightId)` per flight; return offers; display table.
+1. In `docs/diagrams/src/30-sequence-find-flights.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, SeatDao, Flight.
+2. Messages: enter criteria; `search(criteria)`; `validate(criteria)`; `FlightDao.search(origin, destination, date, airline)`; return flights; per flight `Flight.hasDeparted(now)` and `SeatDao.countAvailable(flightId)`; return offers; show a message or the table. The names follow the data layer issues.
 3. Add an `alt` fragment: invalid criteria returns an error message; and an `alt` for empty result.
 4. Use activation bars and return arrows.
 
@@ -438,7 +438,7 @@ The guideline asks for a final refinement step that improves reusability, scalab
 - All six patterns are present and each one has its justification sentence.
 - Every DAO interface has exactly one realizing class.
 - Every class from P2-04 is still present, and the new classes are explained.
-- The diagram is consistent with the three sequence diagrams (same operation names).
+- The diagram is consistent with the four sequence diagrams (same operation names), so every DAO operation they use (for example `FlightDao.search` and `SeatDao.countAvailable`) is listed on its DAO interface.
 
 ## P4-02
 
