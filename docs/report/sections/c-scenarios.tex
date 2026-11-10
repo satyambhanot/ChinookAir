@@ -1,3 +1,70 @@
 \section{Use-Case Scenarios}
-% Three scenarios. Mark candidate classes with \cls{...} (single underline) and
-% candidate operations with \op{...} (double underline). Issues P2-01 to P2-04.
+
+Each scenario marks candidate classes with a \cls{single underline} and
+candidate operations with a \op{double underline}. The two lists are
+collected in the candidate tables of this section.
+
+\subsection*{UC-06 Book Flight}
+
+\begin{description}
+\item[Actor] \cls{Customer}.
+\item[Preconditions] The \cls{Customer} has an account and at least one
+  \cls{Flight} with a free \cls{Seat} exists.
+\item[Trigger] The \cls{Customer} wants to reserve a \cls{Seat} on a
+  \cls{Flight}.
+\end{description}
+
+\paragraph{Main success scenario}
+
+\begin{enumerate}
+\item The \cls{Customer} \op{starts} the application.
+\item The system \op{shows} the monthly \cls{Promotion} if this is the first
+  time the application is opened this month.
+\item The \cls{Customer} \op{logs in} with a username and a password.
+\item The \cls{Customer} \op{enters} the origin \cls{Airport}, the destination
+  \cls{Airport} and the date, and may choose an \cls{Airline}.
+\item The system \op{lists} the \cls{Flight}s on that \cls{Route} with their
+  departure times, prices and number of free \cls{Seat}s.
+\item The \cls{Customer} \op{selects} a \cls{Flight}.
+\item The system \op{shows} the seat map of the \cls{Aircraft} with the free
+  \cls{Seat}s marked.
+\item The \cls{Customer} \op{selects} a \cls{Seat}.
+\item The system \op{creates} a \cls{Reservation} for the \cls{Customer}, with
+  a confirmation number and the price of the \cls{Seat}, and marks it pending
+  payment.
+\item The \cls{Customer} \op{enters} the \cls{Payment} details: card type,
+  cardholder name, card number and expiry date.
+\item The system \op{simulates} the \cls{Payment} and \op{approves} it.
+\item The system \op{confirms} the \cls{Reservation}.
+\item The system \op{generates} the \cls{Confirmation}, \op{shows} it on screen
+  and \op{saves} it as a text file.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[3a. The username or password is wrong.] The system \op{shows} an error and
+  asks again. The scenario continues at step 3.
+\item[5a. No \cls{Flight} matches.] The system \op{tells} the \cls{Customer}
+  that no \cls{Flight} was found. The scenario continues at step 4.
+\item[9a. The \cls{Seat} was taken in the meantime.] The system \op{rejects}
+  the \cls{Reservation}, \op{shows} a message and \op{shows} the seat map
+  again. The scenario continues at step 8.
+\item[10a. The card details are invalid.] The system \op{shows} a message that
+  names the field and what is wrong. The scenario continues at step 10.
+\item[11a. The \cls{Payment} is declined.] The system \op{shows} the reason and
+  keeps the \cls{Reservation} pending payment. The \cls{Customer} either
+  \op{retries}, and the scenario continues at step 10, or \op{abandons}. If the
+  \cls{Customer} abandons, the system \op{cancels} the \cls{Reservation} and
+  \op{releases} the \cls{Seat}, and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the \cls{Reservation} is confirmed, the \cls{Seat} is no longer free
+for anyone else, the \cls{Payment} is recorded as approved with only the last
+four card digits, and the \cls{Confirmation} file is saved. On every other
+ending no \cls{Reservation} holds a \cls{Seat}.
+
+% UC-14 Manage Flights (P2-02), UC-10 Modify Reservation (P2-03) and the
+% candidate class and operation tables (P2-04) are added here.
