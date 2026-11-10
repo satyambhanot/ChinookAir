@@ -331,12 +331,12 @@ Sequence diagram 3 of 4. Shows the Strategy pattern for payment methods and the 
 Sequence diagram 4 of 4, covering the administrator side.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/33-sequence-manage-flights.drawio` lifelines: Administrator, FlightManagementView, FlightManagementController, RouteDao, AircraftDao, FlightDao, SeatDao.
-2. Messages for add: `addFlight(actingUser, details)`; role check; find route, airline, aircraft; validate (unique number, arrival after departure, aircraft free); `save(flight)`; `createSeats(flight)`.
-3. `alt` for validation failure; `opt` fragment for removing a flight that checks `countActiveReservations` and blocks it.
+1. In `docs/diagrams/src/33-sequence-manage-flights.drawio` lifelines: Administrator, FlightManagementView, FlightManagementController, RouteDao, AirlineDao, AircraftDao, FlightDao, SeatDao, ReservationDao.
+2. Messages for add: `addFlight(details)`; role check `Authorizer.require(actor, ADMIN)`; `RouteDao.findById`, `AirlineDao.findByCode`, `AircraftDao.findById`; `FlightDao.existsByFlightNumber` and `FlightDao.findByAircraft`; `validate(details)` (unique number, arrival after departure, aircraft free); `FlightDao.save(flight)`; `SeatDao.createSeats(flightId, seats)`. Returns of the plain lookups may be left out.
+3. `alt` for a rejected role, `alt` for validation failure; `opt` fragment for removing a flight that calls `ReservationDao.countActiveByFlight`, blocks it when reservations are active, and otherwise calls `delete` or `archive`.
 
 ### Testing Strategy
-- The role check appears (a customer calling this is rejected).
+- The role check appears (a customer calling this is rejected, in its own `alt` branch).
 - Both the validation `alt` and the removal `opt` are present.
 - Names match the class diagram.
 
