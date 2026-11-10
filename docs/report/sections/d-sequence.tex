@@ -34,4 +34,20 @@ the Make Payment process takes over, which is shown by the reference frame.
 
 \diagramland{31-sequence-book-flight}{Sequence diagram: book a flight (UC-06)}{fig:seqbook}
 
-% The sequence diagrams for UC-07 and UC-14 are added here by issues P3-07 and P3-08.
+\subsection*{Make a payment (UC-07), control class PaymentController}
+
+The customer enters the card details in PaymentView, which calls
+\texttt{pay(reservationId, type, details)} on PaymentController. The controller
+loads the reservation, validates the details and asks the payment method for
+the chosen type to \texttt{authorize(details, amount)}. The method is a
+strategy: credit and debit payments are two classes behind one interface, picked
+by \texttt{PaymentMethods.forType(type)}. The controller creates a Payment,
+which starts as \texttt{PENDING}. If the payment is approved, the Payment becomes
+\texttt{APPROVED} and is saved, the Reservation becomes \texttt{CONFIRMED} and is
+updated, and ConfirmationWriter writes the confirmation. If it is declined, the
+Payment becomes \texttt{DECLINED} and is saved, and the Reservation stays
+\texttt{PENDING\_PAYMENT}. Both branches end by returning the result to the view.
+
+\diagramland{32-sequence-payment}{Sequence diagram: make a payment (UC-07)}{fig:seqpay}
+
+% The sequence diagram for UC-14 is added here by issue P3-08.

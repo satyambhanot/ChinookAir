@@ -308,9 +308,9 @@ Sequence diagram 2 of 4. Shows seat selection and the creation of a reservation,
 Sequence diagram 3 of 4. Shows the Strategy pattern for payment methods and the state change of the reservation.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/32-sequence-payment.drawio` lifelines: Customer, PaymentView, PaymentController, PaymentMethod (credit card), PaymentDao, Reservation, ConfirmationWriter.
-2. Messages: `pay(reservationId, method, details)`; `authorize(details, amount)`; result; `save(payment)`; on approval `confirmPayment()` on Reservation and `update`; `write(reservation, payment)`.
-3. `alt`: approved vs declined. Declined saves the payment as DECLINED and leaves the reservation pending.
+1. In `docs/diagrams/src/32-sequence-payment.drawio` lifelines: Customer, PaymentView, PaymentController, ReservationDao, PaymentMethod (credit card), Payment, PaymentDao, Reservation, ConfirmationWriter.
+2. Messages: `pay(reservationId, type, details)`; `ReservationDao.findById`; `validate(details)` as a self-call; `authorize(details, amount)` on the strategy chosen by `PaymentMethods.forType`; result; create the Payment (state PENDING); on approval `approve()`, `PaymentDao.save`, `confirmPayment()` on Reservation, `ReservationDao.update` and `write(reservation, payment)`. Show the Payment and Reservation state names in notes.
+3. `alt`: approved vs declined. Declined calls `decline(reason)`, saves the payment as DECLINED and leaves the reservation in PENDING_PAYMENT.
 
 ### Testing Strategy
 - Names match the class diagram (including the Strategy interface from P4-01).
