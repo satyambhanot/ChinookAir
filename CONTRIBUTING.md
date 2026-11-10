@@ -18,7 +18,10 @@ A few rules so we can all work on this without stepping on each other.
    - `chore/...` for build/tooling stuff
 3. Commit small and often - one change per commit.
 4. Run `mvn verify` before pushing. It runs Checkstyle and the tests.
-5. Open a PR into `dev` and get one teammate to review it.
+5. Open a PR into `dev`. The PR description is pre-filled from
+   `.github/pull_request_template.md`: fill in every section and tick the four
+   checklist items before merging. One issue per PR. Get a teammate to review it
+   when there is one.
 6. Don't push straight to `dev` or `main`. CI has to pass before merging.
 
 ## Commit messages
