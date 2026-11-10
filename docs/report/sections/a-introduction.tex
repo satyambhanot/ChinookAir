@@ -1,2 +1,89 @@
 \section{System Introduction and Functional Processes}
-% Introduction, process descriptions and the four activity diagrams (P1-05, P3-01 to P3-04).
+
+\subsection*{Purpose}
+
+ChinookAir is a standalone flight reservation system. Customers find flights
+and reserve seats, flight agents manage customers and reservations on their
+behalf, and administrators keep flights, routes, aircraft and schedules up to
+date. It is a desktop application with a graphical interface and stores its
+data in a local SQLite database.
+
+\subsection*{Roles}
+
+\begin{description}
+\item[Customer] searches for flights, reserves a seat, pays, cancels and views
+  their reservations.
+\item[Flight Agent] manages customer profiles, reserves, modifies and cancels
+  on a customer's behalf, and views payment records and schedules.
+\item[Administrator] adds, updates and removes flights, manages routes and
+  aircraft, and updates schedules.
+\end{description}
+
+Every user logs in and sees only the screens for their role.
+
+\subsection*{Scope}
+
+The system covers the functional requirements FR-1 to FR-14 and the
+non-functional requirements listed above. It is a single-user desktop
+application, not a web or client-server system, and payments are simulated:
+no real payment is processed. A reservation has one passenger, the customer
+who owns it.
+
+\subsection*{Architecture}
+
+The system has three layers. The presentation layer holds the screens and input
+handling. The business logic layer holds one control class per use case and the
+domain classes. The data layer holds the SQLite database and file access.
+Screens call controllers, and controllers reach the database only through data
+access interfaces.
+
+\subsection*{Major processes}
+
+\subsubsection*{Search and select a flight (UC-04, UC-05)}
+
+\begin{description}
+\item[Actor] Customer or Flight Agent.
+\item[Trigger] The user chooses to search for flights from their dashboard.
+\item[Steps] The user enters an origin, a destination and a date, and may pick
+  an airline. The system checks the input and lists the flights on that route
+  and day that have not yet departed, each with its departure and arrival
+  time, its price and the number of seats still free. If nothing matches, the
+  user is told so and can change the search. The user opens a flight to see its
+  details and selects it.
+\item[Outcome] A flight is selected and the user can reserve a seat on it.
+\end{description}
+
+\subsubsection*{Book a flight (UC-06)}
+
+\begin{description}
+\item[Actor] Customer, or a Flight Agent acting for a customer.
+\item[Trigger] The user chooses Book Flight for a selected flight.
+\item[Steps] The system creates a reservation for the customer with a
+  confirmation number and shows the seats still free (UC-06 includes Select
+  Seat). The user picks a seat. Business seats are the first two rows and cost
+  1.5 times the economy price. The system checks that the seat is still free,
+  works out the price and moves the reservation to pending payment. If someone
+  else took the seat in the meantime, the user is asked to pick another. The
+  user then continues to payment.
+\item[Outcome] A reservation with a seat and a price is waiting for payment.
+  If the user stops here it stays pending and can be paid or cancelled later.
+\end{description}
+
+\subsubsection*{Make a payment (UC-07)}
+
+\begin{description}
+\item[Actor] Customer or Flight Agent.
+\item[Trigger] A reservation is waiting for payment and the user chooses to
+  pay, straight after choosing a seat or later from the reservation list.
+\item[Steps] The user picks credit or debit and enters the cardholder name,
+  card number and expiry date. The system checks the details and simulates the
+  payment: a card ending in 0000 is declined, and so is a debit payment over
+  5000.00. Only the last four card digits are kept. When the payment is
+  approved the reservation becomes confirmed, and a confirmation is shown on
+  screen and saved as a text file. When it is declined the user sees why and
+  can try another card.
+\item[Outcome] A confirmed reservation with a payment record, or a reservation
+  that is still waiting for payment.
+\end{description}
+
+% The four activity diagrams are added here by issues P3-01 to P3-04.
