@@ -378,12 +378,12 @@ State diagram 2 of 3 for a single Payment record.
 
 ### Implementation Guide
 1. In `docs/diagrams/src/41-state-payment.drawio` states: Pending, Approved, Declined, Refunded.
-2. Transitions: Pending to Approved on `authorize [accepted]`; Pending to Declined on `authorize [rejected]`; Approved to Refunded on `refund()`.
-3. Declined is a final state for that record (a retry creates a new Payment record).
+2. Transitions, written `event [guard] / action`: initial to Pending on `create`; Pending to Approved on `authorize [accepted] / approve()`; Pending to Declined on `authorize [rejected] / decline(reason)`; Approved to Refunded on `refund()`.
+3. Declined and Refunded end the life of the record: each has only a completion arrow to a final node and no event (a retry creates a new Payment record). Add a note saying so.
 4. Add entry actions, for example Approved: `record masked card`.
 
 ### Testing Strategy
-- Only the three transitions above exist (no Declined to Approved).
+- Only the three state-to-state transitions above exist (no Declined to Approved).
 - Matches the `PaymentStatus` enumeration in the class diagram.
 - Consistent with the payment activity diagram.
 
