@@ -105,6 +105,8 @@ ending no \cls{Reservation} holds a \cls{Seat}.
 \begin{description}
 \item[4a. The \cls{Route} does not exist.] The \cls{Administrator} \op{adds} the
   \cls{Route} first. The scenario continues at step 4.
+\item[4b. The \cls{Aircraft} does not exist.] The \cls{Administrator}
+  \op{adds} the \cls{Aircraft} first. The scenario continues at step 4.
 \item[6a. The flight number already exists or the times are not valid.] The
   system \op{shows} a message that names the problem. The scenario continues at
   step 5.
@@ -205,4 +207,139 @@ profile of the \cls{Customer} is up to date. On every other ending the
 \cls{Reservation} is either unchanged or waiting for payment, and it never
 holds two \cls{Seat}s.
 
-% The candidate class and operation tables (P2-04) are added here.
+\subsection*{Candidate classes}
+
+Every underlined noun was judged with the six selection characteristics: (1)
+retained information, (2) needed services, (3) multiple attributes, (4) common
+attributes, (5) common operations and (6) essential requirement. A noun is kept
+when it meets most of them; a noun with a single attribute becomes an attribute
+of another class.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{1.7cm}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{2.4cm}@{}}
+\toprule
+\textbf{Noun} & \textbf{Decision} & \textbf{Reason} & \textbf{Meets} & \textbf{Scenarios}\\
+\midrule
+\endhead
+Customer & entity & A person who reserves seats. The system keeps name, email and phone. & 1, 3, 4, 5, 6 & UC-06, UC-10\\
+Flight Agent & entity & A role of User. Works with customers on their behalf. & 1, 3, 4, 5, 6 & UC-10\\
+Administrator & entity & A role of User. Manages flights, routes and aircraft. & 1, 3, 4, 5, 6 & UC-14\\
+Airline & entity & Operates flights. Has a code and a name. & 1, 3, 4, 6 & UC-06, UC-14\\
+Airport & entity & Start or end of a route. Has a code and a name. & 1, 3, 4, 6 & UC-06\\
+Route & entity & An origin and a destination that flights run on. & 1, 3, 4, 6 & UC-06, UC-14\\
+Aircraft & entity & Has a model and a seat layout, and gives a flight its seats. & 1, 3, 4, 5, 6 & UC-06, UC-14\\
+Flight & entity & Has a number, times and a price, and knows if it has departed. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10, UC-14\\
+Seat & entity & A numbered place on a flight, economy or business. & 1, 3, 4, 6 & UC-06, UC-10, UC-14\\
+Reservation & entity & A customer's hold on one seat. Has a state and a price. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10, UC-14\\
+Payment & entity & A simulated charge with a status. Can be approved, declined or refunded. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10\\
+Promotion & entity & The monthly offer. Has a title and a description. & 1, 3, 4, 6 & UC-06\\
+Confirmation & control & Not stored. It is produced from a Reservation and a Payment by a writer class. & -- & UC-06, UC-10\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+User is not underlined in the scenarios. It is kept as an abstract entity
+because Customer, Flight Agent and Administrator share a username and a
+password hash, and the use-case diagram shows them as its specialisations.
+
+\subsubsection*{Nouns considered and rejected}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{8.4cm}@{}}
+\toprule
+\textbf{Noun} & \textbf{Decision} & \textbf{Reason}\\
+\midrule
+\endhead
+system, application & rejected & The software as a whole, not a thing it keeps.\\
+screen, seat map, message & boundary & Shown by view classes. They hold no data of their own.\\
+username, password & attribute & Attributes of User.\\
+name, email, phone, profile & attribute & Attributes of Customer.\\
+flight number, departure, arrival, schedule, base price & attribute & Attributes of Flight.\\
+confirmation number, price, pending payment & attribute & Attributes of Reservation (the state is its status).\\
+card type, cardholder name, card number, expiry date & attribute & Attributes of Payment. Only the last four digits are kept.\\
+seat layout & rejected & Derived from the rows and seats per row of an Aircraft, so it is not kept.\\
+history, payment records & rejected & Lists of Reservations and Payments that already exist.\\
+text file & rejected & The output of the confirmation writer, not a domain class.\\
+month & attribute & The month in which the Promotion was last shown.\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Candidate operations}
+
+Every double-underlined verb is listed with the operation that carries it out
+and the class that owns the operation. Actions of the user are handled by the
+\texttt{<<boundary>>} views, which call the controller operation shown. The
+operations of the \texttt{<<control>>} classes feed the class diagram.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{1.9cm}@{}}
+\toprule
+\textbf{Verb} & \textbf{Operation} & \textbf{Owner class} & \textbf{Scenarios}\\
+\midrule
+\endhead
+starts & \ctl{show()} & MainFrame & UC-06\\
+logs in & \ctl{login(username, password)} & LoginController & UC-06, UC-10, UC-14\\
+shows (the promotion) & \ctl{checkOnStartup()} & PromotionController & UC-06\\
+shows (results, seat map, customers, confirmation, reasons), tells & \ctl{showError(message)}, \ctl{showResults(offers)} and similar view operations & the \texttt{<<boundary>>} views & all\\
+searches & \ctl{search(criteria)}, \ctl{search(text)} & FlightSearchController, CustomerController & UC-10\\
+lists & \ctl{search(criteria)}, \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & FlightSearchController, ReservationController, PaymentController & UC-06, UC-10\\
+enters & input fields of the view, passed to \ctl{search(criteria)}, \ctl{pay(...)}, \ctl{addFlight(details)} & FlightSearchView, PaymentView, FlightManagementView & UC-06, UC-10, UC-14\\
+selects & \ctl{selectSeat(reservationId, seatNo)} for a seat; a flight or reservation is selected in the view & BookingController, views & UC-06, UC-10\\
+picks & \ctl{modify(reservationId, newFlightId, newSeatNo)}, \ctl{addFlight(details)} & ReservationController, FlightManagementController & UC-10, UC-14\\
+chooses & menu choice in the view & CustomerDashboard, AgentDashboard, AdminDashboard & UC-06, UC-10, UC-14\\
+opens & \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & ReservationController, PaymentController & UC-10\\
+corrects, saves (a profile) & \ctl{update(customer)} & CustomerController & UC-10\\
+creates & \ctl{startReservation(customerId, flightId)}, \ctl{addFlight(details)} & BookingController, FlightManagementController & UC-06, UC-14\\
+validates & checks inside \ctl{addFlight(details)} & FlightManagementController & UC-14\\
+calculates & \ctl{priceFor(seatClass)} & Flight & UC-10\\
+simulates, retries & \ctl{pay(reservationId, type, details)} & PaymentController & UC-06, UC-10\\
+approves & \ctl{approve()} & Payment & UC-06, UC-10\\
+confirms & \ctl{confirmPayment()} & Reservation & UC-06, UC-10\\
+generates, regenerates, saves (a confirmation) & \ctl{write(reservation, payment)} & ConfirmationWriter & UC-06, UC-10\\
+refunds, refund & \ctl{refund()} & Payment & UC-10\\
+marks & \ctl{changeFlight(flight, seatNo, newPrice)} & Reservation & UC-10\\
+updates, saves (a schedule) & \ctl{reschedule(flightId, departure, arrival)} & ScheduleController & UC-14\\
+updates (a reservation) & \ctl{modify(reservationId, newFlightId, newSeatNo)} & ReservationController & UC-10\\
+rejects, refuses & the checks inside \ctl{selectSeat(...)}, \ctl{modify(...)}, \ctl{cancel(...)}, \ctl{reschedule(...)} & BookingController, ReservationController, ScheduleController & UC-06, UC-10, UC-14\\
+blocks, removes, deletes, archives & \ctl{removeFlight(flightId)} & FlightManagementController & UC-14\\
+adds & \ctl{addRoute(...)}, \ctl{addAircraft(...)} & RouteController, AircraftController & UC-14\\
+cancels, abandons & \ctl{cancel(reservationId)}, \ctl{cancelPending(reservationId)} & ReservationController, BookingController & UC-06\\
+releases & \ctl{cancel()} on the Reservation, which frees the seat & Reservation & UC-06\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Control classes and the scenarios}
+
+Each control class comes from a use case in the table of section B, and each is
+used in at least one scenario.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{6.7cm}@{}}
+\toprule
+\textbf{Control class} & \textbf{Use cases} & \textbf{Where a scenario uses it}\\
+\midrule
+\endhead
+\ctl{LoginController} & UC-01 & the login step of every scenario\\
+\ctl{CustomerController} & UC-02, UC-03 & UC-10 steps 2 to 5\\
+\ctl{FlightSearchController} & UC-04, UC-05 & UC-06 steps 4 to 6, UC-10 steps 9 to 10\\
+\ctl{BookingController} & UC-06 & UC-06 steps 8 and 9, extension 11a\\
+\ctl{PaymentController} & UC-07, UC-08 & UC-06 steps 10 and 11, UC-10 steps 14 to 17\\
+\ctl{ReservationController} & UC-09, UC-10, UC-11 & UC-10 steps 6 to 8 and 12 to 13\\
+\ctl{ScheduleController} & UC-12, UC-13 & UC-14 steps 8 and 9\\
+\ctl{FlightManagementController} & UC-14 & UC-14 steps 3 to 7 and 10 to 11\\
+\ctl{RouteController} & UC-15 & UC-14 extension 4a\\
+\ctl{AircraftController} & UC-16 & UC-14 extension 4b\\
+\ctl{PromotionController} & UC-17 & UC-06 step 2\\
+\bottomrule
+\end{longtable}
+\endgroup
