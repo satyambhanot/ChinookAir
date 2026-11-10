@@ -1,0 +1,24 @@
+% Shared setup for the report and the underline test.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[normalem]{ulem}   % \uline = single underline, \uuline = double underline
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+% Section C marks candidate classes with a single underline and candidate
+% operations with a double underline. Use these two macros in the scenarios.
+\newcommand{\cls}[1]{\uline{#1}}
+\newcommand{\op}[1]{\uuline{#1}}
+
+% Diagrams are exported to docs/diagrams/export/.
+\graphicspath{{../diagrams/export/}}
+% \diagram{file-without-extension}{caption}
+\newcommand{\diagram}[2]{%
+  \begin{figure}[H]\centering
+    \includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{#1}
+    \caption{#2}
+  \end{figure}}
