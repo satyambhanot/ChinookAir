@@ -126,5 +126,83 @@ the \cls{Flight}, the changed schedule is saved, and the removed \cls{Flight}
 no longer appears in searches or schedules. On every other ending nothing has
 changed.
 
-% UC-10 Modify Reservation (P2-03) and the candidate class and operation
-% tables (P2-04) are added here.
+\subsection*{UC-10 Modify Reservation}
+
+\begin{description}
+\item[Actor] \cls{Flight Agent}.
+\item[Preconditions] The \cls{Flight Agent} has an account. The
+  \cls{Customer} has a confirmed \cls{Reservation} on a \cls{Flight} that has
+  not yet departed.
+\item[Trigger] A \cls{Customer} asks the \cls{Flight Agent} to move a
+  \cls{Reservation} to another \cls{Flight} or \cls{Seat}.
+\end{description}
+
+\paragraph{Main success scenario}
+
+The new price is different from the old one in this scenario.
+
+\begin{enumerate}
+\item The \cls{Flight Agent} \op{logs in} with a username and a password.
+\item The \cls{Flight Agent} \op{searches} for the \cls{Customer} by name or
+  email.
+\item The system \op{shows} the matching \cls{Customer}s.
+\item The \cls{Flight Agent} \op{opens} the profile of the \cls{Customer} and
+  \op{corrects} a detail.
+\item The system \op{saves} the profile.
+\item The \cls{Flight Agent} \op{opens} the reservation history of the
+  \cls{Customer}.
+\item The system \op{lists} the \cls{Reservation}s, newest first.
+\item The \cls{Flight Agent} \op{selects} a \cls{Reservation} and
+  \op{chooses} Modify.
+\item The \cls{Flight Agent} \op{searches} for another \cls{Flight} by origin,
+  destination and date.
+\item The system \op{lists} the \cls{Flight}s with their free \cls{Seat}s.
+\item The \cls{Flight Agent} \op{picks} the new \cls{Flight} and a free
+  \cls{Seat}.
+\item The system \op{updates} the \cls{Reservation} to the new \cls{Flight} and
+  \cls{Seat} and \op{calculates} the new price.
+\item The system \op{refunds} the old \cls{Payment} and \op{marks} the
+  \cls{Reservation} as pending payment.
+\item The \cls{Flight Agent} \op{opens} the payment records of the
+  \cls{Customer}.
+\item The system \op{lists} the \cls{Payment}s, with the old \cls{Payment}
+  shown as refunded.
+\item The \cls{Flight Agent} \op{enters} the details of the new \cls{Payment}
+  for the new price.
+\item The system \op{simulates} the new \cls{Payment} and \op{approves} it.
+\item The system \op{confirms} the \cls{Reservation}.
+\item The system \op{regenerates} the \cls{Confirmation}.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[3a. No \cls{Customer} matches.] The system \op{tells} the
+  \cls{Flight Agent} that nobody was found. The scenario continues at step 2.
+\item[8a. The \cls{Reservation} cannot be changed.] It is already cancelled or
+  its \cls{Flight} has departed. The system \op{refuses} the change and
+  \op{shows} a message. The scenario ends.
+\item[10a. The new \cls{Flight} is full.] The system \op{shows} a message. The
+  scenario continues at step 9.
+\item[12a. The \cls{Seat} was taken in the meantime.] The system \op{rejects}
+  the change and leaves the \cls{Reservation} as it was. It \op{shows} the
+  free \cls{Seat}s again. The scenario continues at step 11.
+\item[13a. The new price is the same as the old price.] The system keeps the
+  \cls{Reservation} confirmed and does not \op{refund} the \cls{Payment}. The
+  scenario continues at step 19.
+\item[17a. The new \cls{Payment} is declined.] The system \op{shows} the reason
+  and keeps the \cls{Reservation} pending payment. The \cls{Flight Agent}
+  either \op{retries}, and the scenario continues at step 16, or leaves it
+  pending, and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the \cls{Reservation} is confirmed on the new \cls{Flight} and
+\cls{Seat}, the old \cls{Seat} is free again, the old \cls{Payment} is refunded,
+the new \cls{Payment} is approved, the \cls{Confirmation} is regenerated and the
+profile of the \cls{Customer} is up to date. On every other ending the
+\cls{Reservation} is either unchanged or waiting for payment, and it never
+holds two \cls{Seat}s.
+
+% The candidate class and operation tables (P2-04) are added here.
