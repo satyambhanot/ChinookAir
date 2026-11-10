@@ -86,4 +86,20 @@ access interfaces.
   that is still waiting for payment.
 \end{description}
 
-% The four activity diagrams are added here by issues P3-01 to P3-04.
+\subsection*{Activity diagrams}
+
+Each activity diagram has two swimlanes, User and System. Decisions are
+diamonds with a guard on every outgoing flow.
+
+\subsubsection*{Login (UC-01)}
+
+The diagram below shows the login process. When the application
+opens, the system checks whether this is the first launch of the month and
+shows the promotion once. The user then enters a username and a password. The
+system rejects empty fields and a wrong username or password with the same
+message, and the user tries again. A successful login shows the dashboard for
+the role of the user: Customer, Flight Agent or Administrator.
+
+\diagram{20-activity-login}{Activity diagram: Login (UC-01)}
+
+% The other three activity diagrams are added here by issues P3-02 to P3-04.
