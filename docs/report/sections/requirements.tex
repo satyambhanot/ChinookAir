@@ -30,4 +30,27 @@ FR-14 & Select a seat when making a reservation. & 3.1 & ours\\
 \bottomrule
 \end{longtable}
 
-% Non-functional requirements are added here by issue P1-02.
+\subsection*{Non-functional requirements}
+
+Section 4 of the guideline names usability, portability, maintainability and
+scalability. The assessment criteria add reusability and reliability, and we
+add security. Each quality has a measurable criterion, the part of the design
+that meets it, and the issue that proves it.
+
+\begingroup
+\raggedright
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.7cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.2cm}@{}}
+\toprule
+\textbf{Quality} & \textbf{Measurable criterion} & \textbf{How the design meets it} & \textbf{Evidence}\\
+\midrule
+\endhead
+Usability & Every use case is reachable in at most 4 clicks from the role's dashboard. A bad input shows one plain sentence that names the field and the problem, never a stack trace. Enter submits the default button and Tab follows reading order. & One dashboard per role with one button per task. Shared helpers parse input and phrase errors, so every form behaves the same. & P8-02, P8-03, P9-02\\
+Portability & \texttt{java -jar ChinookAir.jar -{}-selftest} prints \texttt{SELFTEST OK} and exits with 0 on macOS, Windows and Linux (Java 17). The database is created on first run, with no installer. & Standalone Swing application, embedded SQLite, one jar that holds every dependency. & P6-02, P9-04\\
+Maintainability & 0 Checkstyle violations on every build. The layers depend only downward, and ArchUnit tests fail the build if they do not. Every pull request ticks the same checklist. & Presentation, business (control and entity) and data packages. Class names match the class diagram. & P0-05, P6-09, P9-04\\
+Scalability & Replacing SQLite changes only the data package: presentation and business classes have no \texttt{java.sql} or \texttt{Sqlite*} dependency. Controllers contain no Swing code. & DAO interfaces with package-private SQLite classes behind a factory. Controllers take their DAOs through the constructor. & P4-01, P6-03, P6-09\\
+Reusability & Every entity and controller runs without Swing and without a display. The controller tests and the end-to-end test pass on a machine with no screen. Entities need no database. & Entities know nothing about the other layers. Controllers receive their DAOs and a clock instead of creating them. & P5-04, P7-04, P9-01\\
+Reliability & A seat cannot be reserved twice: a second active reservation for the same flight and seat is rejected by the database, and a test proves it. A declined payment never leaves a confirmed reservation. & A partial unique index is the last line of defence. The reservation DAO and booking controller turn it into a clear message. & P6-01, P6-06, P7-04, P7-06\\
+Security & Passwords are stored only as PBKDF2 hashes with a random salt. Only the last 4 card digits are stored, and a card number is never logged. & A password hasher in the utility package. The payment details class keeps only the masked card. & P5-01, P5-05\\
+\bottomrule
+\end{longtable}
+\endgroup

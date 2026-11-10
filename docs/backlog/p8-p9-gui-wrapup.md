@@ -394,13 +394,14 @@ One test that walks the real controllers against a seeded database. It catches w
 Walks every use case in the real app, once per role, and records the result. Bugs found become separate issues.
 
 ### Implementation Guide
-1. Create `docs/test-plan.md` with a table: test ID, use case (UC-01 to UC-17), role, steps, expected result, result (pass or fail), date.
+1. Create `docs/test-plan.md` with a table: test ID, use case (UC-01 to UC-17), role, steps, clicks from the dashboard, expected result, result (pass or fail), date.
 2. At least one case per use case, and the main alternative flows from the scenarios (seat taken, declined card, blocked flight removal).
 3. Run it on a fresh database (`rm -rf ~/.chinookair`) with the built jar. Open an issue labelled `bug` for each failure and fix it.
 4. Re-run the failed cases after fixing.
 
 ### Testing Strategy
 - Every UC from the use-case table appears in at least one test row.
+- No use case needs more than 4 clicks from its role's dashboard (the usability requirement in P1-02).
 - All rows are `pass` at the end; the failing ones are linked to closed bug issues.
 - The plan can be followed by someone who did not write it (read it once as a stranger).
 
