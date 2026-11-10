@@ -50,4 +50,19 @@ Payment becomes \texttt{DECLINED} and is saved, and the Reservation stays
 
 \diagramland{32-sequence-payment}{Sequence diagram: make a payment (UC-07)}{fig:seqpay}
 
-% The sequence diagram for UC-14 is added here by issue P3-08.
+\subsection*{Manage flights (UC-14), control class FlightManagementController}
+
+The administrator submits a new flight in FlightManagementView, which calls
+\texttt{addFlight(details)} on FlightManagementController. The controller first
+checks the role with \texttt{Authorizer.require}. If the actor is not an
+administrator it returns an \texttt{AccessDeniedException} and the view shows
+the error. Otherwise it looks up the route, the airline and the aircraft,
+checks that the flight number is new and loads the flights of the aircraft, and
+validates the details. Invalid details are returned as an error. Valid details
+are saved through FlightDao, and the seats of the aircraft are created through
+SeatDao. In the second half, the administrator removes a flight. The controller
+asks ReservationDao for the number of active reservations. If there are any,
+the removal is blocked with an error. If there are none, the controller deletes
+the flight or, when old reservations refer to it, archives it.
+
+\diagramland{33-sequence-manage-flights}{Sequence diagram: manage flights (UC-14)}{fig:seqflights}
