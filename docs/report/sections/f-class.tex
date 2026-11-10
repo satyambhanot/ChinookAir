@@ -12,4 +12,18 @@ Promotion has no associations. The five enumerations hold the fixed value sets.
 
 \diagramland{10-class-entities}{First-cut class diagram: entity classes}{fig:entities}
 
-% The control and boundary classes (P2-06) and the refined diagram (P4-01) are added here.
+\subsection*{First-cut class diagram: control and boundary classes}
+
+Figure~\ref{fig:controlboundary} adds the \texttt{<<control>>} and
+\texttt{<<boundary>>} classes. Each control class comes from a use case of
+section B and its operations come from the verbs of section C. Each boundary
+class uses one control class, and the control classes use the entities they
+coordinate. A boundary class never reaches an entity directly. The three
+dashboards belong to MainFrame, which shows the promotion at start-up through
+PromotionController. ConfirmationWriter is a helper that PaymentController
+calls. The data access classes and the design patterns are added in the refined
+diagram.
+
+\diagram{11-class-control-boundary}{First-cut class diagram: control and boundary classes}
+
+% The refined diagram (P4-01) is added here.
