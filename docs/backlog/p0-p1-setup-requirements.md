@@ -202,8 +202,9 @@ Section D requires each sequence-diagram use case to have a control class in the
 
 ### Implementation Guide
 1. In `docs/report/sections/b-use-case-diagram.tex` add a table: ID, use case, actor, FR, control class, goal.
-2. Rows: UC-01 Login (all) `LoginController`; UC-02 Register Customer `CustomerController`; UC-03 Manage Customer Profile `CustomerController`; UC-04 Search Flights `FlightSearchController`; UC-05 View Flight Details `FlightSearchController`; UC-06 Book Flight `BookingController`; UC-07 Make Payment `PaymentController`; UC-08 View Payment Records `PaymentController`; UC-09 Cancel Reservation `ReservationController`; UC-10 Modify Reservation `ReservationController`; UC-11 View Reservation History `ReservationController`; UC-12 View Flight Schedules `ScheduleController`; UC-13 Update Schedules `ScheduleController`; UC-14 Manage Flights `FlightManagementController`; UC-15 Manage Routes `RouteController`; UC-16 Manage Aircraft `AircraftController`; UC-17 View Monthly Promotion `PromotionController`.
+2. Rows: UC-01 Login (all) `LoginController`; UC-02 Register Customer `CustomerController`; UC-03 Manage Customer Profile `CustomerController`; UC-04 Find Available Flights `FlightSearchController`; UC-05 View Flight Details `FlightSearchController`; UC-06 Book Flight `BookingController`; UC-07 Make Payment `PaymentController`; UC-08 View Payment Records `PaymentController`; UC-09 Cancel Reservation `ReservationController`; UC-10 Modify Reservation `ReservationController`; UC-11 View Reservation History `ReservationController`; UC-12 View Flight Schedules `ScheduleController`; UC-13 Update Schedules `ScheduleController`; UC-14 Manage Flights `FlightManagementController`; UC-15 Manage Routes `RouteController`; UC-16 Manage Aircraft `AircraftController`; UC-17 View Monthly Promotion `PromotionController`.
 3. Actors: Customer, Flight Agent, Administrator, plus an abstract User used for UC-01.
+4. Write each goal as a result of value to the actor. UC-04 reads: see the available flights with their seats, times and prices. The control class keeps the name `FlightSearchController`; only the use case is renamed.
 
 ### Testing Strategy
 - Every FR from P1-01 appears in at least one row.
@@ -226,7 +227,7 @@ Deliverable B. The diagram must cover every requirement and will be the first th
 ### Implementation Guide
 1. In `docs/diagrams/src/01-use-case.drawio` draw a system boundary "ChinookAir" with the actors outside it.
 2. Add generalization: Customer, Flight Agent and Administrator all inherit from User, and User is linked to Login.
-3. Draw all 17 use cases. Add relationships: Book Flight `<<include>>` Select Seat and `<<include>>` Make Payment; View Flight Details `<<extend>>` Search Flights; Modify Reservation `<<include>>` Search Flights.
+3. Draw all 17 use cases. Add relationships: Book Flight `<<include>>` Select Seat and `<<include>>` Make Payment; View Flight Details `<<extend>>` Find Available Flights; Modify Reservation `<<include>>` Find Available Flights.
 4. Connect each actor only to the use cases it owns (Customer: search, book, pay, cancel, history, promotion; Agent: customer management, modify, payment records, schedules, plus booking and cancelling for a customer; Administrator: flights, routes, aircraft, schedule updates).
 5. Follow the notation from the course slides (Module 12): stick-figure actors, labelled ovals, a rectangle for the system boundary, a plain line from an actor to each use case. `<<include>>` points from the base use case to the shared one, `<<extend>>` from the extension to the base use case; both are dashed arrows with an open arrowhead. Details are in `docs/diagrams/README.md`.
 6. Export to `docs/diagrams/export/01-use-case.png` and include it in section B.
@@ -235,7 +236,7 @@ Deliverable B. The diagram must cover every requirement and will be the first th
 - The diagram shows 17 use cases (plus Select Seat as an included one), matching the table in P1-03.
 - Every use case has at least one actor or is reached through include/extend.
 - Every FR appears in a use case that is on the diagram.
-- Every use case name is short and names a result of value to an actor (Module 12: "Search" alone is a weak use case, so the Search Flights goal must say it returns the available flights with seats and prices).
+- Every use case name is short and names a result of value to an actor (Module 12: "Search" alone is a weak use case, so UC-04 is named Find Available Flights and its goal says it returns the available flights with seats, times and prices).
 - Exported image is readable at A4 page width.
 
 ## P1-05

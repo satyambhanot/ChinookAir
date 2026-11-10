@@ -246,7 +246,7 @@ Activity diagram 4 of 4. Covers FR-9 with the simulated gateway.
 
 ## P3-05
 
-**Issue Title:** Draw the Search Flights sequence diagram
+**Issue Title:** Draw the Find Available Flights sequence diagram
 **Milestone/Phase:** Phase 3: Behavioral Diagrams
 **Labels:** design
 **Estimate:** 2h
@@ -258,7 +258,7 @@ Activity diagram 4 of 4. Covers FR-9 with the simulated gateway.
 Sequence diagram 1 of 4. The control class must exist in the class diagram.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/30-sequence-search.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, Flight.
+1. In `docs/diagrams/src/30-sequence-find-flights.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, Flight.
 2. Messages: enter criteria; `search(criteria)`; `validate(criteria)`; `findByCriteria(origin, destination, date, airline)`; return flights; `countAvailableSeats(flightId)` per flight; return offers; display table.
 3. Add an `alt` fragment: invalid criteria returns an error message; and an `alt` for empty result.
 4. Use activation bars and return arrows.

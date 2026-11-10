@@ -23,7 +23,7 @@ what kind of diagram it is.
 | `01-use-case` | Use-case diagram |
 | `10-class-entities`, `11-class-control-boundary`, `12-class-refined` | Class diagram: first-cut entities, controls and boundaries, refined |
 | `20-activity-login`, `21-activity-browse-flight`, `22-activity-book-flight`, `23-activity-payment` | The four activity diagrams |
-| `30-sequence-search`, `31-sequence-book-flight`, `32-sequence-payment`, `33-sequence-manage-flights` | The four sequence diagrams |
+| `30-sequence-find-flights`, `31-sequence-book-flight`, `32-sequence-payment`, `33-sequence-manage-flights` | The four sequence diagrams |
 | `40-state-system`, `41-state-payment`, `42-state-reservation` | The three state diagrams |
 | `50-package` | Package diagram |
 
