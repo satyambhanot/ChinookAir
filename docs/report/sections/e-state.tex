@@ -22,4 +22,21 @@ database, and then in the final state.
 
 \diagram{40-state-system}{State diagram: the whole system}
 
-% The payment and reservation state diagrams are added here by issues P3-10 and P3-11.
+\subsection*{The state of a payment}
+
+The diagram below shows one Payment record. Its four states are the values of
+the payment status in the class diagram. A new Payment is created in
+\texttt{Pending}. When the simulated authorization accepts it, the Payment calls
+\texttt{approve()} and becomes \texttt{Approved}. When the authorization rejects
+it, the Payment calls \texttt{decline(reason)} and becomes \texttt{Declined}. An
+approved Payment can later be refunded, which happens when its reservation is
+cancelled or changed to a different price, and then becomes \texttt{Refunded}.
+Nothing leaves \texttt{Declined} or \texttt{Refunded}: the arrows to the final
+node need no event. If a customer tries again after a declined payment, the
+system creates a new Payment, so a record never goes back to \texttt{Pending}.
+This matches the payment activity diagram and the sequence diagram of the
+payment.
+
+\diagram{41-state-payment}{State diagram: a payment}
+
+% The reservation state diagram is added here by issue P3-11.
