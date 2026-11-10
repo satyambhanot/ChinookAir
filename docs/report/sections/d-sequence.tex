@@ -18,4 +18,20 @@ there are none and the table of flights when there are some.
 
 \diagramland{30-sequence-find-flights}{Sequence diagram: find available flights (UC-04)}{fig:seqfind}
 
-% The sequence diagrams for UC-06, UC-07 and UC-14 are added here by issues P3-06 to P3-08.
+\subsection*{Book a flight (UC-06), control class BookingController}
+
+The customer chooses Book Flight and SeatSelectionView calls
+\texttt{startReservation(customerId, flightId)} on BookingController. The
+controller creates a Reservation, whose state is \texttt{CREATED}, and saves it
+through ReservationDao. The view then asks for \texttt{availableSeats(flightId)}
+and shows the seat map. When the customer picks a seat, the view calls
+\texttt{selectSeat(reservationId, seatNo)}. The controller loads the
+reservation, calls \texttt{assignSeat(seatNo, price)}, which moves it to
+\texttt{PENDING\_PAYMENT}, and updates it. If another customer took the seat
+first, ReservationDao raises \texttt{SeatUnavailableException} and the view
+shows a message and a fresh seat map. Otherwise the view shows the price and
+the Make Payment process takes over, which is shown by the reference frame.
+
+\diagramland{31-sequence-book-flight}{Sequence diagram: book a flight (UC-06)}{fig:seqbook}
+
+% The sequence diagrams for UC-07 and UC-14 are added here by issues P3-07 and P3-08.

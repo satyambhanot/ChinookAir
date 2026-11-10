@@ -285,7 +285,7 @@ Sequence diagram 2 of 4. Shows seat selection and the creation of a reservation,
 
 ### Implementation Guide
 1. In `docs/diagrams/src/31-sequence-book-flight.drawio` lifelines: Customer, SeatSelectionView, BookingController, SeatDao, ReservationDao, Reservation.
-2. Messages: `startReservation(customerId, flightId)` creates a Reservation (state CREATED); `availableSeats(flightId)`; customer picks a seat; `selectSeat(reservationId, seatNo)`; `assignSeat(seatNo, price)` on Reservation (state PENDING_PAYMENT); `update(reservation)`; return price.
+2. Messages: `startReservation(customerId, flightId)` creates a Reservation (`<<create>>`, state CREATED) and calls `ReservationDao.save`; `availableSeats(flightId)` calls `SeatDao.findByFlight`; the customer picks a seat; `selectSeat(reservationId, seatNo)` calls `ReservationDao.findById`, then `assignSeat(seatNo, price)` on Reservation (state PENDING_PAYMENT), then `ReservationDao.update(reservation)`. Show the state names in notes next to the Reservation lifeline.
 3. `alt` fragment: seat already taken raises SeatUnavailableException and the view refreshes the seat map.
 4. End with an `sd` reference frame pointing to the Make Payment diagram.
 
