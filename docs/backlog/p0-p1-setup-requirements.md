@@ -76,7 +76,7 @@ Every deliverable from section A to G is a diagram. A fixed folder layout and st
 
 ### Implementation Guide
 1. Create `docs/diagrams/src/` for draw.io sources and `docs/diagrams/export/` for PNG/PDF exports (replace the `.gitkeep`).
-2. Add `docs/diagrams/README.md` with: file naming (`NN-short-name.drawio`, for example `04-activity-login.drawio`), stereotype format (`<<entity>>`, lowercase), font and size, multiplicity written as `1`, `0..1`, `*`, `1..*`, and export settings (PNG, 2x scale, white background, border 10px).
+2. Add `docs/diagrams/README.md` with: file naming (`NN-short-name.drawio`, for example `20-activity-login.drawio`; the tens digit is the diagram kind), stereotype format (`<<entity>>`, lowercase), font and size, multiplicity written as `1`, `0..1`, `*`, `1..*`, and export settings (PNG, 2x scale, white background, border 10px).
 3. Make one `00-template.drawio` containing a class box, a lifeline and a swimlane so the style stays the same across files.
 4. Install the draw.io desktop app, or use the web version, and confirm export works.
 
