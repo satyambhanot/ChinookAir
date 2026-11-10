@@ -479,3 +479,4 @@ The last check before submitting: build exactly what will be uploaded and test i
 - Unzip the source zip into another empty folder and run `mvn -q package`: builds without the Git history.
 - Every `.java` file under `src/main/java` is inside the source zip (compare counts).
 - Tag `v1.0` exists on `main` (`git tag -l v1.0`).
+- The PR template is now on `main`: `gh api graphql -f query='{repository(owner:"satyambhanot",name:"ChinookAir"){pullRequestTemplates{filename}}}'` lists `pull_request_template.md`.

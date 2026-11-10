@@ -129,7 +129,7 @@ Even working alone, every change should go through the same checklist before it 
 3. Keep PRs one issue each.
 
 ### Testing Strategy
-- Open a draft PR from a throwaway branch: the description is pre-filled with the template.
+- GitHub reads PR templates only from the default branch (`main`), and `main` stays untouched until the final merge (P9-05). So until then, copy the template into each PR description by hand, and check the pre-fill at the end: a draft PR from a throwaway branch opens with the template filled in.
 - `Closes #<n>` in the description links the issue (visible in the PR sidebar).
 
 ## P1-01
