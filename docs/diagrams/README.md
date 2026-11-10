@@ -40,24 +40,47 @@ An export has the same name with `.png`, for example `export/01-use-case.png`.
   - entity: fill `#dae8fc`, line `#6c8ebf`
   - control: fill `#d5e8d4`, line `#82b366`
   - boundary: fill `#fff2cc`, line `#d6b656`
-- Multiplicity is written as `1`, `0..1`, `*` or `1..*`, on both ends of every
-  association.
+- Multiplicity is written as `1`, `0..1`, `0..*` or `1..*`, on both ends of
+  every association. Write `0..*`, not a bare `*`, as in the course slides.
 - Visibility on class members: `+` public, `-` private, `#` protected, `~`
-  package. Show types (`name: String`). Leave out getters, setters,
-  constructors and library classes.
+  package, `/` derived. Show types (`name: String`). Leave out getters,
+  setters, constructors and library classes.
+- Class diagrams: three compartments (name, attributes, operations); the class
+  name starts with a capital letter. Abstract classes and abstract operations
+  are in *italics* (`User`), static members are underlined
+  (`DatabaseConnection.getInstance()`). Give an association a short verb label
+  (`registers for`) and role names (nouns, next to the class they describe)
+  where they add meaning; role names are required on a reflexive association.
+  Add a navigability arrow only when one class must reach the other and not the
+  reverse. An object is written `name: Class`, an anonymous one `:Class`.
+- Use-case diagrams: stick-figure actors outside a rectangle that is the system
+  boundary, labelled ovals inside it, a plain line between an actor and each
+  use case it performs. `<<include>>` (from the base use case to the shared
+  one) and `<<extend>>` (from the extension to the base use case) are dashed
+  arrows with an open arrowhead. A use case name is short and describes a
+  result of value to an actor, not just an action like "Search".
 - Names match the [glossary](../glossary.md) and the code exactly: class names
   in `UpperCamelCase`, operations in `lowerCamelCase`, state names in
   `UPPER_SNAKE_CASE` (`PENDING_PAYMENT`). Use "Reservation", never "ticket" or
   "booking" (the Book Flight use case, `BookingController` and `BookingView`
   are the exceptions).
-- Activity diagrams: swimlanes `User` and `System`, one start node, at least
-  one end node, a guard on every arrow leaving a decision (`[valid]`,
-  `[invalid]`).
-- Sequence diagrams: lifelines named `:ClassName`, one control class per
-  diagram, messages use the operation names from the class diagram.
-- State diagrams: one initial node, transitions labelled `event [guard] /
-  action`, states named as in the code.
-- Package diagram: show the three layers (presentation, business, data), mark
+- Activity diagrams: swimlanes `User` and `System`, one start node (black dot),
+  actions as rounded rectangles, decisions as diamonds with a guard on every
+  arrow leaving them (`[valid]`, `[invalid]`), a thick bar for fork and join,
+  and a final node (bull's-eye) at every end. Say in the title which use case
+  the diagram documents (for example "UC-01 Login").
+- Sequence diagrams: lifelines named `:ClassName`, the actor first, then
+  boundary, control and entity classes left to right. One control class per
+  diagram. Number the messages (`1 : searchFlights(criteria)`), use the
+  operation names from the class diagram, draw activation bars, and show
+  returns as dashed arrows (they may be left out only when the diagram is
+  crowded). A message to the same object is a loop arrow. Creation is a dashed
+  `<<create>>` arrow to the new object, deletion is `<<destroy>>` ending in an
+  X.
+- State diagrams: states as rounded rectangles, one initial node, a final node
+  where the life cycle ends, transitions labelled `event [guard] / action`,
+  states named as in the code.
+- Package diagram (packages are drawn like folders): show the three layers (presentation, business, data), mark
   public classes with `+` and package-private ones with `~`.
 - Arrows do not cross where it can be avoided. Keep one idea per diagram.
 
