@@ -1,2 +1,46 @@
 \section{System Use-Case Diagram}
-% Use-case table and diagram (P1-03, P1-04).
+
+\subsection*{Use cases}
+
+Every use case has one control class, because section D asks for each
+sequence diagram's use case to be represented by a control class. The goal of
+each use case is a result of value to its actor. FR-11 (database storage)
+applies to every use case that saves data; it is listed on the two use cases
+where the data is created.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{1.1cm}>{\raggedright\arraybackslash}p{2.5cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{1.6cm}>{\raggedright\arraybackslash}p{3.2cm}>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Use case} & \textbf{Actor} & \textbf{FR} & \textbf{Control class} & \textbf{Goal}\\
+\midrule
+\endhead
+UC-01 & Login & Customer, Flight Agent, Administrator & FR-13 & \ctl{Login\allowbreak Controller} & Sign in and reach the dashboard for my role.\\
+UC-02 & Register Customer & Customer, Flight Agent & FR-6 & \ctl{Customer\allowbreak Controller} & Create a customer profile so a person can make reservations.\\
+UC-03 & Manage Customer Profile & Customer, Flight Agent & FR-6 & \ctl{Customer\allowbreak Controller} & View and correct customer details.\\
+UC-04 & Find Available Flights & Customer, Flight Agent & FR-1, FR-2 & \ctl{Flight\allowbreak Search\allowbreak Controller} & See the available flights with their seats, times and prices.\\
+UC-05 & View Flight Details & Customer, Flight Agent & FR-2 & \ctl{Flight\allowbreak Search\allowbreak Controller} & See the full details of one flight before choosing it.\\
+UC-06 & Book Flight & Customer, Flight Agent & FR-3, FR-11, FR-14 & \ctl{Booking\allowbreak Controller} & Hold a chosen seat on a flight as a new reservation.\\
+UC-07 & Make Payment & Customer, Flight Agent & FR-5, FR-9 & \ctl{Payment\allowbreak Controller} & Pay for a reservation and receive its confirmation.\\
+UC-08 & View Payment Records & Flight Agent & FR-9 & \ctl{Payment\allowbreak Controller} & Check what a customer has paid or been refunded.\\
+UC-09 & Cancel Reservation & Customer, Flight Agent & FR-4 & \ctl{Reservation\allowbreak Controller} & Free the seat and get a full refund.\\
+UC-10 & Modify Reservation & Flight Agent & FR-4 & \ctl{Reservation\allowbreak Controller} & Move a reservation to another flight or seat.\\
+UC-11 & View Reservation History & Customer, Flight Agent & FR-10 & \ctl{Reservation\allowbreak Controller} & See past and current reservations.\\
+UC-12 & View Flight Schedules & Flight Agent, Administrator & FR-10 & \ctl{Schedule\allowbreak Controller} & See which flights run between two dates.\\
+UC-13 & Update Schedules & Administrator & FR-8 & \ctl{Schedule\allowbreak Controller} & Move a flight to a new departure and arrival time.\\
+UC-14 & Manage Flights & Administrator & FR-7, FR-11 & \ctl{Flight\allowbreak Management\allowbreak Controller} & Add, change or remove flights so customers see accurate flights.\\
+UC-15 & Manage Routes & Administrator & FR-8 & \ctl{Route\allowbreak Controller} & Keep the origin and destination pairs correct.\\
+UC-16 & Manage Aircraft & Administrator & FR-8 & \ctl{Aircraft\allowbreak Controller} & Keep the aircraft and their seat layouts correct.\\
+UC-17 & View Monthly Promotion & Customer & FR-12 & \ctl{Promotion\allowbreak Controller} & Learn about this month's promotion the first time the application opens.\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Actors}
+
+The actors are Customer, Flight Agent and Administrator. All three are
+specialisations of the abstract actor User, which is the actor of Login
+(UC-01).
+
+% The use-case diagram itself is added here by issue P1-04.
