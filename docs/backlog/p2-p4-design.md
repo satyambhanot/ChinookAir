@@ -93,11 +93,14 @@ The guideline says marks may be deducted for classes that cannot be traced to th
 2. Add a second table of double-underlined verbs: verb, operation name, owner class.
 3. Expected result: entities User, Customer, FlightAgent, Administrator, Airline, Airport, Route, Aircraft, Flight, Seat, Reservation, Payment, Promotion; the 11 control classes from P1-03; and the boundary classes listed in P2-06.
 4. A class that appears in no scenario must either be added to a scenario or dropped from the design.
+5. Judge each noun with the selection characteristics from Module 12: retained information, needed services, multiple attributes, common attributes, common operations, essential requirement. Keep a noun when it meets most of them. A noun with a single attribute becomes an attribute of another class instead.
+6. Sort each verb into one of the four operation kinds from Module 12 (changes data, computes, inquires about state, monitors an event) so the operation list has a reason behind it.
 
 ### Testing Strategy
 - Every underlined word in the three scenarios appears in a table.
 - Every planned class appears in at least one scenario, or has a written reason to stay.
 - Rejected nouns (for example "system", "screen") each have a one-line reason.
+- Every kept class has a note of which selection characteristics it meets (at least four of the six).
 
 ## P2-05
 
@@ -243,7 +246,7 @@ Activity diagram 4 of 4. Covers FR-9 with the simulated gateway.
 
 ## P3-05
 
-**Issue Title:** Draw the Search Flights sequence diagram
+**Issue Title:** Draw the Find Available Flights sequence diagram
 **Milestone/Phase:** Phase 3: Behavioral Diagrams
 **Labels:** design
 **Estimate:** 2h
@@ -255,7 +258,7 @@ Activity diagram 4 of 4. Covers FR-9 with the simulated gateway.
 Sequence diagram 1 of 4. The control class must exist in the class diagram.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/30-sequence-search.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, Flight.
+1. In `docs/diagrams/src/30-sequence-find-flights.drawio` lifelines: Customer, FlightSearchView, FlightSearchController, FlightDao, Flight.
 2. Messages: enter criteria; `search(criteria)`; `validate(criteria)`; `findByCriteria(origin, destination, date, airline)`; return flights; `countAvailableSeats(flightId)` per flight; return offers; display table.
 3. Add an `alt` fragment: invalid criteria returns an error message; and an `alt` for empty result.
 4. Use activation bars and return arrows.

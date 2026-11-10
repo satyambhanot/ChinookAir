@@ -178,7 +178,7 @@ If an issue text needs to change, edit the backlog file and the GitHub issue tog
 | P3-02 ([#73](https://github.com/satyambhanot/ChinookAir/issues/73)) | Draw the Browse and Select Flight activity diagram | 2 | P2-01 |
 | P3-03 ([#74](https://github.com/satyambhanot/ChinookAir/issues/74)) | Draw the Book Flight activity diagram | 2 | P3-02 |
 | P3-04 ([#75](https://github.com/satyambhanot/ChinookAir/issues/75)) | Draw the Make Payment activity diagram | 2 | P3-03 |
-| P3-05 ([#76](https://github.com/satyambhanot/ChinookAir/issues/76)) | Draw the Search Flights sequence diagram | 2 | P2-06 |
+| P3-05 ([#76](https://github.com/satyambhanot/ChinookAir/issues/76)) | Draw the Find Available Flights sequence diagram | 2 | P2-06 |
 | P3-06 ([#77](https://github.com/satyambhanot/ChinookAir/issues/77)) | Draw the Book Flight sequence diagram | 2 | P2-06 |
 | P3-07 ([#78](https://github.com/satyambhanot/ChinookAir/issues/78)) | Draw the Make Payment sequence diagram | 2 | P2-06 |
 | P3-08 ([#79](https://github.com/satyambhanot/ChinookAir/issues/79)) | Draw the Manage Flights sequence diagram | 2 | P2-06 |
