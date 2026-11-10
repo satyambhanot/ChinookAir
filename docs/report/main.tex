@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper]{article}
+\input{preamble}
+\input{meta}
+
+\title{\reporttitle\\[0.4em]\large \reportproject}
+\author{\reportcourse\\ \reportgroup\\ \reportauthors}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\clearpage
+\tableofcontents
+\clearpage
+
+% System requirements come first (section 7.1 asks for them before the artefacts).
+\input{sections/requirements}
+
+% Deliverables A to G of section 7.1, in the order the guideline lists them.
+\setcounter{section}{0}
+\renewcommand{\thesection}{\Alph{section}}
+\input{sections/a-introduction}
+\input{sections/b-use-case-diagram}
+\input{sections/c-scenarios}
+\input{sections/d-sequence}
+\input{sections/e-state}
+\input{sections/f-class}
+\input{sections/g-package}
+
+% Back to unnumbered for the closing section.
+\input{sections/traceability}
+\end{document}

@@ -9,3 +9,4 @@ Everything for the design phase goes here.
 - [action-plan.md](action-plan.md) - our step-by-step plan, one issue per task
 - [glossary.md](glossary.md) - the one vocabulary for diagrams, report and code
 - [guideline-checklist.md](guideline-checklist.md) - every guideline requirement and the issues that cover it
+- [report/](report/) - the design report in LaTeX; build it with `make pdf` (needs `latexmk` or `tectonic`)
