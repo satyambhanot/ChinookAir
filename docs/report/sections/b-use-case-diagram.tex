@@ -43,4 +43,14 @@ The actors are Customer, Flight Agent and Administrator. All three are
 specialisations of the abstract actor User, which is the actor of Login
 (UC-01).
 
-% The use-case diagram itself is added here by issue P1-04.
+\subsection*{Use-case diagram}
+
+Figure~\ref{fig:usecase} shows the use cases inside the system boundary and
+the actors outside it. Book Flight includes Select Seat and Make Payment,
+Modify Reservation includes Find Available Flights, and View Flight Details
+extends Find Available Flights.
+
+\begin{figure}[p]\centering
+  \includegraphics[width=\linewidth,height=0.88\textheight,keepaspectratio]{01-use-case}
+  \caption{Use-case diagram of ChinookAir}\label{fig:usecase}
+\end{figure}
