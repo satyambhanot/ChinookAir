@@ -10,3 +10,4 @@ Everything for the design phase goes here.
 - [glossary.md](glossary.md) - the one vocabulary for diagrams, report and code
 - [guideline-checklist.md](guideline-checklist.md) - every guideline requirement and the issues that cover it
 - [report/](report/) - the design report in LaTeX; build it with `make pdf` (needs `latexmk` or `tectonic`)
+- [requirements-map.md](requirements-map.md) - each guideline bullet and the FR that covers it
