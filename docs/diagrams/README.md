@@ -72,7 +72,8 @@ In draw.io: File > Export as > PNG, with these settings:
 | Background | white (untick "Transparent background") |
 | Include a copy of my diagram | on |
 
-From the command line with the desktop app installed:
+From the command line with the desktop app installed (`brew install --cask drawio`; a harmless
+"sandbox_extension" warning may print):
 
 ```bash
 drawio -x -f png -s 2 -b 10 -o docs/diagrams/export/01-use-case.png docs/diagrams/src/01-use-case.drawio
