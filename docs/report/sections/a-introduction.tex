@@ -114,4 +114,18 @@ user is returned to the list.
 
 \diagram{21-activity-browse-flight}{Activity diagram: browse and select a flight (UC-04, UC-05)}
 
-% The other two activity diagrams are added here by issues P3-03 and P3-04.
+\subsubsection*{Book a flight (UC-06)}
+
+The diagram below shows how a seat is reserved. The system shows the seat map
+and the user selects a seat. If the seat was taken in the meantime, the system
+says so and shows the map again. Otherwise the system creates the reservation
+and marks it pending payment, and the payment process runs (the symbol with the
+fork inside the node refers to the payment diagram). If the payment is
+declined, the user either retries or abandons, and abandoning cancels the
+reservation and releases the seat. If it is approved, the reservation is
+confirmed, and the confirmation is shown on screen and saved as a text file at
+the same time, between the fork and the join.
+
+\diagram{22-activity-book-flight}{Activity diagram: book a flight (UC-06)}
+
+% The last activity diagram is added here by issue P3-04.
