@@ -8,3 +8,4 @@ Everything for the design phase goes here.
 - [backlog/](backlog/) - the issue texts the master plan is built from
 - [action-plan.md](action-plan.md) - our step-by-step plan, one issue per task
 - [glossary.md](glossary.md) - the one vocabulary for diagrams, report and code
+- [guideline-checklist.md](guideline-checklist.md) - every guideline requirement and the issues that cover it
