@@ -228,12 +228,14 @@ Deliverable B. The diagram must cover every requirement and will be the first th
 2. Add generalization: Customer, Flight Agent and Administrator all inherit from User, and User is linked to Login.
 3. Draw all 17 use cases. Add relationships: Book Flight `<<include>>` Select Seat and `<<include>>` Make Payment; View Flight Details `<<extend>>` Search Flights; Modify Reservation `<<include>>` Search Flights.
 4. Connect each actor only to the use cases it owns (Customer: search, book, pay, cancel, history, promotion; Agent: customer management, modify, payment records, schedules, plus booking and cancelling for a customer; Administrator: flights, routes, aircraft, schedule updates).
-5. Export to `docs/diagrams/export/01-use-case.png` and include it in section B.
+5. Follow the notation from the course slides (Module 12): stick-figure actors, labelled ovals, a rectangle for the system boundary, a plain line from an actor to each use case. `<<include>>` points from the base use case to the shared one, `<<extend>>` from the extension to the base use case; both are dashed arrows with an open arrowhead. Details are in `docs/diagrams/README.md`.
+6. Export to `docs/diagrams/export/01-use-case.png` and include it in section B.
 
 ### Testing Strategy
 - The diagram shows 17 use cases (plus Select Seat as an included one), matching the table in P1-03.
 - Every use case has at least one actor or is reached through include/extend.
 - Every FR appears in a use case that is on the diagram.
+- Every use case name is short and names a result of value to an actor (Module 12: "Search" alone is a weak use case, so the Search Flights goal must say it returns the available flights with seats and prices).
 - Exported image is readable at A4 page width.
 
 ## P1-05
