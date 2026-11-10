@@ -355,13 +355,13 @@ State diagram 1 of 3. Shows the lifecycle of the application as a whole.
 
 ### Implementation Guide
 1. In `docs/diagrams/src/40-state-system.drawio` states: Starting (entry: open database), CheckingPromotion, ShowingPromotion, LoggedOut, Authenticating, a composite LoggedIn state with sub-states CustomerSession, AgentSession and AdminSession, Closing, and Closed.
-2. Transitions with events and guards: `appLaunched`, `[new month]`, `promotionClosed`, `loginSubmitted`, `[credentials valid]`, `[credentials invalid]`, `logout`, `exit`.
+2. Transitions with events and guards: `appLaunched`, `databaseReady`, `databaseFailed`, `startupChecked [new month]`, `startupChecked [same month]`, `promotionClosed`, `loginSubmitted`, `loginAccepted [role = customer]` (and the same for flight agent and administrator), `loginRejected [credentials invalid]`, `logout`, `exit`, `databaseClosed`, `messageShown`. `logout` and `exit` leave the composite LoggedIn state, so they apply to all three session states.
 3. Add an Error state for a database failure at startup that leads to Closed after a message.
 
 ### Testing Strategy
 - Every transition has an event label, and guards where branching.
 - Initial and final pseudostates are present.
-- No state without an outgoing transition except the final one.
+- No state without an outgoing transition except the final one (the three session states leave through the transitions of their composite LoggedIn state).
 
 ## P3-10
 
