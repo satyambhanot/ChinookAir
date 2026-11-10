@@ -102,4 +102,16 @@ the role of the user: Customer, Flight Agent or Administrator.
 
 \diagram{20-activity-login}{Activity diagram: Login (UC-01)}
 
-% The other three activity diagrams are added here by issues P3-02 to P3-04.
+\subsubsection*{Browse and select a flight (UC-04, UC-05)}
+
+The diagram below shows how a user finds and selects a flight. The system
+checks that the origin differs from the destination and that the date is not in
+the past, and otherwise shows a message and asks again. It then finds the
+flights that have not yet departed. If there are none, the user changes the
+criteria. Otherwise the user selects a flight from the list, sees its details,
+and continues to seat selection if seats are left. If the flight is full, the
+user is returned to the list.
+
+\diagram{21-activity-browse-flight}{Activity diagram: browse and select a flight (UC-04, UC-05)}
+
+% The other two activity diagrams are added here by issues P3-03 and P3-04.
