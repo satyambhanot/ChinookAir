@@ -128,4 +128,16 @@ the same time, between the fork and the join.
 
 \diagram{22-activity-book-flight}{Activity diagram: book a flight (UC-06)}
 
-% The last activity diagram is added here by issue P3-04.
+\subsubsection*{Make a payment (UC-07)}
+
+The diagram below shows the simulated payment. The user chooses credit or debit
+and enters the cardholder name, card number and expiry date. The system checks
+the input (16 digits, an expiry date that is not in the past, a name that is not
+empty) and shows the errors until it is valid. It then simulates the payment: a
+card ending in 0000 is declined, and so is a debit payment over 5000.00. An
+approved payment is recorded and the reservation is confirmed. A declined
+payment is recorded too, the reason is shown, and the user either retries or
+abandons, which cancels the reservation and releases the seat. Only the last
+four card digits are stored.
+
+\diagram{23-activity-payment}{Activity diagram: make a payment (UC-07)}
