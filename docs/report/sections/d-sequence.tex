@@ -1,2 +1,21 @@
 \section{Sequence Diagrams}
-% Four sequence diagrams (P3-05 to P3-08).
+
+Each sequence diagram has the user first, then the boundary, control, data and
+entity classes from left to right. Messages are numbered and use the operation
+names of the class diagram. Activation bars show when an object is active and
+dashed arrows are returns. The fragments \texttt{alt} and \texttt{loop} show
+alternatives and repetition.
+
+\subsection*{Find available flights (UC-04), control class FlightSearchController}
+
+The customer enters the criteria in FlightSearchView, which calls
+\texttt{search(criteria)} on FlightSearchController. The controller validates
+the criteria itself. If they are invalid it returns an error and the view shows
+it. Otherwise it asks FlightDao for the flights of that day and, for each
+flight, asks Flight whether it has departed and SeatDao how many seats are
+free. The controller returns the offers, and the view shows a message when
+there are none and the table of flights when there are some.
+
+\diagramland{30-sequence-find-flights}{Sequence diagram: find available flights (UC-04)}{fig:seqfind}
+
+% The sequence diagrams for UC-06, UC-07 and UC-14 are added here by issues P3-06 to P3-08.
