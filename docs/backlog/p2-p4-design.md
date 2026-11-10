@@ -144,9 +144,9 @@ First half of Deliverable F. The entity classes are the stable core that the dat
 Second half of Deliverable F and the main evidence for separation of concerns: boundaries call controls, controls coordinate entities, boundaries never touch entities or the database.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/11-class-control-boundary.drawio` add the 11 `<<control>>` classes with operations taken from the double-underlined verbs, for example `BookingController: startReservation(customerId, flightId)`, `selectSeat(reservationId, seatNo)`, `cancelPending(reservationId)`.
+1. In `docs/diagrams/src/11-class-control-boundary.drawio` add the 11 `<<control>>` classes (plus the helper `ConfirmationWriter`) with operations taken from the double-underlined verbs, using the names of the controller issues (`authenticate`, not `login`), for example `BookingController: startReservation(customerId, flightId)`, `selectSeat(reservationId, seatNo)`, `cancelPending(reservationId)`.
 2. Add the `<<boundary>>` classes: MainFrame, LoginView, RegisterView, CustomerDashboard, AgentDashboard, AdminDashboard, ProfileView, PromotionDialog, FlightSearchView, SeatSelectionView, PaymentView, ConfirmationView, MyReservationsView, CustomerManagementView, ModifyReservationView, PaymentRecordsView, ScheduleView, FlightManagementView, RouteManagementView, AircraftManagementView.
-3. Draw dependencies: each boundary uses exactly one primary control; each control uses the entities it coordinates.
+3. Draw dependencies: each boundary uses exactly one primary control; each control uses the entities it coordinates. MainFrame composes the three dashboards and uses `PromotionController`; the dashboards only open other views, so they have no control dependency.
 4. DAO interfaces and patterns are added in P4-01, not here.
 
 ### Testing Strategy
