@@ -1,2 +1,25 @@
 \section{State-Transition Diagrams}
-% System, payment and reservation state diagrams (P3-09 to P3-11).
+
+Each state diagram has one initial node (the black dot) and a final node
+(the dot in a circle). Every transition is labelled with an event, and with a
+guard in square brackets where a state has more than one way out.
+
+\subsection*{The state of the whole system}
+
+The diagram below shows the life cycle of the application. It starts
+in \texttt{Starting}, where it opens the database. If that fails it goes to
+\texttt{Error}, shows a message and ends. Otherwise it checks the month in
+\texttt{CheckingPromotion}. In a new month it shows the promotion in
+\texttt{ShowingPromotion}, and in the same month it goes straight to
+\texttt{LoggedOut}. From \texttt{LoggedOut} the user submits a login and the
+system is \texttt{Authenticating}. Invalid credentials return to
+\texttt{LoggedOut}. Valid credentials lead to the composite state
+\texttt{LoggedIn}, into the session state for the role of the user. The
+transitions \texttt{logout} and \texttt{exit} belong to \texttt{LoggedIn}, so they
+apply to all three session states. \texttt{exit} is also possible from
+\texttt{LoggedOut}. The application ends in \texttt{Closing}, which closes the
+database, and then in the final state.
+
+\diagram{40-state-system}{State diagram: the whole system}
+
+% The payment and reservation state diagrams are added here by issues P3-10 and P3-11.
