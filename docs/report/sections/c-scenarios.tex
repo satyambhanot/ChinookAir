@@ -285,14 +285,16 @@ operations of the \texttt{<<control>>} classes feed the class diagram.
 \midrule
 \endhead
 starts & \ctl{show()} & MainFrame & UC-06\\
-logs in & \ctl{login(username, password)} & LoginController & UC-06, UC-10, UC-14\\
+logs in & \ctl{authenticate(username, password)} & LoginController & UC-06, UC-10, UC-14\\
 shows (the promotion) & \ctl{checkOnStartup()} & PromotionController & UC-06\\
+shows (the seat map) & \ctl{availableSeats(flightId)} & BookingController & UC-06\\
+shows (flight details) & \ctl{details(flightId)} & FlightSearchController & UC-06\\
 shows (results, seat map, customers, confirmation, reasons), tells & \ctl{showError(message)}, \ctl{showResults(offers)} and similar view operations & the \texttt{<<boundary>>} views & all\\
 searches & \ctl{search(criteria)}, \ctl{search(text)} & FlightSearchController, CustomerController & UC-10\\
 lists & \ctl{search(criteria)}, \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & FlightSearchController, ReservationController, PaymentController & UC-06, UC-10\\
 enters & input fields of the view, passed to \ctl{search(criteria)}, \ctl{pay(...)}, \ctl{addFlight(details)} & FlightSearchView, PaymentView, FlightManagementView & UC-06, UC-10, UC-14\\
 selects & \ctl{selectSeat(reservationId, seatNo)} for a seat; a flight or reservation is selected in the view & BookingController, views & UC-06, UC-10\\
-picks & \ctl{modify(reservationId, newFlightId, newSeatNo)}, \ctl{addFlight(details)} & ReservationController, FlightManagementController & UC-10, UC-14\\
+picks & \ctl{modify(reservationId, newFlightId, newSeatNo)}, \ctl{addFlight(details)}; the choices come from \ctl{list()} & ReservationController, FlightManagementController, RouteController, AircraftController & UC-10, UC-14\\
 chooses & menu choice in the view & CustomerDashboard, AgentDashboard, AdminDashboard & UC-06, UC-10, UC-14\\
 opens & \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & ReservationController, PaymentController & UC-10\\
 corrects, saves (a profile) & \ctl{update(customer)} & CustomerController & UC-10\\
@@ -316,10 +318,32 @@ releases & \ctl{cancel()} on the Reservation, which frees the seat & Reservation
 \end{longtable}
 \endgroup
 
+\subsubsection*{Operations of use cases without a scenario}
+
+Four operations come from use cases that none of the three scenarios walks
+through. They are named in the use-case table of section B.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{1.9cm}@{}}
+\toprule
+\textbf{Verb} & \textbf{Operation} & \textbf{Owner class} & \textbf{Use case}\\
+\midrule
+\endhead
+registers & \ctl{register(username, password, name, email, phone)} & CustomerController & UC-02\\
+views & \ctl{view(customerId)} & CustomerController & UC-03\\
+changes (flight details) & \ctl{updateFlight(flightId, details)} & FlightManagementController & UC-14\\
+views (a schedule) & \ctl{schedule(from, to)} & ScheduleController & UC-12\\
+\bottomrule
+\end{longtable}
+\endgroup
+
 \subsection*{Control classes and the scenarios}
 
 Each control class comes from a use case in the table of section B, and each is
-used in at least one scenario.
+used in at least one scenario. ConfirmationWriter is a helper that
+PaymentController calls, so it has no use case of its own.
 
 \begingroup
 \small
