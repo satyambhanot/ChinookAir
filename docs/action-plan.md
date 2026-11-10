@@ -249,14 +249,18 @@ must exist in the class diagram.
 
 ## Decisions
 
-Fill these in as we agree on them.
+Settled in P0-01 ([#56](https://github.com/satyambhanot/ChinookAir/issues/56)). The master plan has the same list in its rules table. Each decision is checked against the project guideline: "Stated" means the guideline says it, "Silent" means the guideline leaves it open and the rule is ours.
 
-| Topic | Decision |
-|---|---|
-| Word for a booking | **Reservation** (not booking or ticket) |
-| Passengers per reservation | One (keeps it simple) |
-| Promotion | Picked on the first launch in a new month, shown once that month (confirm in 0.2) |
-| Removing a flight with reservations | TBD - block it, or cancel and refund |
-| Cancel rules | TBD - e.g. allowed until departure |
-| Passwords | Stored hashed, never plain text |
-| Card numbers | Only the last 4 digits stored |
+| Topic | Decision | Guideline basis |
+|---|---|---|
+| Word for a booking | **Reservation**. "Book" is only a verb (Book Flight, `BookingController`, `BookingView`) | Sections 2 and 3.2 use "reservation" and "booking" for the same thing. Silent on which, so we pick one (criterion 6, traceability). |
+| Language and database | Java with Swing, SQLite | Stated: GUI in Java or C++ (section 4), MySQL or SQLite (3.6, 7.2). |
+| Who does what | Customer searches, reserves, cancels and views reservations. Flight Agent manages customers and modifies reservations. Administrator manages flights, routes, aircraft and schedules. | Stated: the role table in section 2.1 and 3.4 (flight management is administrator only). |
+| Passengers per reservation | One: the customer who owns it | Silent. The simplest reading of "create new bookings" (3.2). |
+| Promotion | Picked on the first launch in a calendar month, remembered as `YYYY-MM` in the database, shown once that month | Stated in 3.7: randomly selected when the application is first opened in a month, shown only once that month. It says "application", not "customer", so it is once per app per month. |
+| Removing a flight | Blocked while it has active reservations; archived if it only has old reservations; deleted if it has none | Stated: "remove outdated flights" (3.4). Silent on reservations, so we block removal that would strand a customer. |
+| Cancel rules | Allowed until the flight departs, full refund | Cancel is stated (2, 3.2). Silent on limits and refunds, so the rule is ours. |
+| Seat classes | Economy (x1.0) and Business (x1.5); Business is the first two rows | Silent. 3.1 only asks to display available seats and prices. Our addition. |
+| Simulated payment | A card whose last four digits are `0000` is declined, everything else is approved | Stated: payments are simulated, no real processing (3.5). The decline rule is ours, so the payment state diagram has a failed path. |
+| Card numbers | Only the last 4 digits stored | 3.5 says record payment information. Which parts is our choice. |
+| Passwords | Stored hashed, never plain text | Login is required (7.1 A.1). Hashing is our own non-functional requirement (section 4 allows extras). |
