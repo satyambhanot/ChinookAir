@@ -39,4 +39,21 @@ payment.
 
 \diagram{41-state-payment}{State diagram: a payment}
 
-% The reservation state diagram is added here by issue P3-11.
+\subsection*{The state of a reservation}
+
+The diagram below shows one Reservation. Its states are named like the values
+of the reservation status in the class diagram, and the sequence diagrams use
+the same names. A reservation is created in \texttt{CREATED}. When a seat is
+assigned it becomes \texttt{PENDING\_PAYMENT}, and when the payment is approved
+it becomes \texttt{CONFIRMED}. A confirmed reservation becomes
+\texttt{COMPLETED} once its flight has departed. A flight agent can change the
+flight of a confirmed reservation. If the price is unchanged the reservation
+stays \texttt{CONFIRMED}. If the price differs, the old payment is refunded and
+the reservation goes back to \texttt{PENDING\_PAYMENT} to be paid again. A
+reservation that is \texttt{CREATED}, \texttt{PENDING\_PAYMENT} or
+\texttt{CONFIRMED} can be cancelled, which frees the seat and refunds the
+approved payments. \texttt{CANCELLED} and \texttt{COMPLETED} end the life of
+the reservation. The class diagram later realises this diagram with one class
+per state.
+
+\diagram{42-state-reservation}{State diagram: a reservation}
