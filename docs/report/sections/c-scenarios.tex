@@ -294,7 +294,7 @@ registers & \ctl{register(username, password, name, email, phone)} & CustomerCon
 shows (the promotion) & \ctl{checkOnStartup()} & PromotionController & UC-06\\
 shows (the seat map) & \ctl{availableSeats(flightId)} & BookingController & UC-06\\
 shows (flight details) & \ctl{details(flightId)} & FlightSearchController & UC-06\\
-shows (results, seat map, customers, confirmation, reasons), tells & \ctl{showError(message)}, \ctl{showResults(offers)} and similar view operations & the \texttt{<<boundary>>} views & all\\
+shows (results, seat map, customers, confirmation, reasons), tells & \ctl{showError(message)}, \ctl{showTable(offers)} and similar view operations & the \texttt{<<boundary>>} views & all\\
 searches & \ctl{search(criteria)}, \ctl{search(text)} & FlightSearchController, CustomerController & UC-10\\
 lists & \ctl{search(criteria)}, \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & FlightSearchController, ReservationController, PaymentController & UC-06, UC-10\\
 enters & input fields of the view, passed to \ctl{search(criteria)}, \ctl{pay(...)}, \ctl{addFlight(details)} & FlightSearchView, PaymentView, FlightManagementView & UC-06, UC-10, UC-14\\
