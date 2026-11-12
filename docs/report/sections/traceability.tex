@@ -1,3 +1,142 @@
 \section*{Traceability}
 \addcontentsline{toc}{section}{Traceability}
-% Use case to class matrix (P4-03).
+
+The first table follows each use case of section B from its requirements to the
+scenario or diagram that describes it, the control class that carries it out
+and the entities it touches. The second table lists every class of the first-cut
+class diagram with the scenario steps that mention it, and the third lists the
+classes that the design adds.
+
+\subsection*{From requirement to class}
+
+Every functional requirement appears in at least one row and every use case in
+exactly one row. FR-11 (database storage) applies to every row that saves data
+and is named on the two use cases where the data is created.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.7cm}>{\raggedright\arraybackslash}p{1.5cm}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.8cm}>{\raggedright\arraybackslash}p{3.2cm}@{}}
+\toprule
+\textbf{Use case} & \textbf{FR} & \textbf{Scenario or diagram} & \textbf{Control class} & \textbf{Entities touched}\\
+\midrule
+\endhead
+UC-01 Login & FR-13 & Scenarios UC-06 step 3, UC-10 step 1, UC-14 step 1; activity diagram Login; state diagram of the system & \ctl{Login\allowbreak Controller} & User, Customer, FlightAgent, Administrator, Role\\
+UC-02 Register Customer & FR-6 & Scenario UC-06 extension 3b & \ctl{Customer\allowbreak Controller} & Customer, User\\
+UC-03 Manage Customer Profile & FR-6 & Scenario UC-10 steps 2 to 5 & \ctl{Customer\allowbreak Controller} & Customer\\
+UC-04 Find Available Flights & FR-1, FR-2 & Scenarios UC-06 steps 4 to 5, UC-10 steps 9 to 10; sequence diagram and activity diagram Find flights & \ctl{Flight\allowbreak Search\allowbreak Controller} & Flight, Seat, Route, Airline, Airport\\
+UC-05 View Flight Details & FR-2 & Scenario UC-06 steps 6 to 7; activity diagram Browse flight & \ctl{Flight\allowbreak Search\allowbreak Controller} & Flight, Aircraft, Seat\\
+UC-06 Book Flight & FR-3, FR-11, FR-14 & Scenario UC-06; sequence diagram and activity diagram Book flight & \ctl{Booking\allowbreak Controller} & Reservation, Flight, Seat, Customer\\
+UC-07 Make Payment & FR-5, FR-9 & Scenarios UC-06 steps 10 to 13, UC-10 steps 16 to 19; sequence, activity and state diagram Payment & \ctl{Payment\allowbreak Controller} & Payment, Reservation\\
+UC-08 View Payment Records & FR-9 & Scenario UC-10 steps 14 to 15 & \ctl{Payment\allowbreak Controller} & Payment, Customer\\
+UC-09 Cancel Reservation & FR-4 & Scenario UC-06 extension 11a; state diagram Reservation & \ctl{Reservation\allowbreak Controller} & Reservation, Seat, Payment\\
+UC-10 Modify Reservation & FR-4 & Scenario UC-10; state diagram Reservation & \ctl{Reservation\allowbreak Controller} & Reservation, Flight, Seat, Payment\\
+UC-11 View Reservation History & FR-10 & Scenario UC-10 steps 6 to 7 & \ctl{Reservation\allowbreak Controller} & Reservation, Customer\\
+UC-12 View Flight Schedules & FR-10 & No scenario; the operation is in the table of section C & \ctl{Schedule\allowbreak Controller} & Flight\\
+UC-13 Update Schedules & FR-8 & Scenario UC-14 steps 8 to 9 & \ctl{Schedule\allowbreak Controller} & Flight\\
+UC-14 Manage Flights & FR-7, FR-11 & Scenario UC-14; sequence diagram Manage flights & \ctl{Flight\allowbreak Management\allowbreak Controller} & Flight, Seat, Route, Airline, Aircraft, Reservation\\
+UC-15 Manage Routes & FR-8 & Scenario UC-14 extension 4a & \ctl{Route\allowbreak Controller} & Route, Airport\\
+UC-16 Manage Aircraft & FR-8 & Scenario UC-14 extension 4b & \ctl{Aircraft\allowbreak Controller} & Aircraft\\
+UC-17 View Monthly Promotion & FR-12 & Scenario UC-06 step 2; state diagram of the system & \ctl{Promotion\allowbreak Controller} & Promotion\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{From class to scenario}
+
+Every class of the first-cut class diagram (the entities and enumerations of
+Figure~\ref{fig:entities}, and the control and boundary classes of the diagram
+that follows it) appears below with the scenario steps that mention it.
+Scenario UC-06 is Book Flight, UC-10 is Modify Reservation and UC-14 is Manage
+Flights, as in section C.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.2cm}>{\raggedright\arraybackslash}p{7.9cm}@{}}
+\toprule
+\textbf{Class} & \textbf{Kind} & \textbf{Scenario steps that mention it}\\
+\midrule
+\endhead
+\ctl{Customer} & entity & UC-06 (steps 3, 3b, 9), UC-10 (steps 2 to 5)\\
+\ctl{FlightAgent} & entity & UC-10 (steps 1 to 19)\\
+\ctl{Administrator} & entity & UC-14 (steps 1 to 11)\\
+\ctl{User} & entity & UC-06, UC-10, UC-14 (step that logs in; parent of the three roles)\\
+\ctl{Airline} & entity & UC-06 (step 4), UC-14 (step 4)\\
+\ctl{Airport} & entity & UC-06 (step 4), UC-14 (extension 4a)\\
+\ctl{Route} & entity & UC-06 (step 5), UC-14 (step 4, extension 4a)\\
+\ctl{Aircraft} & entity & UC-06 (step 7), UC-14 (steps 4 and 7, extension 4b)\\
+\ctl{Flight} & entity & UC-06 (steps 5 to 6), UC-10 (steps 9 to 12), UC-14 (steps 4 to 11)\\
+\ctl{Seat} & entity & UC-06 (steps 7 to 8), UC-10 (steps 10 to 12), UC-14 (step 7)\\
+\ctl{Reservation} & entity & UC-06 (steps 9, 12), UC-10 (steps 6 to 13), UC-14 (steps 10 to 11)\\
+\ctl{Payment} & entity & UC-06 (steps 10 to 11), UC-10 (steps 14 to 17)\\
+\ctl{Promotion} & entity & UC-06 (step 2)\\
+\ctl{Role} & enumeration & UC-06, UC-10, UC-14 (the role selects the dashboard after log in)\\
+\ctl{SeatClass} & enumeration & UC-06 (step 8), UC-10 (step 11): economy or business Seat\\
+\ctl{ReservationStatus} & enumeration & UC-06 (steps 9, 12), UC-10 (steps 13, 18): pending payment, confirmed\\
+\ctl{PaymentStatus} & enumeration & UC-06 (steps 11, 11a), UC-10 (steps 13, 17): approved, declined, refunded\\
+\ctl{PaymentMethodType} & enumeration & UC-06 (step 10): the card type\\
+\midrule
+\ctl{LoginController} & control & UC-06, UC-10, UC-14 (the log-in step)\\
+\ctl{CustomerController} & control & UC-06 (extension 3b), UC-10 (steps 2 to 5)\\
+\ctl{FlightSearchController} & control & UC-06 (steps 4 to 6), UC-10 (steps 9 to 10)\\
+\ctl{BookingController} & control & UC-06 (steps 8 to 9, extension 11a)\\
+\ctl{PaymentController} & control & UC-06 (steps 10 to 11), UC-10 (steps 14 to 17)\\
+\ctl{ReservationController} & control & UC-10 (steps 6 to 8 and 12 to 13)\\
+\ctl{ScheduleController} & control & UC-14 (steps 8 to 9)\\
+\ctl{FlightManagementController} & control & UC-14 (steps 3 to 7 and 10 to 11)\\
+\ctl{RouteController} & control & UC-14 (extension 4a)\\
+\ctl{AircraftController} & control & UC-14 (extension 4b)\\
+\ctl{PromotionController} & control & UC-06 (step 2)\\
+\ctl{ConfirmationWriter} & control & UC-06 (step 13), UC-10 (step 19)\\
+\midrule
+\ctl{MainFrame} & boundary & UC-06 (step 1)\\
+\ctl{CustomerDashboard} & boundary & UC-06 (after step 3)\\
+\ctl{AgentDashboard} & boundary & UC-10 (after step 1)\\
+\ctl{AdminDashboard} & boundary & UC-14 (step 2)\\
+\ctl{PromotionDialog} & boundary & UC-06 (step 2)\\
+\ctl{LoginView} & boundary & UC-06 (step 3), UC-10 (step 1), UC-14 (step 1)\\
+\ctl{RegisterView} & boundary & UC-06 (extension 3b)\\
+\ctl{ProfileView} & boundary & UC-10 (steps 4 to 5)\\
+\ctl{CustomerManagementView} & boundary & UC-10 (steps 2 to 3)\\
+\ctl{FlightSearchView} & boundary & UC-06 (steps 4 to 6), UC-10 (steps 9 to 10)\\
+\ctl{SeatSelectionView} & boundary & UC-06 (steps 7 to 8), UC-10 (steps 10 to 11)\\
+\ctl{PaymentView} & boundary & UC-06 (step 10), UC-10 (step 16)\\
+\ctl{ConfirmationView} & boundary & UC-06 (step 13), UC-10 (step 19)\\
+\ctl{PaymentRecordsView} & boundary & UC-10 (steps 14 to 15)\\
+\ctl{MyReservationsView} & boundary & UC-10 (steps 6 to 8)\\
+\ctl{ModifyReservationView} & boundary & UC-10 (steps 8 to 12)\\
+\ctl{FlightManagementView} & boundary & UC-14 (steps 3 to 7 and 10 to 11)\\
+\ctl{RouteManagementView} & boundary & UC-14 (extension 4a)\\
+\ctl{AircraftManagementView} & boundary & UC-14 (extension 4b)\\
+\ctl{ScheduleView} & boundary & UC-14 (steps 8 to 9)\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Classes added by the design}
+
+The refined class diagrams of section F add classes that no scenario names,
+because they carry out the design patterns and the non-functional
+requirements. Each one is traced to the requirement it serves.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{6.3cm}@{}}
+\toprule
+\textbf{Classes} & \textbf{Pattern or role} & \textbf{Requirement it serves}\\
+\midrule
+\endhead
+DatabaseConnection, DaoFactory, the 12 DAO interfaces, the 12 Sqlite classes & Singleton, DAO & FR-11; scalability (replace SQLite without touching the business layer)\\
+AppContext, ChinookAir & composition root & Maintainability: the only place that creates controllers and DAOs\\
+PaymentMethod, CreditCardPayment, DebitCardPayment, PaymentMethods & Strategy, Factory & FR-9 (the card type of UC-06 step 10 decides how the payment is authorized)\\
+ReservationState and its five state classes & State & FR-4 (the cancel and modify rules of UC-09 and UC-10, state diagram Reservation)\\
+UserFactory & Factory & FR-13 (the role of UC-06 step 3 and UC-14 step 1 decides the class of the user)\\
+PromotionListener & Observer & FR-12 (UC-06 step 2: the promotion reaches MainFrame)\\
+Authorizer, SessionContext & control helpers & FR-13, FR-7 (only an administrator may manage flights, UC-14)\\
+DatabaseSeeder & data helper & FR-11 (demo data so that UC-06 step 5 finds flights)\\
+PasswordHasher & utility & Security: passwords stored as hashes (UC-06 step 3)\\
+\bottomrule
+\end{longtable}
+\endgroup
