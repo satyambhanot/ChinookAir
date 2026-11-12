@@ -437,7 +437,7 @@ The guideline asks for a final refinement step that improves reusability, scalab
 ### Testing Strategy
 - All six patterns are present and each one has its justification sentence.
 - Every DAO interface has exactly one realizing class (12 interfaces, 12 SQLite classes).
-- Every class from P2-04 is still present in the business-layer diagram (the 13 entities, the 12 control classes, plus `Authorizer` and `SessionContext` used by the sequence diagrams), and the new classes are explained in the text.
+- Every class from P2-04 is still present in the business-layer diagram (the 13 entities, the 11 control classes, plus `Authorizer` and `SessionContext` used by the sequence diagrams); `ConfirmationWriter` is in the data-layer diagram because it does file access, together with `DatabaseSeeder`, `PasswordHasher` and the entry point `ChinookAir`, and the new classes are explained in the text.
 - The diagram is consistent with the four sequence diagrams (same operation names), so every DAO operation they use (for example `FlightDao.search` and `SeatDao.countAvailable`) is listed on its DAO interface.
 
 ## P4-02
@@ -454,14 +454,16 @@ The guideline asks for a final refinement step that improves reusability, scalab
 Deliverable G. The diagram must show how the three layers interact and which classes are public, and it must match the real Java packages.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/50-package.drawio` draw packages `presentation`, `business.control`, `business.entity`, `data` and `util`, with dependency arrows: presentation to control; control to entity and to data (DAO interfaces); data to entity.
-2. List the classes inside each package. Mark visibility: `+` public (controllers, entities, DAO interfaces, `DaoFactory`, `DatabaseSeeder`, `ConfirmationWriter`, `MainFrame`), `~` package-private (the `Sqlite...Dao` classes, the view classes used only inside `presentation`, the Reservation state classes).
-3. Add a short note explaining that nothing in `presentation` imports from `data`.
+1. In `docs/diagrams/src/50-package.drawio` draw packages `presentation`, `business.control`, `business.entity`, `data` and `util`, plus the root package `ca.ucalgary.chinookair` with `AppContext` and `ChinookAir`. Dependency arrows: presentation to control and to entity (views show the entities that controllers return); control to entity, to data (DAO interfaces, `DaoFactory`, `ConfirmationWriter`) and to util; data to entity and to util; the root package to the three layers.
+2. List the classes inside each package. Mark visibility: `+` public (controllers, entities, DAO interfaces, `DaoFactory`, `DatabaseConnection`, `DatabaseSeeder`, `ConfirmationWriter`, `PasswordHasher`, `MainFrame`), `~` package-private (the `Sqlite...Dao` classes, the view classes used only inside `presentation`, the Reservation state classes and the two payment strategies).
+3. Add a short note explaining that nothing in `presentation` imports from `data`, and that control reaches the data layer only through interfaces, `DaoFactory` and `ConfirmationWriter`.
+4. In section G of the report explain the arrows and the visibility rules and show the diagram.
 
 ### Testing Strategy
 - Package names equal the real packages under `src/main/java/ca/ucalgary/chinookair`.
 - No dependency arrow goes from `entity` to `data` or from `control` to `presentation`.
-- Each public class listed also exists in the class diagram.
+- Each class listed also exists in the class diagrams (10 to 13), and every box of those diagrams is listed.
+- The arrows are the ones the ArchUnit rules of P6-09 allow: no cycle, presentation never reaches data, entity depends on no other layer.
 
 ## P4-03
 
