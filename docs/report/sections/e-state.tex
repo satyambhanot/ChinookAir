@@ -26,14 +26,14 @@ database, and then in the final state.
 
 The diagram below shows one Payment record. Its four states are the values of
 the payment status in the class diagram. A new Payment is created in
-\texttt{Pending}. When the simulated authorization accepts it, the Payment calls
-\texttt{approve()} and becomes \texttt{Approved}. When the authorization rejects
-it, the Payment calls \texttt{decline(reason)} and becomes \texttt{Declined}. An
+\texttt{PENDING}. When the simulated authorization accepts it, the Payment calls
+\texttt{approve()} and becomes \texttt{APPROVED}. When the authorization rejects
+it, the Payment calls \texttt{decline(reason)} and becomes \texttt{DECLINED}. An
 approved Payment can later be refunded, which happens when its reservation is
-cancelled or changed to a different price, and then becomes \texttt{Refunded}.
-Nothing leaves \texttt{Declined} or \texttt{Refunded}: the arrows to the final
+cancelled or changed to a different price, and then becomes \texttt{REFUNDED}.
+Nothing leaves \texttt{DECLINED} or \texttt{REFUNDED}: the arrows to the final
 node need no event. If a customer tries again after a declined payment, the
-system creates a new Payment, so a record never goes back to \texttt{Pending}.
+system creates a new Payment, so a record never goes back to \texttt{PENDING}.
 This matches the payment activity diagram and the sequence diagram of the
 payment.
 
