@@ -45,6 +45,10 @@ collected in the candidate tables of this section.
 \begin{description}
 \item[3a. The username or password is wrong.] The system \op{shows} an error and
   asks again. The scenario continues at step 3.
+\item[3b. The \cls{Customer} has no account.] The \cls{Customer}
+  \op{registers} with a username, a password, a name, an email and a phone
+  number, and the system saves the profile (UC-02). The scenario continues at
+  step 3.
 \item[5a. No \cls{Flight} matches.] The system \op{tells} the \cls{Customer}
   that no \cls{Flight} was found. The scenario continues at step 4.
 \item[9a. The \cls{Seat} was taken in the meantime.] The system \op{rejects}
@@ -286,6 +290,7 @@ operations of the \texttt{<<control>>} classes feed the class diagram.
 \endhead
 starts & \ctl{show()} & MainFrame & UC-06\\
 logs in & \ctl{authenticate(username, password)} & LoginController & UC-06, UC-10, UC-14\\
+registers & \ctl{register(username, password, name, email, phone)} & CustomerController & UC-06\\
 shows (the promotion) & \ctl{checkOnStartup()} & PromotionController & UC-06\\
 shows (the seat map) & \ctl{availableSeats(flightId)} & BookingController & UC-06\\
 shows (flight details) & \ctl{details(flightId)} & FlightSearchController & UC-06\\
@@ -320,7 +325,7 @@ releases & \ctl{cancel()} on the Reservation, which frees the seat & Reservation
 
 \subsubsection*{Operations of use cases without a scenario}
 
-Four operations come from use cases that none of the three scenarios walks
+Three operations come from use cases that none of the three scenarios walks
 through. They are named in the use-case table of section B.
 
 \begingroup
@@ -331,7 +336,6 @@ through. They are named in the use-case table of section B.
 \textbf{Verb} & \textbf{Operation} & \textbf{Owner class} & \textbf{Use case}\\
 \midrule
 \endhead
-registers & \ctl{register(username, password, name, email, phone)} & CustomerController & UC-02\\
 views & \ctl{view(customerId)} & CustomerController & UC-03\\
 changes (flight details) & \ctl{updateFlight(flightId, details)} & FlightManagementController & UC-14\\
 views (a schedule) & \ctl{schedule(from, to)} & ScheduleController & UC-12\\
@@ -354,7 +358,7 @@ PaymentController calls, so it has no use case of its own.
 \midrule
 \endhead
 \ctl{LoginController} & UC-01 & the login step of every scenario\\
-\ctl{CustomerController} & UC-02, UC-03 & UC-10 steps 2 to 5\\
+\ctl{CustomerController} & UC-02, UC-03 & UC-06 extension 3b, UC-10 steps 2 to 5\\
 \ctl{FlightSearchController} & UC-04, UC-05 & UC-06 steps 4 to 6, UC-10 steps 9 to 10\\
 \ctl{BookingController} & UC-06 & UC-06 steps 8 and 9, extension 11a\\
 \ctl{PaymentController} & UC-07, UC-08 & UC-06 steps 10 and 11, UC-10 steps 14 to 17\\
