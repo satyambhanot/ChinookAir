@@ -1,2 +1,54 @@
 \section{Package Diagram}
-% Package diagram with public classes marked (P4-02).
+
+The package diagram shows the three layers, the classes in each of them and
+which classes are public. The packages are the Java packages under
+\texttt{ca.ucalgary.chinookair}: \texttt{presentation}, \texttt{business.control},
+\texttt{business.entity}, \texttt{data} and \texttt{util}. The root package holds
+only the entry point \texttt{ChinookAir} and the composition root
+\texttt{AppContext}. Figure~\ref{fig:package}, at the end of this section, shows them. In the diagram \texttt{+} marks a public class and
+\texttt{\textasciitilde} a package-private class, and an arrow means that the
+classes of one package use the classes of the other.
+
+\paragraph{Dependencies.} The arrows follow the layers:
+\begin{itemize}
+\item The presentation package uses business.control, because every view
+  calls a controller, and business.entity, because a view shows the
+  Flights, Seats and Reservations that a controller returns. It never imports
+  from the data package.
+\item business.control uses business.entity and the data layer.
+  Of the data layer it uses only the DAO interfaces, DaoFactory and
+  ConfirmationWriter, never a SQLite class. It never imports from
+  presentation. The only link back to the screen is the
+  PromotionListener interface, which MainFrame implements.
+\item data uses business.entity, because the DAOs load and
+  save entities. business.entity uses no other package of the project.
+\item util (the password hasher) is used by business.control
+  for log in and registration and by data for the demo passwords. It
+  uses no other package.
+\item The root package uses the three layers, because it creates the main
+  window, the controllers and the DAOs.
+\end{itemize}
+There is no cycle between the packages. These rules are the ones that the
+architecture test of the data layer checks.
+
+\paragraph{Visibility.} A class is public only if another package uses it.
+\begin{itemize}
+\item Public: the controllers and Authorizer, SessionContext
+  and PromotionListener; the entities, the enumerations, UserFactory
+  and PaymentMethods with its PaymentMethod interface;
+  the DAO interfaces, DaoFactory, DatabaseConnection,
+  DatabaseSeeder and ConfirmationWriter; PasswordHasher;
+  MainFrame.
+\item Package-private: the twelve Sqlite\dots Dao classes, which only
+  DaoFactory creates and everyone else reaches through the interface;
+  the five Reservation state classes and ReservationState, which only
+  Reservation uses; CreditCardPayment and DebitCardPayment,
+  which only PaymentMethods creates; and the views and dashboards,
+  which only MainFrame and the other views use.
+\end{itemize}
+
+Small helper and value types that the implementation adds inside a package, for
+example the search criteria and the offer shown in the results table, are not
+design classes and are not drawn.
+
+\diagramland{50-package}{Package diagram with the classes of each package}{fig:package}

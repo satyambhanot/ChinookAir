@@ -71,6 +71,14 @@ diagrams. The five state classes, the two payment classes and the twelve SQLite
 classes exist only to realize an interface. No class outside the data package
 uses a SQLite class.
 
+Three classes are added to the data layer and the utility package.
+ConfirmationWriter does file access, so the refinement moves it from the
+control classes to the data package; PaymentController calls it. DatabaseSeeder
+fills an empty database with demo data and hashes the demo passwords with
+\texttt{PasswordHasher} of the utility package, which the controllers also use
+for log in and registration. ChinookAir is the entry point and calls
+\texttt{AppContext}.
+
 \diagramland{12-class-refined}{Refined class diagram: business layer and design patterns}{fig:refinedbusiness}
 
 \diagramland{13-class-data}{Refined class diagram: data layer}{fig:refineddata}

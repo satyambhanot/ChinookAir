@@ -25,7 +25,7 @@ what kind of diagram it is.
 | `20-activity-login`, `21-activity-browse-flight`, `22-activity-book-flight`, `23-activity-payment` | The four activity diagrams |
 | `30-sequence-find-flights`, `31-sequence-book-flight`, `32-sequence-payment`, `33-sequence-manage-flights` | The four sequence diagrams |
 | `40-state-system`, `41-state-payment`, `42-state-reservation` | The three state diagrams |
-| `50-package` | Package diagram |
+| `50-package` | Package diagram: the five packages and the root package, classes with `+` and `~` |
 
 An export has the same name with `.png`, for example `export/01-use-case.png`.
 
