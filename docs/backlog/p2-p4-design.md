@@ -424,7 +424,7 @@ State diagram 3 of 3 for a Reservation object. It later maps one-to-one onto the
 The guideline asks for a final refinement step that improves reusability, scalability, maintainability and reliability using patterns. This turns the first-cut diagram into the one that goes in the report and that the code is written to.
 
 ### Implementation Guide
-1. In `docs/diagrams/src/12-class-refined.drawio` add:
+1. Draw two diagrams, because one would hold about 65 classes: `docs/diagrams/src/12-class-refined.drawio` for the business layer (control classes, entities and the State, Strategy, Factory and Observer patterns) and `docs/diagrams/src/13-class-data.drawio` for the data layer (Singleton, DAO interfaces with their SQLite classes, `DaoFactory`, `AppContext`). Together they add:
    - Singleton: `DatabaseConnection`.
    - DAO: one interface per entity (`FlightDao`, `SeatDao`, `ReservationDao`, `PaymentDao`, `UserDao`, `CustomerDao`, `AirlineDao`, `AirportDao`, `AircraftDao`, `RouteDao`, `PromotionDao`, `AppStateDao`) realized by `Sqlite...Dao` classes, and a `DaoFactory`.
    - Strategy: `PaymentMethod` interface with `CreditCardPayment` and `DebitCardPayment`.
@@ -432,12 +432,12 @@ The guideline asks for a final refinement step that improves reusability, scalab
    - Factory: `UserFactory` creating the right `User` subclass.
    - Observer: `PromotionListener` registered with `PromotionController`.
 2. Use realization arrows for interfaces and composition for Flight and Seat.
-3. Next to the diagram write one sentence per pattern in `f-class.tex`: the problem it solves and where.
+3. Next to the diagrams write one sentence per pattern in `f-class.tex`: the problem it solves and where. Add a table of which DAO interfaces each control class uses.
 
 ### Testing Strategy
 - All six patterns are present and each one has its justification sentence.
-- Every DAO interface has exactly one realizing class.
-- Every class from P2-04 is still present, and the new classes are explained.
+- Every DAO interface has exactly one realizing class (12 interfaces, 12 SQLite classes).
+- Every class from P2-04 is still present in the business-layer diagram (the 13 entities, the 12 control classes, plus `Authorizer` and `SessionContext` used by the sequence diagrams), and the new classes are explained in the text.
 - The diagram is consistent with the four sequence diagrams (same operation names), so every DAO operation they use (for example `FlightDao.search` and `SeatDao.countAvailable`) is listed on its DAO interface.
 
 ## P4-02
