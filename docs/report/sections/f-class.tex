@@ -26,6 +26,29 @@ diagram.
 
 \diagram{11-class-control-boundary}{First-cut class diagram: control and boundary classes}
 
+\paragraph{Operations of the boundary classes.} The boundary boxes are drawn
+without operations to keep the diagram readable. The operations that the
+sequence diagrams of section D send to a view are of two kinds: the user acts on
+the view (\texttt{enter...}, \texttt{choose...}, \texttt{pick...},
+\texttt{submit...}) and the controller tells the view to show something
+(\texttt{show...}). They belong to the view classes below.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.8cm}@{}}
+\toprule
+\textbf{Boundary class} & \textbf{Operations used in the sequence diagrams}\\
+\midrule
+\endhead
+\ctl{FlightSearchView} & enterCriteria, showError, showMessage, showTable\\
+\ctl{SeatSelectionView} & chooseBook, pickSeat, showSeatMap, showPrice, showError\\
+\ctl{PaymentView} & enterDetails, showConfirmation, showError\\
+\ctl{FlightManagementView} & submitFlight, chooseRemove, showFlight, showMessage, showError\\
+\bottomrule
+\end{longtable}
+\endgroup
+
 \subsection*{Refined class diagram}
 
 The first-cut diagrams are refined in two steps: the business layer and the
