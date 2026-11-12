@@ -28,11 +28,16 @@
 % A class name in a table: small monospace, may break between words.
 \newcommand{\ctl}[1]{\texttt{\footnotesize #1}}
 
-% A large diagram on its own landscape page.
+% A large diagram on its own landscape page, with narrow margins so that the
+% text of the diagram stays as large as the page allows.
 \newcommand{\diagramland}[3]{%
+  \clearpage
+  \newgeometry{margin=1.2cm}%
   \begin{landscape}
     \begin{figure}[p]\centering
-      \includegraphics[width=\linewidth,height=0.85\textwidth,keepaspectratio]{#1}
+      \includegraphics[width=\linewidth,height=0.92\textwidth,keepaspectratio]{#1}
       \caption{#2}\label{#3}
     \end{figure}
-  \end{landscape}}
+  \end{landscape}
+  \clearpage
+  \restoregeometry}
