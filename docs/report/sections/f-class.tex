@@ -26,4 +26,78 @@ diagram.
 
 \diagram{11-class-control-boundary}{First-cut class diagram: control and boundary classes}
 
-% The refined diagram (P4-01) is added here.
+\subsection*{Refined class diagram}
+
+The first-cut diagrams are refined in two steps: the business layer and the
+data layer. The refinement uses inheritance (the three roles inherit from
+User), realization (interfaces and the classes that implement them),
+composition (a Flight is composed of its Seats) and polymorphism (the
+payment methods and the reservation states), and applies six design patterns.
+The attributes and associations of the entities do not change.
+
+\paragraph{Design patterns.}
+
+\begin{description}
+\item[Singleton.] The database file must never be opened twice, so
+  \texttt{DatabaseConnection} has exactly one instance, reached only through
+  \texttt{getInstance()} from the composition root \texttt{AppContext}.
+\item[DAO.] Controllers must not know about SQL, so every entity has a DAO
+  interface in the data package, realized by one package-private SQLite class,
+  and the database can be replaced without touching a business class;
+  \texttt{DaoFactory} creates the DAOs.
+\item[Strategy.] Credit and debit payments authorize differently, so each is a
+  class behind the \texttt{PaymentMethod} interface and PaymentController
+  calls \texttt{authorize} without an \texttt{if} on the type;
+  \texttt{PaymentMethods.\allowbreak forType} picks the strategy.
+\item[State.] A reservation reacts differently to the same call in each of its
+  five states, so Reservation hands \texttt{assignSeat}, \texttt{confirmPayment},
+  \texttt{changeFlight}, \texttt{cancel} and \texttt{complete} to a
+  \texttt{ReservationState} object, with one class per state as in the
+  reservation state diagram.
+\item[Factory.] The code that logs in or registers a user must not name the
+  subclasses, so \texttt{UserFactory.\allowbreak create} returns the right subclass of User
+  for a role.
+\item[Observer.] The monthly promotion must reach the screen without the
+  controller knowing about Swing, so PromotionController notifies the
+  registered \texttt{PromotionListener}s and MainFrame is the listener that
+  shows the dialog.
+\end{description}
+
+\paragraph{New classes.} \texttt{AppContext} builds the controllers and the DAOs
+in one place and is the only class that calls \texttt{getInstance()}.
+\texttt{Authorizer} checks the role of the user and \texttt{SessionContext} holds
+the logged-in user; both are used by the controllers and appear in the sequence
+diagrams. The five state classes, the two payment classes and the twelve SQLite
+classes exist only to realize an interface. No class outside the data package
+uses a SQLite class.
+
+\diagramland{12-class-refined}{Refined class diagram: business layer and design patterns}{fig:refinedbusiness}
+
+\diagramland{13-class-data}{Refined class diagram: data layer}{fig:refineddata}
+
+\paragraph{Control classes and their DAOs.} Controllers receive their DAO
+interfaces through the constructor, so the table below is also the list of
+dependencies of the data layer.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.8cm}@{}}
+\toprule
+\textbf{Control class} & \textbf{DAO interfaces it uses}\\
+\midrule
+\endhead
+\ctl{LoginController} & UserDao\\
+\ctl{CustomerController} & CustomerDao, UserDao\\
+\ctl{FlightSearchController} & FlightDao, SeatDao\\
+\ctl{BookingController} & FlightDao, SeatDao, ReservationDao\\
+\ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter)\\
+\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao\\
+\ctl{FlightManagementController} & FlightDao, SeatDao, RouteDao, AirlineDao, AircraftDao, ReservationDao\\
+\ctl{RouteController} & RouteDao, AirportDao\\
+\ctl{AircraftController} & AircraftDao\\
+\ctl{ScheduleController} & FlightDao\\
+\ctl{PromotionController} & PromotionDao, AppStateDao\\
+\bottomrule
+\end{longtable}
+\endgroup
