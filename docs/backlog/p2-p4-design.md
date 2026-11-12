@@ -481,12 +481,13 @@ One table that proves the chain: requirement, use case, scenario, diagram, contr
 ### Implementation Guide
 1. In `docs/report/sections/traceability.tex` build a table with columns FR, UC, scenario or diagram, control class, entities touched.
 2. Fill one row per UC from P1-03. For use cases without a scenario say "covered by activity diagram" or similar.
-3. Add a second small table: each class in the class diagram and the scenarios that mention it.
+3. Add a second table: each class of the first-cut class diagram (entities, enumerations, control and boundary classes) and the scenario steps that mention it. A third table traces the classes the refined diagrams add (patterns, DAOs, helpers) to the requirement they serve.
+4. If a class has no scenario step, add a step or an extension to a scenario instead of leaving it out: UC-06 extension 3b (a customer without an account registers) covers `RegisterView`.
 
 ### Testing Strategy
 - All 14 FRs appear at least once.
 - All 17 UCs appear exactly once.
-- Every class in the class diagram appears in the second table with at least one scenario.
+- Every class in the first-cut class diagram (50 classes) appears in the second table with at least one scenario step, and no class appears there that is not in the diagram.
 
 ## P4-04
 
