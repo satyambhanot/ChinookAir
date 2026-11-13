@@ -57,13 +57,18 @@ final class TestWorld {
                 new BigDecimal("200.00"));
     }
 
-    /** Inserts a reservation with plain SQL and returns its id. A null seat means no seat yet. */
+    /** Inserts a reservation of the first customer with plain SQL and returns its id. A null seat means none yet. */
     long reserve(String confirmationNumber, long flightId, String seat, String status) {
+        return reserveFor(1, confirmationNumber, flightId, seat, status);
+    }
+
+    /** Inserts a reservation of the given customer with plain SQL and returns its id. */
+    long reserveFor(long customerId, String confirmationNumber, long flightId, String seat, String status) {
         String seatValue = seat == null ? "NULL" : "'" + seat + "'";
         String priceValue = seat == null ? "NULL" : "20000";
         run("INSERT INTO reservation (confirmation_number, customer_id, flight_id, seat_no, price_cents, status, "
-                + "created_at) VALUES ('" + confirmationNumber + "', 1, " + flightId + ", " + seatValue + ", "
-                + priceValue + ", '" + status + "', '2026-11-20T09:00:00')");
+                + "created_at) VALUES ('" + confirmationNumber + "', " + customerId + ", " + flightId + ", "
+                + seatValue + ", " + priceValue + ", '" + status + "', '2026-11-20T09:00:00')");
         try (Statement st = db.createStatement(); var rs = st.executeQuery("SELECT last_insert_rowid()")) {
             rs.next();
             return rs.getLong(1);
