@@ -92,7 +92,8 @@ public final class AppContext {
         return new Controllers(
                 new LoginController(daos.userDao()),
                 new CustomerController(daos.customerDao(), daos.userDao()),
-                new FlightSearchController(daos.flightDao(), daos.seatDao(), clock),
+                new FlightSearchController(daos.flightDao(), daos.seatDao(), daos.airportDao(),
+                        daos.airlineDao(), clock),
                 new BookingController(daos.flightDao(), daos.seatDao(), daos.reservationDao(),
                         new RandomConfirmationNumberGenerator(random), clock),
                 new PaymentController(daos.reservationDao(), daos.paymentDao(), writer, clock),
