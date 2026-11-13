@@ -40,6 +40,7 @@ class CustomerManagementView extends JPanel implements Screen {
     final JButton newButton = new JButton("New customer");
     final JButton saveButton = new JButton("Save");
     final JButton reservationsButton = new JButton("Reservations");
+    final JButton modifyButton = new JButton("Modify a reservation");
     final JButton backButton = new JButton("Back");
     private final JLabel messageLabel = new JLabel(" ");
 
@@ -75,10 +76,12 @@ class CustomerManagementView extends JPanel implements Screen {
         newButton.setMnemonic('W');
         saveButton.setMnemonic('V');
         reservationsButton.setMnemonic('R');
+        modifyButton.setMnemonic('M');
         backButton.setMnemonic('B');
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.add(backButton);
         buttons.add(reservationsButton);
+        buttons.add(modifyButton);
         buttons.add(newButton);
         buttons.add(saveButton);
         JPanel bottom = new JPanel(new BorderLayout(0, 6));
@@ -98,11 +101,13 @@ class CustomerManagementView extends JPanel implements Screen {
         newButton.addActionListener(e -> startNew());
         saveButton.addActionListener(e -> save());
         reservationsButton.addActionListener(e -> openReservations());
+        modifyButton.addActionListener(e -> openModify());
         backButton.addActionListener(e -> goBack());
     }
 
     private void updateButtons() {
         reservationsButton.setEnabled(table.getSelectedRow() >= 0);
+        modifyButton.setEnabled(table.getSelectedRow() >= 0);
         saveButton.setEnabled(table.getSelectedRow() >= 0 || form.isNewCustomer());
     }
 
@@ -187,6 +192,16 @@ class CustomerManagementView extends JPanel implements Screen {
         booking.clear();
         booking.bookFor(chosen);
         navigator.show(ViewId.MY_RESERVATIONS);
+    }
+
+    private void openModify() {
+        Customer chosen = selected();
+        if (chosen == null) {
+            return;
+        }
+        booking.clear();
+        booking.bookFor(chosen);
+        navigator.show(ViewId.MODIFY_RESERVATION);
     }
 
     private void goBack() {
