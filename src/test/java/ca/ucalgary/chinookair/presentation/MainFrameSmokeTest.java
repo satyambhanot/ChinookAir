@@ -1,12 +1,15 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.entity.Promotion;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
@@ -15,6 +18,8 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JLabel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,6 +73,44 @@ class MainFrameSmokeTest {
         }
         frame.show(ViewId.LOGIN);
         assertEquals(ViewId.LOGIN, frame.currentView());
+    }
+
+    // ---- the monthly promotion
+
+    private List<Promotion> collectPromotions() {
+        List<Promotion> shown = new ArrayList<>();
+        frame.setPromotionDisplay(shown::add);
+        return shown;
+    }
+
+    @Test
+    void theFirstStartOfTheMonthShowsOnePromotionAndASecondCheckShowsNone() {
+        List<Promotion> shown = collectPromotions();
+        frame.showStartupPromotion();
+        assertEquals(1, shown.size());
+        frame.showStartupPromotion();
+        assertEquals(1, shown.size());
+    }
+
+    @Test
+    void openingTheWindowAsksForThePromotionOnce() throws Exception {
+        List<Promotion> shown = collectPromotions();
+        EventQueue.invokeAndWait(() -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_OPENED)));
+        assertEquals(1, shown.size());
+        EventQueue.invokeAndWait(() -> frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_OPENED)));
+        assertEquals(1, shown.size());
+    }
+
+    @Test
+    void thePromotionDialogIsModalAndHasATitle() {
+        PromotionDialog dialog = new PromotionDialog(frame, new Promotion(1L, "Winter Escape", "12% off"));
+        try {
+            assertTrue(dialog.isModal());
+            assertEquals("ChinookAir promotion", dialog.getTitle());
+            assertFalse(dialog.isVisible());
+        } finally {
+            dialog.dispose();
+        }
     }
 
     @Test
