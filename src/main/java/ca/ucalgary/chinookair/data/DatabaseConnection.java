@@ -45,8 +45,11 @@ public final class DatabaseConnection {
         return instance;
     }
 
-    /** A separate instance for one URL, so tests do not touch the singleton. */
-    static DatabaseConnection forUrl(String url) {
+    /**
+     * A separate instance for one JDBC URL, like jdbc:sqlite::memory:, so tests and the test entry
+     * of AppContext do not touch the singleton. The caller closes it.
+     */
+    public static DatabaseConnection forUrl(String url) {
         return new DatabaseConnection(url);
     }
 
