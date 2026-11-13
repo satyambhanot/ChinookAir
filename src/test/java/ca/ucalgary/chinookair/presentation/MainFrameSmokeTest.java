@@ -70,7 +70,7 @@ class MainFrameSmokeTest {
             // these screens need a login, so without one they send you back to the login screen
             boolean needsLogin = view.name().endsWith("_DASHBOARD") || view == ViewId.FLIGHT_SEARCH
                     || view == ViewId.SEAT_SELECTION || view == ViewId.PAYMENT
-                    || view == ViewId.CONFIRMATION;
+                    || view == ViewId.CONFIRMATION || view == ViewId.MY_RESERVATIONS;
             assertEquals(needsLogin ? ViewId.LOGIN : view, frame.currentView(), view.name());
         }
         frame.show(ViewId.LOGIN);

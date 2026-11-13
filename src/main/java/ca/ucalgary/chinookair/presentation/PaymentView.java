@@ -103,7 +103,9 @@ class PaymentView extends JPanel implements Screen {
         cardField.addActionListener(e -> pay());
         expiryField.addActionListener(e -> pay());
         payButton.addActionListener(e -> pay());
-        backButton.addActionListener(e -> navigator.show(ViewId.SEAT_SELECTION));
+        // back to the seat map when booking, back to the list when paying a reservation from it
+        backButton.addActionListener(e -> navigator.show(
+                booking.selectedOffer().isPresent() ? ViewId.SEAT_SELECTION : ViewId.MY_RESERVATIONS));
     }
 
     private void addRow(GridBagConstraints c, int row, String text, char mnemonic, Component field) {

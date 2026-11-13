@@ -81,6 +81,13 @@ public class ReservationController {
         return reservation;
     }
 
+    /** True if the reservation can still be cancelled: it is waiting for payment or confirmed and has not left. */
+    public boolean canCancel(Reservation reservation) {
+        ReservationStatus status = reservation.status();
+        return (status == ReservationStatus.PENDING_PAYMENT || status == ReservationStatus.CONFIRMED)
+                && !reservation.flight().hasDeparted(clock);
+    }
+
     /**
      * Moves a confirmed reservation to another flight and seat. Only an agent may do this. If the new
      * price is the same the reservation stays confirmed; if it differs, the old payment is refunded and

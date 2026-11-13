@@ -65,6 +65,7 @@ class PaymentViewTest {
         Reservation waiting = controllers.bookingController().selectSeat(started.id(), "3C");
         navigator = new RecordingNavigator();
         booking = new BookingSession();
+        booking.select(offer);
         booking.setReservation(waiting);
         view = new PaymentView(controllers, navigator, booking);
         view.onShow();
@@ -141,6 +142,15 @@ class PaymentViewTest {
     void backGoesToTheSeatScreen() {
         view.backButton.doClick(0);
         assertEquals(ViewId.SEAT_SELECTION, navigator.last());
+    }
+
+    @Test
+    void backGoesToTheReservationListWhenThePaymentWasStartedFromThere() {
+        BookingSession fromList = new BookingSession();
+        fromList.setReservation(booking.reservation().orElseThrow());
+        PaymentView other = new PaymentView(controllers, navigator, fromList);
+        other.backButton.doClick(0);
+        assertEquals(ViewId.MY_RESERVATIONS, navigator.last());
     }
 
     @Test

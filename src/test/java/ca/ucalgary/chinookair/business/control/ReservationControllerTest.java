@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.business.control;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -104,6 +105,30 @@ class ReservationControllerTest {
 
     private PaymentStatus paymentStatus(Payment p) {
         return daos.paymentDao().findById(p.id()).orElseThrow().status();
+    }
+
+    // ---- can cancel
+
+    @Test
+    void aConfirmedOrPendingReservationOfAFutureFlightCanBeCancelled() {
+        assertTrue(controller.canCancel(confirmed(jo, flightA, "1A", "300.00")));
+        assertTrue(controller.canCancel(
+                reservation(jo, flightA, "1B", "300.00", ReservationStatus.PENDING_PAYMENT, 0)));
+    }
+
+    @Test
+    void aCancelledOrCreatedReservationCannotBeCancelled() {
+        assertFalse(controller.canCancel(reservation(jo, flightA, "1A", "300.00", ReservationStatus.CANCELLED, 0)));
+        assertFalse(controller.canCancel(reservation(jo, flightA, null, null, ReservationStatus.CREATED, 0)));
+    }
+
+    @Test
+    void aReservationOfAFlightThatLeftCannotBeCancelled() {
+        Reservation r = confirmed(jo, flightA, "1A", "300.00");
+        ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
+                daos.flightDao(), daos.seatDao(), Clock.fixed(
+                        LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
+        assertFalse(late.canCancel(r));
     }
 
     // ---- cancel
