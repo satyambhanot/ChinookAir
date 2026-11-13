@@ -7,10 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.control.SearchCriteria;
 import ca.ucalgary.chinookair.business.entity.Airport;
+import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.data.DatabaseSeeder;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import javax.swing.JComboBox;
@@ -167,5 +170,23 @@ class FlightSearchViewTest {
         navigator.shown.clear();
         view.onShow();
         assertEquals(ViewId.LOGIN, navigator.last());
+    }
+
+    @Test
+    void whileAnAgentMovesAReservationTheBookingIsKeptAndBackReturnsToTheModifyScreen() {
+        controllers.session().login(controllers.loginController()
+                .authenticate(DatabaseSeeder.AGENT_USERNAME, DatabaseSeeder.AGENT_PASSWORD));
+        Customer owner = (Customer) controllers.loginController()
+                .authenticate(DatabaseSeeder.CUSTOMER_USERNAME, DatabaseSeeder.CUSTOMER_PASSWORD);
+        booking.bookFor(owner);
+        booking.startModifying(controllers.bookingController().startReservation(owner, owner,
+                controllers.flightSearchController().search(new SearchCriteria("YYC", "YVR",
+                        LocalDate.of(2026, 12, 2), null)).get(0).flight().id()));
+        view.onShow();
+        assertTrue(booking.modifying().isPresent());
+        assertTrue(booking.customer().isPresent());
+        view.backButton.doClick(0);
+        assertEquals(ViewId.MODIFY_RESERVATION, navigator.last());
+        assertTrue(booking.modifying().isEmpty());
     }
 }

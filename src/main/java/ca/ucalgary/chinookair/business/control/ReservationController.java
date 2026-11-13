@@ -88,6 +88,11 @@ public class ReservationController {
                 && !reservation.flight().hasDeparted(clock);
     }
 
+    /** True if an agent can still move the reservation: it is confirmed and its flight has not left. */
+    public boolean canModify(Reservation reservation) {
+        return reservation.status() == ReservationStatus.CONFIRMED && !reservation.flight().hasDeparted(clock);
+    }
+
     /**
      * Moves a confirmed reservation to another flight and seat. Only an agent may do this. If the new
      * price is the same the reservation stays confirmed; if it differs, the old payment is refunded and

@@ -35,6 +35,7 @@ class PaymentView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
     private static final Color ERROR = new Color(0xB00020);
+    private static final Color NOTICE = new Color(0x1B5E20);
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -177,7 +178,9 @@ class PaymentView extends JPanel implements Screen {
             return;
         }
         clearFields();
-        messageLabel.setText(" ");
+        String notice = booking.takeNotice();
+        messageLabel.setForeground(NOTICE);
+        messageLabel.setText(notice == null ? " " : notice);
         typeCombo.setSelectedItem(PaymentMethodType.CREDIT);
         amountField.setText("$" + reservation.get().price().toPlainString());
     }

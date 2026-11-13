@@ -169,4 +169,13 @@ class PaymentViewTest {
         view.onShow();
         assertEquals(ViewId.LOGIN, navigator.last());
     }
+
+    @Test
+    void aNoticeFromAChangeIsShownOnTheScreenOnce() {
+        booking.setNotice("The old payment was refunded.");
+        view.onShow();
+        assertEquals("The old payment was refunded.", view.message());
+        view.onShow();
+        assertEquals("", view.message());
+    }
 }

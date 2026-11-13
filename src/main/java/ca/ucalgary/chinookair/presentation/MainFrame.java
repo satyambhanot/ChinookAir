@@ -80,6 +80,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         register(ViewId.MY_RESERVATIONS, new MyReservationsView(controllers, this, booking));
         register(ViewId.CUSTOMER_MANAGEMENT, new CustomerManagementView(controllers, this, booking));
         register(ViewId.PROFILE, new ProfileView(controllers, this));
+        register(ViewId.MODIFY_RESERVATION, new ModifyReservationView(controllers, this, booking));
     }
 
     /** Shows a screen. A screen that is not built yet shows a "coming soon" page. */

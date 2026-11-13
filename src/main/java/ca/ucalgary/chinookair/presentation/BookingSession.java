@@ -17,6 +17,8 @@ final class BookingSession {
     private Customer customer;
     private Reservation reservation;
     private PaymentResult payment;
+    private Reservation modifying;
+    private String notice;
 
     void select(FlightOffer chosen) {
         if (chosen == null) {
@@ -55,11 +57,40 @@ final class BookingSession {
         return Optional.ofNullable(payment);
     }
 
+    /** An agent starts moving this reservation: the search and seat screens then pick a place instead of booking. */
+    void startModifying(Reservation target) {
+        modifying = target;
+        offer = null;
+    }
+
+    Optional<Reservation> modifying() {
+        return Optional.ofNullable(modifying);
+    }
+
+    void stopModifying() {
+        modifying = null;
+        offer = null;
+    }
+
+    /** A sentence for the next screen to show once, for example after a change. */
+    void setNotice(String text) {
+        notice = text;
+    }
+
+    /** The sentence left for this screen, or null; it is shown only once. */
+    String takeNotice() {
+        String text = notice;
+        notice = null;
+        return text;
+    }
+
     /** Forgets the flight and the reservation, for a new booking. */
     void clear() {
         offer = null;
         customer = null;
         reservation = null;
         payment = null;
+        modifying = null;
+        notice = null;
     }
 }

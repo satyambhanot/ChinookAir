@@ -71,7 +71,8 @@ class MainFrameSmokeTest {
             boolean needsLogin = view.name().endsWith("_DASHBOARD") || view == ViewId.FLIGHT_SEARCH
                     || view == ViewId.SEAT_SELECTION || view == ViewId.PAYMENT
                     || view == ViewId.CONFIRMATION || view == ViewId.MY_RESERVATIONS
-                    || view == ViewId.CUSTOMER_MANAGEMENT || view == ViewId.PROFILE;
+                    || view == ViewId.CUSTOMER_MANAGEMENT || view == ViewId.PROFILE
+                    || view == ViewId.MODIFY_RESERVATION;
             assertEquals(needsLogin ? ViewId.LOGIN : view, frame.currentView(), view.name());
         }
         frame.show(ViewId.LOGIN);

@@ -181,4 +181,14 @@ class CustomerManagementViewTest {
         view.onShow();
         assertEquals(ViewId.LOGIN, navigator.last());
     }
+
+    @Test
+    void modifyOpensTheModifyScreenForTheChosenCustomer() {
+        assertFalse(view.modifyButton.isEnabled());
+        search(jo.email());
+        view.table.setRowSelectionInterval(0, 0);
+        view.modifyButton.doClick(0);
+        assertEquals(ViewId.MODIFY_RESERVATION, navigator.last());
+        assertEquals(jo.id(), booking.customer().orElseThrow().id());
+    }
 }
