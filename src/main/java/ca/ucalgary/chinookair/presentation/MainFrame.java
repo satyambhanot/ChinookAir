@@ -74,6 +74,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         register(ViewId.ADMIN_DASHBOARD, new AdminDashboard(controllers, this));
         BookingSession booking = new BookingSession();
         register(ViewId.FLIGHT_SEARCH, new FlightSearchView(controllers, this, booking));
+        register(ViewId.SEAT_SELECTION, new SeatSelectionView(controllers, this, booking));
     }
 
     /** Shows a screen. A screen that is not built yet shows a "coming soon" page. */
