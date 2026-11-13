@@ -19,19 +19,19 @@ import java.time.LocalDateTime;
  * two aircraft and two routes. It also inserts a customer and reservations with plain SQL,
  * so flight and seat tests do not depend on the reservation DAO.
  */
-final class TestWorld {
+public final class TestWorld {
 
-    final Connection db;
-    final Route yycYvr;
-    final Route yycYeg;
-    final Airline ac;
-    final Airline ws;
-    final Airline pd;
+    public final Connection db;
+    public final Route yycYvr;
+    public final Route yycYeg;
+    public final Airline ac;
+    public final Airline ws;
+    public final Airline pd;
     /** 3 rows of 4 seats. */
-    final Aircraft small;
-    final Aircraft big;
+    public final Aircraft small;
+    public final Aircraft big;
 
-    TestWorld(Connection db) {
+    public TestWorld(Connection db) {
         this.db = db;
         AirportDao airports = new SqliteAirportDao(db);
         airports.save(airport("YYC"));
@@ -52,18 +52,18 @@ final class TestWorld {
     }
 
     /** A two hour flight at 200.00 that is not saved yet. */
-    Flight flight(String number, Route route, Airline airline, Aircraft aircraft, LocalDateTime departure) {
+    public Flight flight(String number, Route route, Airline airline, Aircraft aircraft, LocalDateTime departure) {
         return new Flight(null, number, route, airline, aircraft, departure, departure.plusHours(2),
                 new BigDecimal("200.00"));
     }
 
     /** Inserts a reservation of the first customer with plain SQL and returns its id. A null seat means none yet. */
-    long reserve(String confirmationNumber, long flightId, String seat, String status) {
+    public long reserve(String confirmationNumber, long flightId, String seat, String status) {
         return reserveFor(1, confirmationNumber, flightId, seat, status);
     }
 
     /** Inserts a reservation of the given customer with plain SQL and returns its id. */
-    long reserveFor(long customerId, String confirmationNumber, long flightId, String seat, String status) {
+    public long reserveFor(long customerId, String confirmationNumber, long flightId, String seat, String status) {
         String seatValue = seat == null ? "NULL" : "'" + seat + "'";
         String priceValue = seat == null ? "NULL" : "20000";
         run("INSERT INTO reservation (confirmation_number, customer_id, flight_id, seat_no, price_cents, status, "
@@ -77,7 +77,7 @@ final class TestWorld {
         }
     }
 
-    void setStatus(long reservationId, String status) {
+    public void setStatus(long reservationId, String status) {
         run("UPDATE reservation SET status = '" + status + "' WHERE id = " + reservationId);
     }
 
