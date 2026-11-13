@@ -6,6 +6,7 @@ import ca.ucalgary.chinookair.business.control.FlightOffer;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Reservation;
+import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.Seat;
 import ca.ucalgary.chinookair.business.entity.SeatClass;
 import ca.ucalgary.chinookair.business.entity.User;
@@ -114,19 +115,29 @@ class SeatSelectionView extends JPanel implements Screen {
             navigator.show(ViewId.FLIGHT_SEARCH);
             return;
         }
-        giveUpEarlierReservation();
+        // an agent moving a reservation only picks a seat: nothing is booked or given up here
+        boolean moving = booking.modifying().isPresent();
+        if (!moving) {
+            giveUpEarlierReservation();
+        }
         offer = booking.selectedOffer().get();
         messageLabel.setText(" ");
         BookingController bookings = controllers.bookingController();
         Flight flight = offer.flight();
-        heading.setText("Choose a seat on " + flight.flightNumber() + ", "
+        heading.setText((moving ? "Choose the new seat on " : "Choose a seat on ") + flight.flightNumber() + ", "
                 + flight.route().origin().code() + " → " + flight.route().destination().code());
+        continueButton.setText(moving ? "Confirm change" : "Continue to payment");
         try {
-            Reservation reservation = bookings.startReservation(user.get(), customerFor(user.get()), flight.id());
-            booking.setReservation(reservation);
+            if (!moving) {
+                Reservation reservation = bookings.startReservation(user.get(), customerFor(user.get()),
+                        flight.id());
+                booking.setReservation(reservation);
+            }
             drawMap();
         } catch (RuntimeException e) {
-            booking.setReservation(null);
+            if (!moving) {
+                booking.setReservation(null);
+            }
             mapPanel.removeAll();
             mapPanel.revalidate();
             showError(ErrorMessages.forException(e));
@@ -207,6 +218,10 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     private void continueToPayment() {
+        if (booking.modifying().isPresent()) {
+            confirmChange();
+            return;
+        }
         Optional<Reservation> reservation = booking.reservation();
         if (chosenSeat == null || reservation.isEmpty()) {
             return;
@@ -225,7 +240,43 @@ class SeatSelectionView extends JPanel implements Screen {
         }
     }
 
+    /** An agent moves a reservation to the chosen flight and seat. */
+    private void confirmChange() {
+        Optional<User> agent = controllers.session().currentUser();
+        Reservation target = booking.modifying().orElse(null);
+        if (agent.isEmpty() || target == null || chosenSeat == null) {
+            return;
+        }
+        try {
+            Reservation moved = controllers.reservationController().modify(agent.get(), target.id(),
+                    offer.flight().id(), chosenSeat);
+            booking.stopModifying();
+            if (moved.status() == ReservationStatus.PENDING_PAYMENT) {
+                booking.setReservation(moved);
+                booking.setNotice("The price changed, so the old payment was refunded. "
+                        + "Please pay the new amount.");
+                navigator.show(ViewId.PAYMENT);
+            } else {
+                booking.setNotice("Reservation " + moved.confirmationNumber() + " now has seat "
+                        + moved.seatNo() + " on flight " + moved.flight().flightNumber() + ".");
+                navigator.show(ViewId.MODIFY_RESERVATION);
+            }
+        } catch (RuntimeException e) {
+            String message = ErrorMessages.forException(e);
+            try {
+                drawMap();
+            } catch (RuntimeException again) {
+                // keep the first message
+            }
+            showError(message);
+        }
+    }
+
     private void goBack() {
+        if (booking.modifying().isPresent()) {
+            navigator.show(ViewId.FLIGHT_SEARCH);
+            return;
+        }
         giveUpEarlierReservation();
         navigator.show(ViewId.FLIGHT_SEARCH);
     }

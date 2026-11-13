@@ -49,6 +49,7 @@ class FlightSearchView extends JPanel implements Screen {
     final JButton backButton = new JButton("Back");
     final FlightTableModel tableModel = new FlightTableModel();
     final JTable table = new JTable(tableModel);
+    private final JLabel heading = new JLabel("Find available flights");
     private final JLabel messageLabel = new JLabel(" ");
 
     FlightSearchView(Controllers controllers, Navigator navigator, BookingSession booking) {
@@ -62,7 +63,6 @@ class FlightSearchView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        JLabel heading = new JLabel("Find available flights");
         heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         form.add(label("From", 'F', originCombo));
@@ -144,6 +144,11 @@ class FlightSearchView extends JPanel implements Screen {
     }
 
     private void goBack() {
+        if (booking.modifying().isPresent()) {
+            booking.stopModifying();
+            navigator.show(ViewId.MODIFY_RESERVATION);
+            return;
+        }
         Optional<User> user = controllers.session().currentUser();
         navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
     }
@@ -163,7 +168,11 @@ class FlightSearchView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
-        booking.clear();
+        // while an agent moves a reservation the booking is kept, it only picks a flight
+        if (booking.modifying().isEmpty()) {
+            booking.clear();
+        }
+        heading.setText(booking.modifying().isPresent() ? "Find the new flight" : "Find available flights");
         fill(originCombo, controllers.flightSearchController().airports(), 0);
         fill(destinationCombo, controllers.flightSearchController().airports(), 1);
         DefaultComboBoxModel<Airline> airlines = new DefaultComboBoxModel<>();
