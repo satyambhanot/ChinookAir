@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
@@ -118,5 +119,88 @@ class ScheduleViewTest {
         controllers.session().logout();
         view.onShow();
         assertEquals(ViewId.LOGIN, navigator.last());
+    }
+
+    // ---- the administrator moves flights
+
+    private void asAdmin() {
+        controllers.session().login(controllers.loginController()
+                .authenticate(DatabaseSeeder.ADMIN_USERNAME, DatabaseSeeder.ADMIN_PASSWORD));
+        view.onShow();
+        show("2026-12-02", "2026-12-20");
+    }
+
+    @Test
+    void theRescheduleControlsAreOnlyForTheAdministrator() {
+        assertFalse(view.rescheduleButton.getParent().isVisible());
+        asAdmin();
+        assertTrue(view.rescheduleButton.getParent().isVisible());
+    }
+
+    @Test
+    void choosingAFlightFillsTheNewTimesAndEnablesTheButton() {
+        asAdmin();
+        assertFalse(view.rescheduleButton.isEnabled());
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.rescheduleButton.isEnabled());
+        assertEquals(view.tableModel.getValueAt(0, 2), view.newDepartureField.getText());
+        assertEquals(view.tableModel.getValueAt(0, 3), view.newArrivalField.getText());
+    }
+
+    @Test
+    void aFlightMovedToAFreeSlotShowsTheNewTimeInTheTable() {
+        asAdmin();
+        view.table.setRowSelectionInterval(0, 0);
+        String number = (String) view.tableModel.getValueAt(0, 0);
+        view.newDepartureField.setText("2026-12-19 03:00");
+        view.newArrivalField.setText("2026-12-19 04:30");
+        view.rescheduleButton.doClick(0);
+        assertEquals("Rescheduled " + number, view.message());
+        boolean found = false;
+        for (int row = 0; row < view.tableModel.getRowCount(); row++) {
+            if (view.tableModel.getValueAt(row, 0).equals(number)) {
+                assertEquals("2026-12-19 03:00", view.tableModel.getValueAt(row, 2));
+                found = true;
+            }
+        }
+        assertTrue(found);
+    }
+
+    @Test
+    void aFlightMovedOntoAnotherFlightOfTheSameAircraftIsRefused() {
+        asAdmin();
+        // two flights of one aircraft: move the first onto the time of the second
+        int first = 0;
+        int second = -1;
+        for (int row = 1; row < view.tableModel.getRowCount() && second < 0; row++) {
+            if (view.tableModel.flightAt(row).aircraft().id().equals(view.tableModel.flightAt(first).aircraft().id())) {
+                second = row;
+            }
+        }
+        assertTrue(second > 0);
+        view.table.setRowSelectionInterval(first, first);
+        view.newDepartureField.setText((String) view.tableModel.getValueAt(second, 2));
+        view.newArrivalField.setText((String) view.tableModel.getValueAt(second, 3));
+        view.rescheduleButton.doClick(0);
+        assertTrue(view.message().contains("Aircraft is already assigned"), view.message());
+    }
+
+    @Test
+    void aDepartureInThePastIsRefused() {
+        asAdmin();
+        view.table.setRowSelectionInterval(0, 0);
+        view.newDepartureField.setText("2026-11-30 10:00");
+        view.newArrivalField.setText("2026-11-30 12:00");
+        view.rescheduleButton.doClick(0);
+        assertTrue(view.message().contains("must be in the future"), view.message());
+    }
+
+    @Test
+    void aBadTimeIsExplained() {
+        asAdmin();
+        view.table.setRowSelectionInterval(0, 0);
+        view.newDepartureField.setText("soon");
+        view.rescheduleButton.doClick(0);
+        assertTrue(view.message().startsWith("Date and time must look like"), view.message());
     }
 }
