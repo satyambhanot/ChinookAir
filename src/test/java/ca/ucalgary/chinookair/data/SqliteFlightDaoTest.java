@@ -208,6 +208,15 @@ class SqliteFlightDaoTest {
     }
 
     @Test
+    void isArchivedIsTrueOnlyAfterArchiving() {
+        Flight saved = dao.save(world.flight("AC123", world.yycYvr, world.ac, world.big, at(1, 8, 0)));
+        assertFalse(dao.isArchived(saved.id()));
+        dao.archive(saved.id());
+        assertTrue(dao.isArchived(saved.id()));
+        assertFalse(dao.isArchived(999));
+    }
+
+    @Test
     void anArchivedFlightIsHiddenFromSearchesButStillFound() {
         saveTheTestFlights();
         long id = dao.search("YYC", "YVR", DAY, "WS").get(0).id();
