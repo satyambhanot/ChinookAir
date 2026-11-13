@@ -112,6 +112,12 @@ class SqliteFlightDao implements FlightDao {
     }
 
     @Override
+    public boolean isArchived(long flightId) {
+        return JdbcSupport.queryOne(connection, "SELECT 1 FROM flight WHERE id = ? AND archived = 1",
+                st -> st.setLong(1, flightId), row -> 1).isPresent();
+    }
+
+    @Override
     public boolean existsByFlightNumber(String flightNumber) {
         if (flightNumber == null) {
             return false;

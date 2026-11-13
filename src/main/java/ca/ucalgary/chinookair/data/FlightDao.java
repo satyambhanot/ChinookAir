@@ -32,6 +32,9 @@ public interface FlightDao {
     /** Finds a flight, archived or not. */
     Optional<Flight> findById(long flightId);
 
+    /** True if the flight was archived, so nobody may reserve on it any more. An unknown flight is not archived. */
+    boolean isArchived(long flightId);
+
     boolean existsByFlightNumber(String flightNumber);
 
     /**
