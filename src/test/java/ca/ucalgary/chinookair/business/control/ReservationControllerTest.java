@@ -131,6 +131,18 @@ class ReservationControllerTest {
         assertFalse(late.canCancel(r));
     }
 
+    @Test
+    void onlyAConfirmedReservationOfAFutureFlightCanBeModified() {
+        assertTrue(controller.canModify(confirmed(jo, flightA, "1A", "300.00")));
+        assertFalse(controller.canModify(
+                reservation(jo, flightA, "1B", "300.00", ReservationStatus.PENDING_PAYMENT, 0)));
+        assertFalse(controller.canModify(reservation(jo, flightA, "1C", "300.00", ReservationStatus.CANCELLED, 0)));
+        ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
+                daos.flightDao(), daos.seatDao(), Clock.fixed(
+                        LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
+        assertFalse(late.canModify(confirmed(jo, flightA, "1D", "300.00")));
+    }
+
     // ---- cancel
 
     @Test
