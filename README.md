@@ -14,6 +14,20 @@ mvn clean package
 java -jar target/ChinookAir.jar
 ```
 
+## Demo accounts
+
+The first start creates a database in `~/.chinookair/chinookair.db` with demo
+flights for the next 60 days, 12 promotions and three accounts. Move the file
+with `-Dchinookair.db=/path/to/file.db`.
+
+| Role | Username | Password |
+|---|---|---|
+| Customer | `customer1` | `customer123` |
+| Flight agent | `agent1` | `agent123` |
+| Administrator | `admin` | `admin123` |
+
+Passwords are stored as PBKDF2 hashes, never as text.
+
 ## Project layout
 
 Three layers, one package each:
