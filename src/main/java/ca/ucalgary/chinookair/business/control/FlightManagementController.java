@@ -141,12 +141,7 @@ public class FlightManagementController {
         if (!flight.departure().isAfter(LocalDateTime.now(clock))) {
             throw new IllegalArgumentException("Departure must be in the future");
         }
-        for (Flight other : flights.findByAircraft(plane.id())) {
-            boolean itself = self != null && other.id().equals(self.id());
-            if (!itself && other.overlaps(flight.departure(), flight.arrival())) {
-                throw new IllegalArgumentException("Aircraft is already assigned to another flight at that time");
-            }
-        }
+        AircraftConflicts.requireNone(flights, flight);
         return flight;
     }
 }
