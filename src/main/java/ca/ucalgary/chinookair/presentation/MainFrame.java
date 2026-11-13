@@ -1,6 +1,8 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.control.PromotionListener;
+import ca.ucalgary.chinookair.business.entity.Promotion;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -10,16 +12,18 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 /**
  * The one window of the program. It holds the screens as cards and shows one at a time; screens ask
  * for another screen through the {@link Navigator}. Closing the window closes the database.
  */
-public class MainFrame extends JFrame implements Navigator {
+public class MainFrame extends JFrame implements Navigator, PromotionListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,6 +33,7 @@ public class MainFrame extends JFrame implements Navigator {
     private final Set<ViewId> added = EnumSet.noneOf(ViewId.class);
     private final Map<ViewId, Component> screens = new EnumMap<>(ViewId.class);
     private ViewId current;
+    private Consumer<Promotion> promotionDisplay = this::openPromotionDialog;
 
     public MainFrame(Controllers controllers) {
         super("ChinookAir");
@@ -41,10 +46,16 @@ public class MainFrame extends JFrame implements Navigator {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
+            public void windowOpened(WindowEvent e) {
+                showStartupPromotion();
+            }
+
+            @Override
             public void windowClosing(WindowEvent e) {
                 controllers.shutdown().run();
             }
         });
+        controllers.promotionController().addListener(this);
         buildScreens();
         show(ViewId.LOGIN);
     }
@@ -86,6 +97,30 @@ public class MainFrame extends JFrame implements Navigator {
         content.add(screen, view.name());
         screens.put(view, screen);
         added.add(view);
+    }
+
+    /**
+     * Asks the PromotionController once the window is open. On the first start of a calendar month it
+     * tells this frame, which shows the promotion over the login screen.
+     */
+    void showStartupPromotion() {
+        controllers.promotionController().checkOnStartup();
+    }
+
+    /** The Observer side: the controller found this month's promotion. */
+    @Override
+    public void onPromotion(Promotion promotion) {
+        promotionDisplay.accept(promotion);
+    }
+
+    private void openPromotionDialog(Promotion promotion) {
+        // later, so the window is painted first and the dialog sits on top of it
+        SwingUtilities.invokeLater(() -> new PromotionDialog(this, promotion).setVisible(true));
+    }
+
+    /** Lets a test see the promotion instead of opening a modal dialog. */
+    void setPromotionDisplay(Consumer<Promotion> display) {
+        this.promotionDisplay = display;
     }
 
     /** The screen that is showing now, for tests. */
