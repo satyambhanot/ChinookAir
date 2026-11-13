@@ -1,5 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
+import ca.ucalgary.chinookair.business.entity.Role;
+
 /** The screens of the program. The navigator shows one of them at a time. */
 public enum ViewId {
     LOGIN,
@@ -20,6 +22,20 @@ public enum ViewId {
     ROUTE_MANAGEMENT,
     AIRCRAFT_MANAGEMENT,
     SCHEDULE;
+
+    /** The dashboard that belongs to a role. */
+    public static ViewId dashboardFor(Role role) {
+        switch (role) {
+            case CUSTOMER:
+                return CUSTOMER_DASHBOARD;
+            case AGENT:
+                return AGENT_DASHBOARD;
+            case ADMIN:
+                return ADMIN_DASHBOARD;
+            default:
+                throw new IllegalArgumentException("Unknown role " + role);
+        }
+    }
 
     /** The name in words, like "Flight search". */
     public String title() {
