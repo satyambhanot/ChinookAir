@@ -529,7 +529,7 @@ Closes the 50-mark design phase.
 ### Implementation Guide
 1. Fill the title page, include all exported images, and run `make pdf`.
 2. Check the page order: requirements, A (introduction and four activity diagrams), B, C, D, E, F, G, traceability.
-3. Open a PR from `dev` into `main` with the final report and tag `design-v1` after merging.
+3. Merge the final report into `dev` and tag the merge commit `design-v1`. The PR from `dev` into `main` is opened once, at the end of the project (P9-05), not here.
 4. Submit the PDF.
 
 ### Testing Strategy
