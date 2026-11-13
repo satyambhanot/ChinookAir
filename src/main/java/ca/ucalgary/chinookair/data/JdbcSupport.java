@@ -78,4 +78,27 @@ final class JdbcSupport {
             throw new DataAccessException("Insert failed: " + e.getMessage(), e);
         }
     }
+
+    /** Runs the same INSERT or UPDATE once for every binder, all in one transaction: all of them or none. */
+    static void batch(Connection connection, String sql, List<Binder> binders) {
+        try {
+            boolean before = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                for (Binder binder : binders) {
+                    binder.bind(statement);
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+                connection.commit();
+            } catch (SQLException | RuntimeException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                connection.setAutoCommit(before);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Batch failed: " + e.getMessage(), e);
+        }
+    }
 }
