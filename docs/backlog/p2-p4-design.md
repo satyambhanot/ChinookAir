@@ -503,7 +503,7 @@ One table that proves the chain: requirement, use case, scenario, diagram, contr
 Most lost marks in a document like this come from small mismatches between diagrams. This is one deliberate pass to find them.
 
 ### Implementation Guide
-1. Build a checklist in the issue: every class name, operation name, state name and multiplicity is compared between the use-case table, scenarios, class diagram, sequence diagrams and state diagrams.
+1. Build a checklist in the issue: every class name, operation name, state name and multiplicity is compared between the use-case table, scenarios, class diagram, sequence diagrams and state diagrams. The checklist and its result are kept in `docs/consistency-review.md`.
 2. Read each sequence diagram aloud against the class diagram.
 3. Fix mismatches in the sources and re-export.
 4. Print the report to PDF and review it at 100% zoom.
