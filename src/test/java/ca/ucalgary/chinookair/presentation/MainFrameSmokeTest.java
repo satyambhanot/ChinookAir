@@ -62,7 +62,9 @@ class MainFrameSmokeTest {
         assertEquals(ViewId.LOGIN, frame.currentView());
         for (ViewId view : ViewId.values()) {
             frame.show(view);
-            assertEquals(view, frame.currentView());
+            // a dashboard needs a login, so without one it sends you back to the login screen
+            boolean dashboard = view.name().endsWith("_DASHBOARD");
+            assertEquals(dashboard ? ViewId.LOGIN : view, frame.currentView(), view.name());
         }
         frame.show(ViewId.LOGIN);
         assertEquals(ViewId.LOGIN, frame.currentView());

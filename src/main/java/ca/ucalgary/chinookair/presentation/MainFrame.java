@@ -2,10 +2,13 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.EnumMap;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -24,6 +27,7 @@ public class MainFrame extends JFrame implements Navigator {
     private final CardLayout cards = new CardLayout();
     private final JPanel content = new JPanel(cards);
     private final Set<ViewId> added = EnumSet.noneOf(ViewId.class);
+    private final Map<ViewId, Component> screens = new EnumMap<>(ViewId.class);
     private ViewId current;
 
     public MainFrame(Controllers controllers) {
@@ -41,7 +45,22 @@ public class MainFrame extends JFrame implements Navigator {
                 controllers.shutdown().run();
             }
         });
+        buildScreens();
         show(ViewId.LOGIN);
+    }
+
+    /** The screens that exist so far; the others show a "coming soon" page until their issue is done. */
+    private void buildScreens() {
+        LoginView login = new LoginView(controllers, this);
+        register(ViewId.LOGIN, login);
+        register(ViewId.REGISTER, new RegisterView(controllers, this, (username, message) -> {
+            show(ViewId.LOGIN);
+            login.prefill(username);
+            login.showNotice(message);
+        }));
+        register(ViewId.CUSTOMER_DASHBOARD, new CustomerDashboard(controllers, this));
+        register(ViewId.AGENT_DASHBOARD, new AgentDashboard(controllers, this));
+        register(ViewId.ADMIN_DASHBOARD, new AdminDashboard(controllers, this));
     }
 
     /** Shows a screen. A screen that is not built yet shows a "coming soon" page. */
@@ -53,13 +72,19 @@ public class MainFrame extends JFrame implements Navigator {
         if (!added.contains(view)) {
             register(view, new ComingSoonView(view));
         }
-        cards.show(content, view.name());
         current = view;
+        cards.show(content, view.name());
+        Component screen = screens.get(view);
+        if (screen instanceof Screen) {
+            // a screen may send the user elsewhere in here, for example to the login screen
+            ((Screen) screen).onShow();
+        }
     }
 
     /** Puts a built screen in place of the one that stands for it. */
     void register(ViewId view, JComponent screen) {
         content.add(screen, view.name());
+        screens.put(view, screen);
         added.add(view);
     }
 
