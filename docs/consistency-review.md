@@ -45,3 +45,22 @@ is frozen (P4-05). Every check was run against the sources in
   does not get its own control class or ID.
 - UC-12 (View Flight Schedules) has no scenario step. Its operation is in the
   table of section C and its row in the traceability table says so.
+
+## Check against the finished code (P9-03)
+
+The diagrams were compared with `src/main/java` (140 files) after the last screen was built.
+
+- Every message of the four sequence diagrams is an operation of a class on the class diagrams
+  (0 mismatches in the check script).
+- Every public class of `business.control`, `business.entity` and `data` is on a class diagram.
+  Eighteen helper and exception classes were added while coding and had no box; they are now in the
+  boxes *Added while coding* of the refined diagrams (figures 12 and 13).
+- Operations added to existing classes are drawn: `airports`, `airlines`, `today` on
+  FlightSearchController and `canCancel`, `canModify` on ReservationController (first-cut control
+  diagram); `isArchived` on FlightDao and `replaceSeats` on SeatDao (data diagram).
+- The classes that are package-private or only in the presentation layer (the table models,
+  BookingSession, InputParser and so on) are listed in the table *Classes added while coding* of
+  section F, with their package and the reason they exist.
+- FlightSearchController also uses AirportDao and AirlineDao; the table of control classes and DAOs
+  says so.
+- The title page says the document was updated for the implementation.
