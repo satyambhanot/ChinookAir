@@ -72,7 +72,8 @@ class MainFrameSmokeTest {
                     || view == ViewId.SEAT_SELECTION || view == ViewId.PAYMENT
                     || view == ViewId.CONFIRMATION || view == ViewId.MY_RESERVATIONS
                     || view == ViewId.CUSTOMER_MANAGEMENT || view == ViewId.PROFILE
-                    || view == ViewId.MODIFY_RESERVATION;
+                    || view == ViewId.MODIFY_RESERVATION || view == ViewId.PAYMENT_RECORDS
+                    || view == ViewId.SCHEDULE;
             assertEquals(needsLogin ? ViewId.LOGIN : view, frame.currentView(), view.name());
         }
         frame.show(ViewId.LOGIN);
