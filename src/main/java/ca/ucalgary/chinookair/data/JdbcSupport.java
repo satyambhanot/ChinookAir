@@ -82,11 +82,15 @@ final class JdbcSupport {
 
     /**
      * Runs the work in one transaction: everything it does is kept, or nothing is. Any exception
-     * undoes the work and is passed on.
+     * undoes the work and is passed on. Inside a running transaction it joins that one instead.
      */
     static <T> T transaction(Connection connection, Supplier<T> work) {
         try {
             boolean before = connection.getAutoCommit();
+            if (!before) {
+                // already inside a transaction: join it, the outer one decides to keep or undo
+                return work.get();
+            }
             connection.setAutoCommit(false);
             try {
                 T result = work.get();
