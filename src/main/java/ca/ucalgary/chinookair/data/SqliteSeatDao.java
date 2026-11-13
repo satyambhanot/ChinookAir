@@ -33,6 +33,17 @@ class SqliteSeatDao implements SeatDao {
     }
 
     @Override
+    public void replaceSeats(long flightId, List<Seat> seats) {
+        // the delete and the inserts are one transaction, so a refusal leaves the old seats in place
+        JdbcSupport.transaction(connection, () -> {
+            JdbcSupport.update(connection, "DELETE FROM flight_seat WHERE flight_id = ?",
+                    st -> st.setLong(1, flightId));
+            createSeats(flightId, seats);
+            return null;
+        });
+    }
+
+    @Override
     public List<Seat> findByFlight(long flightId) {
         // "1A" is shorter than "10A", so sorting by length and then text gives row order
         return JdbcSupport.query(connection, "SELECT fs.seat_no, fs.seat_class, NOT EXISTS (" + ACTIVE_RESERVATION

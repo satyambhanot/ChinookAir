@@ -128,6 +128,21 @@ class SqliteSeatDaoTest {
     }
 
     @Test
+    void replaceSeatsSwapsTheSeatsOfAFlight() {
+        seats.replaceSeats(flightId, SeatLayout.generate(world.big));
+        assertEquals(180, seats.findByFlight(flightId).size());
+        assertEquals(180, seats.countAvailable(flightId));
+        assertEquals("30F", seats.findByFlight(flightId).get(179).number());
+    }
+
+    @Test
+    void replaceSeatsIsRefusedWhileAReservationUsesASeatAndKeepsTheOldSeats() {
+        world.reserve("CA000001", flightId, "1A", "CANCELLED");
+        assertThrows(DataAccessException.class, () -> seats.replaceSeats(flightId, SeatLayout.generate(world.big)));
+        assertEquals(12, seats.findByFlight(flightId).size());
+    }
+
+    @Test
     void seatsNeedAFlightThatExists() {
         assertThrows(DataAccessException.class,
                 () -> seats.createSeats(999, List.of(new Seat("1A", SeatClass.BUSINESS, true))));
