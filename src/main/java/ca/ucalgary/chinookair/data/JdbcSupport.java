@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * The JDBC boilerplate that every DAO would otherwise repeat: prepare the
@@ -79,26 +80,42 @@ final class JdbcSupport {
         }
     }
 
-    /** Runs the same INSERT or UPDATE once for every binder, all in one transaction: all of them or none. */
-    static void batch(Connection connection, String sql, List<Binder> binders) {
+    /**
+     * Runs the work in one transaction: everything it does is kept, or nothing is. Any exception
+     * undoes the work and is passed on.
+     */
+    static <T> T transaction(Connection connection, Supplier<T> work) {
         try {
             boolean before = connection.getAutoCommit();
             connection.setAutoCommit(false);
-            try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                for (Binder binder : binders) {
-                    binder.bind(statement);
-                    statement.addBatch();
-                }
-                statement.executeBatch();
+            try {
+                T result = work.get();
                 connection.commit();
-            } catch (SQLException | RuntimeException e) {
+                return result;
+            } catch (RuntimeException e) {
                 connection.rollback();
                 throw e;
             } finally {
                 connection.setAutoCommit(before);
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Batch failed: " + e.getMessage(), e);
+            throw new DataAccessException("Transaction failed: " + e.getMessage(), e);
         }
+    }
+
+    /** Runs the same INSERT or UPDATE once for every binder, all in one transaction: all of them or none. */
+    static void batch(Connection connection, String sql, List<Binder> binders) {
+        transaction(connection, () -> {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                for (Binder binder : binders) {
+                    binder.bind(statement);
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+                return null;
+            } catch (SQLException e) {
+                throw new DataAccessException("Batch failed: " + e.getMessage(), e);
+            }
+        });
     }
 }
