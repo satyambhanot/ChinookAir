@@ -84,6 +84,8 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         register(ViewId.PAYMENT_RECORDS, new PaymentRecordsView(controllers, this));
         register(ViewId.SCHEDULE, new ScheduleView(controllers, this));
         register(ViewId.FLIGHT_MANAGEMENT, new FlightManagementView(controllers, this));
+        register(ViewId.ROUTE_MANAGEMENT, new RouteManagementView(controllers, this));
+        register(ViewId.AIRCRAFT_MANAGEMENT, new AircraftManagementView(controllers, this));
     }
 
     /** Shows a screen. A screen that is not built yet shows a "coming soon" page. */
