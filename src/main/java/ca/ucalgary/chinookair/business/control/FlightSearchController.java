@@ -1,7 +1,11 @@
 package ca.ucalgary.chinookair.business.control;
 
+import ca.ucalgary.chinookair.business.entity.Airline;
+import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.SeatClass;
+import ca.ucalgary.chinookair.data.AirlineDao;
+import ca.ucalgary.chinookair.data.AirportDao;
 import ca.ucalgary.chinookair.data.FlightDao;
 import ca.ucalgary.chinookair.data.SeatDao;
 import java.time.Clock;
@@ -14,12 +18,32 @@ public class FlightSearchController {
 
     private final FlightDao flights;
     private final SeatDao seats;
+    private final AirportDao airports;
+    private final AirlineDao airlines;
     private final Clock clock;
 
-    public FlightSearchController(FlightDao flights, SeatDao seats, Clock clock) {
+    public FlightSearchController(FlightDao flights, SeatDao seats, AirportDao airports, AirlineDao airlines,
+                                  Clock clock) {
         this.flights = flights;
         this.seats = seats;
+        this.airports = airports;
+        this.airlines = airlines;
         this.clock = clock;
+    }
+
+    /** Today by the program's clock, the day the search screen starts with. */
+    public LocalDate today() {
+        return LocalDate.now(clock);
+    }
+
+    /** Every airport, sorted by code, for the origin and destination lists of the search screen. */
+    public List<Airport> airports() {
+        return airports.findAll();
+    }
+
+    /** Every airline, sorted by code, for the airline list of the search screen. */
+    public List<Airline> airlines() {
+        return airlines.findAll();
     }
 
     /**

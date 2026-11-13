@@ -38,7 +38,8 @@ class FlightSearchControllerTest {
         db = TestDatabase.inMemory();
         world = new TestWorld(db);
         daos = DaoFactory.create(db);
-        controller = new FlightSearchController(daos.flightDao(), daos.seatDao(), CLOCK);
+        controller = new FlightSearchController(daos.flightDao(), daos.seatDao(), daos.airportDao(), daos.airlineDao(),
+                CLOCK);
         // three flights on the 1st (08:00 has already left, 12:00 and 18:00 have not), one on the 2nd
         saveFlight("AC100", world.ac, 1, 8);
         saveFlight("WS200", world.ws, 1, 12);
@@ -69,6 +70,21 @@ class FlightSearchControllerTest {
 
     private String messageOf(SearchCriteria criteria) {
         return assertThrows(IllegalArgumentException.class, () -> controller.search(criteria)).getMessage();
+    }
+
+    // ---- lists for the screen
+
+    @Test
+    void airportsAndAirlinesComeFromTheDataLayerSortedByCode() {
+        assertEquals(daos.airportDao().findAll(), controller.airports());
+        assertEquals(daos.airlineDao().findAll(), controller.airlines());
+        assertTrue(controller.airports().stream().anyMatch(a -> a.code().equals("YYC")));
+        assertTrue(controller.airlines().stream().anyMatch(a -> a.code().equals("AC")));
+    }
+
+    @Test
+    void todayFollowsTheClock() {
+        assertEquals(TODAY, controller.today());
     }
 
     // ---- search results
