@@ -82,6 +82,11 @@ class FlightSearchControllerTest {
         assertTrue(controller.airlines().stream().anyMatch(a -> a.code().equals("AC")));
     }
 
+    @Test
+    void todayFollowsTheClock() {
+        assertEquals(TODAY, controller.today());
+    }
+
     // ---- search results
 
     @Test

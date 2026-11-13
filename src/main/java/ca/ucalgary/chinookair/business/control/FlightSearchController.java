@@ -31,6 +31,11 @@ public class FlightSearchController {
         this.clock = clock;
     }
 
+    /** Today by the program's clock, the day the search screen starts with. */
+    public LocalDate today() {
+        return LocalDate.now(clock);
+    }
+
     /** Every airport, sorted by code, for the origin and destination lists of the search screen. */
     public List<Airport> airports() {
         return airports.findAll();
