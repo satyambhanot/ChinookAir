@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.presentation.Brand;
 import ca.ucalgary.chinookair.presentation.MainFrame;
 import ca.ucalgary.chinookair.presentation.Theme;
 import java.awt.GraphicsEnvironment;
@@ -16,6 +17,7 @@ public class ChinookAir {
             // Swing isn't thread safe, so build the UI on the event thread
             SwingUtilities.invokeLater(() -> {
                 Theme.install();
+                Brand.installTaskbarIcon();
                 new MainFrame(controllers).setVisible(true);
             });
         } catch (RuntimeException e) {

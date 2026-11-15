@@ -40,6 +40,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     public MainFrame(Controllers controllers) {
         super("ChinookAir");
         this.controllers = controllers;
+        setIconImages(Brand.icons());
         setSize(1000, 700);
         setMinimumSize(new Dimension(800, 600));
         setLocationRelativeTo(null);
