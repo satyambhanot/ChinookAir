@@ -13,8 +13,8 @@ import javax.imageio.ImageIO;
  * Run it from the project folder:  java scripts/BrandAssets.java
  *
  * It reads docs/brand/chinookair-logo-original.png and writes into src/main/resources/branding:
- *   logo-full.png   the whole logo (mark and name), cropped to its content
- *   mark.png        the mountain and plane without the name
+ *   logo-full.png   the whole logo (mark and name), cropped, on a transparent background
+ *   mark.png        the mountain and plane without the name, on a transparent background
  *   icon-N.png      square window icons with a white rounded tile, for N = 16 .. 512
  */
 public class BrandAssets {
@@ -33,10 +33,10 @@ public class BrandAssets {
         int[] mark = box(original, 0, nameTop);
 
         BufferedImage full = crop(original, all, 24);
-        write(scaleToWidth(full, 720), new File(out, "logo-full.png"));
+        write(scaleToWidth(transparent(full), 720), new File(out, "logo-full.png"));
 
         BufferedImage markImage = crop(original, mark, 24);
-        write(scaleToWidth(markImage, 640), new File(out, "mark.png"));
+        write(scaleToWidth(transparent(markImage), 640), new File(out, "mark.png"));
 
         for (int size : ICON_SIZES) {
             write(icon(markImage, size), new File(out, "icon-" + size + ".png"));
@@ -110,7 +110,72 @@ public class BrandAssets {
 
     private static BufferedImage scaleToWidth(BufferedImage image, int width) {
         int height = Math.round(image.getHeight() * (float) width / image.getWidth());
-        return scale(image, width, height, BufferedImage.TYPE_INT_RGB, Color.WHITE);
+        return scale(image, width, height, BufferedImage.TYPE_INT_ARGB, null);
+    }
+
+    /**
+     * Makes the white around the picture transparent. Only white that touches the edge is removed, so
+     * the white snow and the plane windows inside the picture stay. Pale pixels along the edge become
+     * partly transparent, which keeps the outline smooth.
+     */
+    private static BufferedImage transparent(BufferedImage image) {
+        int w = image.getWidth();
+        int h = image.getHeight();
+        boolean[][] outside = new boolean[h][w];
+        java.util.ArrayDeque<int[]> queue = new java.util.ArrayDeque<>();
+        for (int x = 0; x < w; x++) {
+            queue.add(new int[] {x, 0});
+            queue.add(new int[] {x, h - 1});
+        }
+        for (int y = 0; y < h; y++) {
+            queue.add(new int[] {0, y});
+            queue.add(new int[] {w - 1, y});
+        }
+        while (!queue.isEmpty()) {
+            int[] at = queue.poll();
+            int x = at[0];
+            int y = at[1];
+            if (x < 0 || y < 0 || x >= w || y >= h || outside[y][x] || !nearWhite(image.getRGB(x, y))) {
+                continue;
+            }
+            outside[y][x] = true;
+            queue.add(new int[] {x + 1, y});
+            queue.add(new int[] {x - 1, y});
+            queue.add(new int[] {x, y + 1});
+            queue.add(new int[] {x, y - 1});
+        }
+        BufferedImage result = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                int rgb = image.getRGB(x, y) & 0xFFFFFF;
+                int alpha = 255;
+                if (outside[y][x]) {
+                    alpha = 0;
+                } else if (touchesOutside(outside, x, y, w, h)) {
+                    int least = Math.min(rgb >> 16 & 255, Math.min(rgb >> 8 & 255, rgb & 255));
+                    alpha = Math.max(0, Math.min(255, (255 - least) * 255 / 60));
+                }
+                result.setRGB(x, y, alpha << 24 | rgb);
+            }
+        }
+        return result;
+    }
+
+    private static boolean nearWhite(int rgb) {
+        return (rgb >> 16 & 255) >= 242 && (rgb >> 8 & 255) >= 242 && (rgb & 255) >= 242;
+    }
+
+    private static boolean touchesOutside(boolean[][] outside, int x, int y, int w, int h) {
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (nx >= 0 && ny >= 0 && nx < w && ny < h && outside[ny][nx]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** A square white rounded tile with the mark centred on it. */

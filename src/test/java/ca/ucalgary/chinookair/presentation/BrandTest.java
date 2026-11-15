@@ -28,6 +28,23 @@ class BrandTest {
     }
 
     @Test
+    void theBackgroundOfTheLogoAndTheMarkIsTransparent() {
+        for (BufferedImage image : List.of(Brand.fullLogo(), Brand.mark())) {
+            assertEquals(0, image.getRGB(2, 2) >>> 24, "the corner is empty");
+            assertEquals(0, image.getRGB(image.getWidth() - 3, image.getHeight() - 3) >>> 24);
+        }
+        // but the mountain itself is solid
+        BufferedImage mark = Brand.mark();
+        boolean solid = false;
+        for (int y = 0; y < mark.getHeight() && !solid; y += 3) {
+            for (int x = 0; x < mark.getWidth() && !solid; x += 3) {
+                solid = (mark.getRGB(x, y) >>> 24) == 255;
+            }
+        }
+        assertTrue(solid, "the picture should have opaque parts");
+    }
+
+    @Test
     void thereIsASquareIconForEverySize() {
         List<Image> icons = Brand.icons();
         assertEquals(Brand.ICON_SIZES.length, icons.size());
