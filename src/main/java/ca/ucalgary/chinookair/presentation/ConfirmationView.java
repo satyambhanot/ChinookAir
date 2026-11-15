@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -69,11 +68,7 @@ class ConfirmationView extends JPanel implements Screen {
         column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
 
         // the good news first
-        JLabel check = new JLabel(Icons.of("check", 22, Color.WHITE));
-        check.setOpaque(true);
-        check.setBackground(Theme.SUCCESS);
-        check.setHorizontalAlignment(JLabel.CENTER);
-        check.setPreferredSize(new java.awt.Dimension(40, 40));
+        JLabel check = new SuccessMark();
         title.setFont(title.getFont().deriveFont(Font.BOLD, Type.PAGE_HEADING));
         title.setForeground(Theme.TEXT);
         JPanel words = new JPanel();
