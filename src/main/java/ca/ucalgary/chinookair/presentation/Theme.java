@@ -101,6 +101,12 @@ public final class Theme {
         return button;
     }
 
+    /** The button that really does the destructive thing, in the confirmation dialog: filled red. */
+    static JButton dangerFilled(JButton button) {
+        button.putClientProperty("FlatLaf.styleClass", "dangerFilled");
+        return button;
+    }
+
     /** An ordinary button with the same roomy padding as the others. */
     static JButton secondary(JButton button) {
         button.putClientProperty("FlatLaf.styleClass", "secondary");

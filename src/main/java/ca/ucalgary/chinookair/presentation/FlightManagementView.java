@@ -28,7 +28,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -235,7 +234,8 @@ class FlightManagementView extends JPanel implements Screen {
         if (admin == null || chosen == null) {
             return;
         }
-        if (!confirmer.test("Remove flight " + chosen.flightNumber() + "?")) {
+        if (!confirmer.test("Flight " + chosen.flightNumber() + " will be taken off the schedule. "
+                + "A flight with reservations cannot be removed.")) {
             return;
         }
         try {
@@ -272,8 +272,7 @@ class FlightManagementView extends JPanel implements Screen {
     }
 
     private boolean askYesNo(String question) {
-        return JOptionPane.showConfirmDialog(this, question, "ChinookAir", JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION;
+        return ConfirmDialog.ask(this, "Remove this flight?", question, "Remove flight", true);
     }
 
     private void showMessage(String text, Color color) {

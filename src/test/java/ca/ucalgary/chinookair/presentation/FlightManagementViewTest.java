@@ -189,7 +189,7 @@ class FlightManagementViewTest {
         add(number);
         view.table.setRowSelectionInterval(rowOf(number), rowOf(number));
         view.removeButton.doClick(0);
-        assertEquals("Remove flight " + number + "?", questions.get(0));
+        assertTrue(questions.get(0).startsWith("Flight " + number + " will be taken off the schedule"));
         assertEquals(-1, rowOf(number));
         assertEquals("Removed " + number, view.message());
     }

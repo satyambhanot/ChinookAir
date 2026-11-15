@@ -32,7 +32,8 @@ class ThemeTest {
 
     @Test
     void everyButtonStyleHasADefinition() {
-        for (String name : new String[] {"primary", "danger", "secondary", "link", "card", "day", "today"}) {
+        String[] names = {"primary", "danger", "secondary", "link", "card", "day", "today", "dangerFilled"};
+        for (String name : names) {
             assertNotNull(UIManager.get("[style]Button." + name), name);
         }
         assertNotNull(UIManager.get("[style]ToggleButton.seat"));
@@ -44,6 +45,8 @@ class ThemeTest {
         assertEquals("danger", Theme.danger(new JButton()).getClientProperty("FlatLaf.styleClass"));
         assertEquals("secondary", Theme.secondary(new JButton()).getClientProperty("FlatLaf.styleClass"));
         assertEquals("link", Theme.link(new JButton()).getClientProperty("FlatLaf.styleClass"));
+        assertEquals("dangerFilled",
+                Theme.dangerFilled(new JButton()).getClientProperty("FlatLaf.styleClass"));
     }
 
     @Test

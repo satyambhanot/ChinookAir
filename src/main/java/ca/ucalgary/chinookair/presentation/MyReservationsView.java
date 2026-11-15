@@ -14,7 +14,6 @@ import java.util.function.Predicate;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -136,8 +135,7 @@ class MyReservationsView extends JPanel implements Screen {
     }
 
     private boolean askYesNo(String question) {
-        return JOptionPane.showConfirmDialog(this, question, "ChinookAir", JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION;
+        return ConfirmDialog.ask(this, "Cancel this reservation?", question, "Cancel reservation", true);
     }
 
     /** The customer whose reservations are shown: the one an agent chose, or else the person logged in. */
