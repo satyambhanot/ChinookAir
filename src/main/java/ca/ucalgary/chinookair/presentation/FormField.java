@@ -27,7 +27,10 @@ class FormField extends JPanel {
         label.setFont(label.getFont().deriveFont(java.awt.Font.BOLD, Type.LABEL));
         label.setForeground(Theme.TEXT);
         label.setLabelFor(field);
+        // the drawn edge of the input starts a little in from its bounds; the label starts there too
+        label.setBorder(BorderFactory.createEmptyBorder(0, Space.fieldEdge(), 0, 0));
         line.setFont(line.getFont().deriveFont(Type.CAPTION));
+        line.setBorder(BorderFactory.createEmptyBorder(0, Space.fieldEdge(), 0, 0));
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(0, 0, Space.S, 0));
         add(label, BorderLayout.NORTH);

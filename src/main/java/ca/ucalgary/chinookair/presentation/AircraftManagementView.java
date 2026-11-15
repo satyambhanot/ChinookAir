@@ -5,7 +5,6 @@ import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.Optional;
 import javax.swing.JComponent;
 import javax.swing.BorderFactory;
@@ -67,7 +66,7 @@ class AircraftManagementView extends JPanel implements Screen {
         total.setAlignmentX(LEFT_ALIGNMENT);
         fields.add(total);
         addButton.setMnemonic('A');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(addButton);
         JPanel south = new JPanel(new BorderLayout(0, 12));

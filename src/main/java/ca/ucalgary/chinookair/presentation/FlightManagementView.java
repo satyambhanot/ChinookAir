@@ -11,7 +11,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -50,6 +49,7 @@ class FlightManagementView extends JPanel implements Screen {
     final DatePickerField fromField;
     final DatePickerField toField;
     final JButton showButton = Theme.secondary(new JButton("Show"));
+    FilterBar filterBar;
     final SearchField filterField = new SearchField("Filter by flight or route", 20);
     final ScheduleTableModel tableModel = new ScheduleTableModel();
     final HintTable table = new HintTable(tableModel, "No flights in these dates.");
@@ -92,27 +92,15 @@ class FlightManagementView extends JPanel implements Screen {
         title.add(newButton, BorderLayout.EAST);
 
         showButton.setMnemonic('S');
-        JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        range.setOpaque(false);
-        range.add(new FormField("From", fromField).mnemonic('F'));
-        range.add(new FormField("To", toField).mnemonic('T'));
-        JPanel showHolder = new JPanel(new BorderLayout());
-        showHolder.setOpaque(false);
-        showHolder.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
-        showHolder.add(showButton, BorderLayout.CENTER);
-        range.add(showHolder);
-        JPanel filter = new JPanel(new BorderLayout());
-        filter.setOpaque(false);
-        filter.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
-        filter.add(filterField, BorderLayout.NORTH);
-        JPanel controls = new JPanel(new BorderLayout(12, 0));
-        controls.setOpaque(false);
-        controls.add(range, BorderLayout.WEST);
-        controls.add(filter, BorderLayout.CENTER);
+        filterBar = new FilterBar()
+                .field("From", fromField, 'F')
+                .field("To", toField, 'T')
+                .action(showButton)
+                .fill(filterField);
         JPanel top = new JPanel(new BorderLayout(0, 10));
         top.setOpaque(false);
         top.add(title, BorderLayout.NORTH);
-        top.add(controls, BorderLayout.CENTER);
+        top.add(filterBar, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -127,7 +115,7 @@ class FlightManagementView extends JPanel implements Screen {
         addButton.setMnemonic('A');
         updateButton.setMnemonic('U');
         removeButton.setMnemonic('R');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(removeButton);
         buttons.add(updateButton);

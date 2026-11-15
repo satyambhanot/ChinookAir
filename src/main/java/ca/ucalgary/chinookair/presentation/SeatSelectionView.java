@@ -104,7 +104,7 @@ class SeatSelectionView extends JPanel implements Screen {
         backButton.setMnemonic('B');
         continueButton.setMnemonic('C');
         continueButton.setEnabled(false);
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(continueButton);

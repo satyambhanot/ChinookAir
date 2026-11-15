@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.BorderFactory;
@@ -91,7 +90,7 @@ class CustomerManagementView extends JPanel implements Screen {
         secondary.setOpaque(false);
         secondary.add(reservationsButton);
         secondary.add(modifyButton);
-        JPanel save = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        JPanel save = ButtonRow.right();
         save.setOpaque(false);
         save.add(saveButton);
         JPanel actions = new JPanel(new BorderLayout(0, 12));

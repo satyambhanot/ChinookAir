@@ -8,13 +8,9 @@ import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.time.LocalDate;
-import java.awt.Insets;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
 import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -28,7 +24,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -58,6 +53,7 @@ class FlightSearchView extends JPanel implements Screen {
     final HintTable table = new HintTable(tableModel, "Choose the airports and a date, then press Search.");
     private final JLabel heading = new JLabel("Find available flights");
     private final JLabel messageLabel = new JLabel(" ");
+    FilterBar searchBar;
 
     FlightSearchView(Controllers controllers, Navigator navigator, BookingSession booking) {
         super(new BorderLayout(0, 12));
@@ -80,25 +76,17 @@ class FlightSearchView extends JPanel implements Screen {
         swapButton.getAccessibleContext().setAccessibleName("Swap the two airports");
         swapButton.setMnemonic('W');
 
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(Theme.SURFACE);
-        SurfaceBorder.apply(card, Space.L, Space.XL, Space.S, Space.XL);
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new Insets(0, 0, 0, Space.M);
-        c.gridy = 0;
-        card.add(new FormField("From", originCombo).mnemonic('F'), c);
-        c.insets = new Insets(Space.L, 0, 0, Space.M);
-        card.add(swapButton, c);
-        c.insets = new Insets(0, 0, 0, Space.M);
-        card.add(new FormField("To", destinationCombo).mnemonic('T'), c);
-        card.add(new FormField("Date", dateField).mnemonic('D'), c);
-        card.add(new FormField("Airline", airlineCombo).mnemonic('A'), c);
-        c.insets = new Insets(Space.L, 0, 0, 0);
-        card.add(searchButton, c);
+        JPanel card = new JPanel(new BorderLayout());
+        SurfaceBorder.apply(card, Space.L, Space.XL, Space.L, Space.XL);
         searchButton.setMnemonic('S');
-        c.weightx = 1;
-        card.add(javax.swing.Box.createHorizontalGlue(), c);
+        searchBar = new FilterBar()
+                .field("From", originCombo, 'F')
+                .action(swapButton)
+                .field("To", destinationCombo, 'T')
+                .field("Date", dateField, 'D')
+                .field("Airline", airlineCombo, 'A')
+                .action(searchButton);
+        card.add(searchBar, BorderLayout.WEST);
 
         JPanel top = new JPanel(new BorderLayout(0, 12));
         top.setOpaque(false);
@@ -110,11 +98,11 @@ class FlightSearchView extends JPanel implements Screen {
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.describe("Flights found");
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        add(new TableArea(table), BorderLayout.CENTER);
 
         selectButton.setMnemonic('E');
         backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.add(backButton);
         buttons.add(selectButton);
         JPanel bottom = new JPanel(new BorderLayout());

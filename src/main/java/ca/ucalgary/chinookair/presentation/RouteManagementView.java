@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -62,7 +61,7 @@ class RouteManagementView extends JPanel implements Screen {
             fields.add(row);
         }
         addButton.setMnemonic('A');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(addButton);
         JPanel south = new JPanel(new BorderLayout(0, 12));

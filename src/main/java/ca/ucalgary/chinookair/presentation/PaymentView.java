@@ -112,7 +112,7 @@ class PaymentView extends JPanel implements Screen {
         messageLabel.setAlignmentX(LEFT_ALIGNMENT);
         form.add(messageLabel);
         form.add(javax.swing.Box.createVerticalStrut(12));
-        JPanel buttons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(payButton);

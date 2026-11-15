@@ -8,7 +8,6 @@ import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -17,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -59,12 +57,12 @@ class MyReservationsView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.describe("Reservations");
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        add(new TableArea(table), BorderLayout.CENTER);
 
         cancelButton.setMnemonic('C');
         payButton.setMnemonic('P');
         backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.add(backButton);
         buttons.add(payButton);
         buttons.add(cancelButton);
