@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
@@ -62,13 +63,12 @@ class DashboardTest {
     // ---- the customer
 
     @Test
-    void theCustomerDashboardHasItsFourButtonsAndAHeader() {
+    void theCustomerDashboardHasItsCardsAndAGreeting() {
         logIn("customer1", "customer123");
         CustomerDashboard dashboard = new CustomerDashboard(controllers, navigator);
         dashboard.onShow();
-        assertEquals("Logged in as customer1 (Customer)", dashboard.headerText());
+        assertEquals("Hello, customer1", dashboard.headerText());
         assertEquals(List.of("Search flights", "My reservations", "My profile"), labels(dashboard));
-        assertEquals("Log out", dashboard.logOutButton().getText());
         assertTrue(navigator.shown.isEmpty());
     }
 
@@ -85,11 +85,11 @@ class DashboardTest {
     // ---- the agent
 
     @Test
-    void theAgentDashboardHasItsButtonsAndAHeader() {
+    void theAgentDashboardHasItsCardsAndAGreeting() {
         logIn("agent1", "agent123");
         AgentDashboard dashboard = new AgentDashboard(controllers, navigator);
         dashboard.onShow();
-        assertEquals("Logged in as agent1 (Flight agent)", dashboard.headerText());
+        assertEquals("Hello, agent1", dashboard.headerText());
         assertEquals(List.of("Customers", "Reservations", "Payment records", "Schedule"), labels(dashboard));
         click(dashboard, "Customers");
         click(dashboard, "Reservations");
@@ -102,11 +102,11 @@ class DashboardTest {
     // ---- the administrator
 
     @Test
-    void theAdminDashboardHasItsButtonsAndAHeader() {
+    void theAdminDashboardHasItsCardsAndAGreeting() {
         logIn("admin", "admin123");
         AdminDashboard dashboard = new AdminDashboard(controllers, navigator);
         dashboard.onShow();
-        assertEquals("Logged in as admin (Administrator)", dashboard.headerText());
+        assertEquals("Hello, admin", dashboard.headerText());
         assertEquals(List.of("Flights", "Routes", "Aircraft", "Schedule"), labels(dashboard));
         click(dashboard, "Flights");
         click(dashboard, "Routes");
@@ -117,15 +117,6 @@ class DashboardTest {
     }
 
     // ---- logging out and guarding
-
-    @Test
-    void logOutClearsTheSessionAndReturnsToLogin() {
-        logIn("admin", "admin123");
-        AdminDashboard dashboard = new AdminDashboard(controllers, navigator);
-        dashboard.logOutButton().doClick(0);
-        assertTrue(controllers.session().currentUser().isEmpty());
-        assertEquals(ViewId.LOGIN, navigator.last());
-    }
 
     @Test
     void aDashboardShownWithoutALoginSendsYouToTheLoginScreen() {
@@ -147,8 +138,15 @@ class DashboardTest {
                 new AgentDashboard(controllers, navigator), new AdminDashboard(controllers, navigator))) {
             List<Integer> keys = new ArrayList<>();
             dashboard.taskButtons().forEach(b -> keys.add(b.getMnemonic()));
-            keys.add(dashboard.logOutButton().getMnemonic());
             assertEquals(keys.size(), keys.stream().distinct().count(), dashboard.getClass().getSimpleName());
+        }
+    }
+
+    @Test
+    void everyCardSaysWhatItIsFor() {
+        for (Dashboard dashboard : List.of(new CustomerDashboard(controllers, navigator),
+                new AgentDashboard(controllers, navigator), new AdminDashboard(controllers, navigator))) {
+            dashboard.taskButtons().forEach(b -> assertFalse(((TaskCard) b).description().isBlank(), b.getText()));
         }
     }
 

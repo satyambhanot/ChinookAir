@@ -11,9 +11,9 @@ class AgentDashboard extends Dashboard {
 
     AgentDashboard(Controllers controllers, Navigator navigator) {
         super(controllers, navigator, Role.AGENT, "Flight agent", List.of(
-                new Task("Customers", 'C', ViewId.CUSTOMER_MANAGEMENT),
-                new Task("Reservations", 'R', ViewId.MY_RESERVATIONS),
-                new Task("Payment records", 'P', ViewId.PAYMENT_RECORDS),
-                new Task("Schedule", 'S', ViewId.SCHEDULE)));
+                new Task("Customers", "Find a customer, add one, change bookings", 'C', ViewId.CUSTOMER_MANAGEMENT),
+                new Task("Reservations", "Look at the bookings of a customer", 'R', ViewId.MY_RESERVATIONS),
+                new Task("Payment records", "Check what was paid and refunded", 'P', ViewId.PAYMENT_RECORDS),
+                new Task("Schedule", "See the flights day by day", 'S', ViewId.SCHEDULE)));
     }
 }
