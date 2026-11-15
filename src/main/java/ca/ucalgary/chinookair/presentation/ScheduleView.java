@@ -5,13 +5,11 @@ import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -27,17 +25,18 @@ import javax.swing.ListSelectionModel;
 class ScheduleView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = Theme.DANGER;
-    private static final Color NOTICE = Theme.SUCCESS;
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int DEFAULT_DAYS = 7;
+    private static final int MONTH_DAYS = 30;
 
     final transient Controllers controllers;
     final transient Navigator navigator;
-    final JTextField fromField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
-    final JTextField toField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final DatePickerField fromField;
+    final DatePickerField toField;
     final JButton showButton = Theme.secondary(new JButton("Show"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton todayButton = Theme.link(new JButton("Today"));
+    final JButton weekButton = Theme.link(new JButton("Next 7 days"));
+    final JButton monthButton = Theme.link(new JButton("Next 30 days"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
     final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     // the administrator also moves flights; the agent does not see these
@@ -46,23 +45,36 @@ class ScheduleView extends JPanel implements Screen {
     final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
     private final JPanel rescheduleControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-    private final JLabel messageLabel = new JLabel(" ");
+    private final Alert alert = new Alert(700);
 
     ScheduleView(Controllers controllers, Navigator navigator) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        this.fromField = new DatePickerField(10, () -> controllers.flightSearchController().today());
+        this.toField = new DatePickerField(10, () -> controllers.flightSearchController().today());
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Flight schedule");
         Theme.heading(heading);
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        form.add(label("From", 'F', fromField));
-        form.add(fromField);
-        form.add(label("To", 'T', toField));
-        form.add(toField);
-        form.add(showButton);
+        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        form.setOpaque(false);
+        form.add(new FormField("From", fromField).mnemonic('F'));
+        form.add(new FormField("To", toField).mnemonic('T'));
         showButton.setMnemonic('S');
-        JPanel top = new JPanel(new BorderLayout());
+        JPanel showHolder = new JPanel(new BorderLayout());
+        showHolder.setOpaque(false);
+        showHolder.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        showHolder.add(showButton, BorderLayout.CENTER);
+        form.add(showHolder);
+        JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        quick.setOpaque(false);
+        quick.setBorder(BorderFactory.createEmptyBorder(22, 8, 0, 0));
+        quick.add(todayButton);
+        quick.add(weekButton);
+        quick.add(monthButton);
+        form.add(quick);
+        JPanel top = new JPanel(new BorderLayout(0, 10));
+        top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
         top.add(form, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
@@ -71,7 +83,6 @@ class ScheduleView extends JPanel implements Screen {
         table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        backButton.setMnemonic('B');
         rescheduleControls.add(new JLabel("New departure"));
         rescheduleControls.add(newDepartureField);
         rescheduleControls.add(new JLabel("New arrival"));
@@ -80,16 +91,18 @@ class ScheduleView extends JPanel implements Screen {
         rescheduleButton.setMnemonic('R');
         rescheduleControls.setVisible(false);
         buttons.add(rescheduleControls);
-        buttons.add(backButton);
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messageLabel, BorderLayout.WEST);
-        bottom.add(buttons, BorderLayout.EAST);
+        JPanel bottom = new JPanel(new BorderLayout(0, 8));
+        bottom.setOpaque(false);
+        bottom.add(alert, BorderLayout.NORTH);
+        bottom.add(buttons, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
 
         showButton.addActionListener(e -> load());
         fromField.addActionListener(e -> load());
         toField.addActionListener(e -> load());
-        backButton.addActionListener(e -> goBack());
+        todayButton.addActionListener(e -> showDays(0));
+        weekButton.addActionListener(e -> showDays(DEFAULT_DAYS));
+        monthButton.addActionListener(e -> showDays(MONTH_DAYS));
         rescheduleButton.setEnabled(false);
         table.getSelectionModel().addListSelectionListener(e -> flightChosen());
         rescheduleButton.addActionListener(e -> reschedule());
@@ -116,17 +129,18 @@ class ScheduleView extends JPanel implements Screen {
             LocalDateTime arrival = InputParser.dateTime(newArrivalField.getText());
             controllers.scheduleController().reschedule(admin, flight.id(), departure, arrival);
             load();
-            showMessage("Rescheduled " + flight.flightNumber(), NOTICE);
+            alert.show(Alert.Kind.SUCCESS, "Rescheduled " + flight.flightNumber());
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
-    private static JLabel label(String text, char mnemonic, JTextField field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        return label;
+    /** Shows the days from today to this many days ahead; 0 means today only. */
+    private void showDays(int ahead) {
+        LocalDate today = controllers.flightSearchController().today();
+        fromField.setDate(today);
+        toField.setDate(today.plusDays(ahead));
+        load();
     }
 
     /** Shows the flights of the typed period. */
@@ -140,10 +154,10 @@ class ScheduleView extends JPanel implements Screen {
             LocalDate to = InputParser.date(toField.getText());
             List<Flight> flights = controllers.scheduleController().schedule(user, from, to);
             tableModel.setFlights(flights);
-            showMessage(flights.isEmpty() ? "No flights in this period." : " ", Theme.MUTED);
+            alert.clear();
         } catch (RuntimeException e) {
             // the table keeps what it showed before
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
@@ -151,16 +165,6 @@ class ScheduleView extends JPanel implements Screen {
     Flight selectedFlight() {
         int row = table.getSelectedRow();
         return row < 0 ? null : tableModel.flightAt(table.convertRowIndexToModel(row));
-    }
-
-    void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
-    }
-
-    private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
     }
 
     @Override
@@ -171,6 +175,7 @@ class ScheduleView extends JPanel implements Screen {
         }
         boolean admin = controllers.session().currentUser().get().role() == Role.ADMIN;
         rescheduleControls.setVisible(admin);
+        alert.clear();
         newDepartureField.setText("");
         newArrivalField.setText("");
         LocalDate today = controllers.flightSearchController().today();
@@ -180,6 +185,6 @@ class ScheduleView extends JPanel implements Screen {
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
     }
 }

@@ -79,7 +79,7 @@ class ScheduleViewTest {
     void aPeriodWithNoFlightsShowsAnEmptyTableAndAMessage() {
         show("2020-01-01", "2020-01-02");
         assertEquals(0, view.tableModel.getRowCount());
-        assertEquals("No flights in this period.", view.message());
+        assertEquals("No flights in these dates.", view.table.emptyText());
     }
 
     @Test
@@ -102,8 +102,6 @@ class ScheduleViewTest {
                 .authenticate(DatabaseSeeder.ADMIN_USERNAME, DatabaseSeeder.ADMIN_PASSWORD));
         view.onShow();
         assertTrue(view.tableModel.getRowCount() > 0);
-        view.backButton.doClick(0);
-        assertEquals(ViewId.ADMIN_DASHBOARD, navigator.last());
     }
 
     @Test
@@ -202,5 +200,41 @@ class ScheduleViewTest {
         view.newDepartureField.setText("soon");
         view.rescheduleButton.doClick(0);
         assertTrue(view.message().startsWith("Date and time must look like"), view.message());
+    }
+
+    @Test
+    void theQuickRangesSetTheDatesAndShowTheFlights() {
+        view.weekButton.doClick(0);
+        assertEquals("2026-12-01", view.fromField.getText());
+        assertEquals("2026-12-08", view.toField.getText());
+        view.monthButton.doClick(0);
+        assertEquals("2026-12-31", view.toField.getText());
+        assertTrue(view.tableModel.getRowCount() > 0);
+        view.todayButton.doClick(0);
+        assertEquals("2026-12-01", view.toField.getText());
+    }
+
+    @Test
+    void choosingADateInTheCalendarShowsTheFlightsAtOnce() {
+        view.toField.setText("2026-12-01");
+        view.toField.openCalendar();
+        // the calendar is for December 2026; the last day of the range moves to the 3rd
+        javax.swing.JPanel calendar = view.toField.calendar();
+        java.util.List<javax.swing.JButton> buttons = new java.util.ArrayList<>();
+        collect(calendar, buttons);
+        buttons.stream().filter(b -> "2026-12-03".equals(b.getName())).findFirst().orElseThrow().doClick(0);
+        assertEquals("2026-12-03", view.toField.getText());
+        assertTrue(view.tableModel.getRowCount() > 0);
+    }
+
+    private static void collect(java.awt.Container root, java.util.List<javax.swing.JButton> out) {
+        for (java.awt.Component c : root.getComponents()) {
+            if (c instanceof javax.swing.JButton) {
+                out.add((javax.swing.JButton) c);
+            }
+            if (c instanceof java.awt.Container) {
+                collect((java.awt.Container) c, out);
+            }
+        }
     }
 }
