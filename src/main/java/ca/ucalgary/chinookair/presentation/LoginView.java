@@ -23,8 +23,8 @@ import javax.swing.SwingConstants;
 class LoginView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -43,9 +43,12 @@ class LoginView extends JPanel implements Screen {
     }
 
     private void build() {
+        JPanel card = Theme.card();
         JLabel title = new JLabel("ChinookAir", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 28f));
-        JLabel subtitle = new JLabel("Flight reservation system", SwingConstants.CENTER);
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 30f));
+        title.setForeground(Theme.ACCENT);
+        JLabel subtitle = Theme.hint("Flight reservation system");
+        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel usernameLabel = new JLabel("Username");
         usernameLabel.setDisplayedMnemonic('U');
@@ -55,9 +58,7 @@ class LoginView extends JPanel implements Screen {
         passwordLabel.setLabelFor(passwordField);
         loginButton.setMnemonic('L');
         registerButton.setMnemonic('R');
-        registerButton.setBorderPainted(false);
-        registerButton.setContentAreaFilled(false);
-        registerButton.setForeground(new Color(0x0B57D0));
+        Theme.link(registerButton);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 
         GridBagConstraints c = new GridBagConstraints();
@@ -66,30 +67,31 @@ class LoginView extends JPanel implements Screen {
         c.gridy = 0;
         c.gridwidth = 2;
         c.fill = GridBagConstraints.HORIZONTAL;
-        add(title, c);
+        card.add(title, c);
         c.gridy = 1;
         c.insets = new Insets(0, 6, 20, 6);
-        add(subtitle, c);
+        card.add(subtitle, c);
         c.insets = new Insets(4, 6, 4, 6);
         c.gridwidth = 1;
         c.gridy = 2;
-        add(usernameLabel, c);
+        card.add(usernameLabel, c);
         c.gridx = 1;
-        add(usernameField, c);
+        card.add(usernameField, c);
         c.gridx = 0;
         c.gridy = 3;
-        add(passwordLabel, c);
+        card.add(passwordLabel, c);
         c.gridx = 1;
-        add(passwordField, c);
+        card.add(passwordField, c);
         c.gridx = 0;
         c.gridy = 4;
         c.gridwidth = 2;
-        add(messageLabel, c);
+        card.add(messageLabel, c);
         c.gridy = 5;
-        add(loginButton, c);
+        card.add(loginButton, c);
         c.gridy = 6;
-        add(registerButton, c);
+        card.add(registerButton, c);
 
+        add(card);
         // Enter in either field presses Log in
         usernameField.addActionListener(e -> logIn());
         passwordField.addActionListener(e -> logIn());

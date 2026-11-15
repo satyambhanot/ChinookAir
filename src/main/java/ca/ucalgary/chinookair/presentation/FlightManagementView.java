@@ -51,8 +51,8 @@ class FlightManagementView extends JPanel implements Screen {
     private final transient Navigator navigator;
     private transient Predicate<String> confirmer = this::askYesNo;
 
-    final JTextField fromField = new JTextField(10);
-    final JTextField toField = new JTextField(10);
+    final JTextField fromField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JTextField toField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
     final JButton showButton = Theme.secondary(new JButton("Show"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
     final HintTable table = new HintTable(tableModel, "No flights in these dates.");
@@ -60,8 +60,8 @@ class FlightManagementView extends JPanel implements Screen {
     final JComboBox<Route> routeCombo = new JComboBox<>();
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
     final JComboBox<Aircraft> aircraftCombo = new JComboBox<>();
-    final JTextField departureField = new JTextField(14);
-    final JTextField arrivalField = new JTextField(14);
+    final JTextField departureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final JTextField arrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
     final JTextField priceField = new JTextField(10);
     final JButton addButton = Theme.primary(new JButton("Add"));
     final JButton updateButton = Theme.secondary(new JButton("Update"));
@@ -81,9 +81,9 @@ class FlightManagementView extends JPanel implements Screen {
         JLabel heading = new JLabel("Flights");
         Theme.heading(heading);
         JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        range.add(new JLabel("From (yyyy-MM-dd)"));
+        range.add(new JLabel("From"));
         range.add(fromField);
-        range.add(new JLabel("To (yyyy-MM-dd)"));
+        range.add(new JLabel("To"));
         range.add(toField);
         range.add(showButton);
         showButton.setMnemonic('S');
@@ -94,6 +94,11 @@ class FlightManagementView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        // wide enough for "2026-12-02 07:00" and "YYC → YVR"
+        int[] widths = {70, 110, 140, 140, 130};
+        for (int i = 0; i < widths.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+        }
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(buildForm(), BorderLayout.EAST);
 
@@ -136,8 +141,8 @@ class FlightManagementView extends JPanel implements Screen {
         row(form, c, 1, "Route", 'O', routeCombo);
         row(form, c, 2, "Airline", 'L', airlineCombo);
         row(form, c, 3, "Aircraft", 'C', aircraftCombo);
-        row(form, c, 4, "Departure (yyyy-MM-dd HH:mm)", 'D', departureField);
-        row(form, c, 5, "Arrival (yyyy-MM-dd HH:mm)", 'I', arrivalField);
+        row(form, c, 4, "Departure", 'D', departureField);
+        row(form, c, 5, "Arrival", 'I', arrivalField);
         row(form, c, 6, "Base price", 'P', priceField);
         return form;
     }

@@ -2,8 +2,6 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -35,6 +33,7 @@ class RegisterView extends JPanel implements Screen {
     final JButton registerButton = Theme.primary(new JButton("Create account"));
     final JButton backButton = Theme.secondary(new JButton("Back to log in"));
     private final JLabel messageLabel = new JLabel(" ", SwingConstants.CENTER);
+    private final JPanel card = Theme.card();
 
     /**
      * @param onRegistered told the new username and a friendly message once the account exists
@@ -49,8 +48,8 @@ class RegisterView extends JPanel implements Screen {
 
     private void build() {
         JLabel title = new JLabel("Create an account", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
-        messageLabel.setForeground(new Color(0xB00020));
+        Theme.heading(title);
+        messageLabel.setForeground(Theme.DANGER);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
 
         GridBagConstraints c = new GridBagConstraints();
@@ -59,7 +58,7 @@ class RegisterView extends JPanel implements Screen {
         c.gridx = 0;
         c.gridy = 0;
         c.gridwidth = 2;
-        add(title, c);
+        card.add(title, c);
         c.gridwidth = 1;
         addRow(c, 1, "Username", 'U', usernameField);
         addRow(c, 2, "Password", 'P', passwordField);
@@ -69,16 +68,19 @@ class RegisterView extends JPanel implements Screen {
         c.gridx = 0;
         c.gridy = 6;
         c.gridwidth = 2;
-        add(new JLabel("The password needs at least 8 characters and one digit.", SwingConstants.CENTER), c);
+        JLabel hint = Theme.hint("The password needs at least 8 characters and one digit.");
+        hint.setHorizontalAlignment(SwingConstants.CENTER);
+        card.add(hint, c);
         c.gridy = 7;
-        add(messageLabel, c);
+        card.add(messageLabel, c);
         c.gridy = 8;
         registerButton.setMnemonic('C');
-        add(registerButton, c);
+        card.add(registerButton, c);
         c.gridy = 9;
         backButton.setMnemonic('B');
-        add(backButton, c);
+        card.add(backButton, c);
 
+        add(card);
         registerButton.addActionListener(e -> register());
         // Enter in the last field submits, like the default button
         phoneField.addActionListener(e -> register());
@@ -91,9 +93,9 @@ class RegisterView extends JPanel implements Screen {
         label.setLabelFor(field);
         c.gridx = 0;
         c.gridy = row;
-        add(label, c);
+        card.add(label, c);
         c.gridx = 1;
-        add(field, c);
+        card.add(field, c);
     }
 
     private void register() {

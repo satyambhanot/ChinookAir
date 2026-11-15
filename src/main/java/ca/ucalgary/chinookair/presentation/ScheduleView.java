@@ -34,15 +34,15 @@ class ScheduleView extends JPanel implements Screen {
 
     final transient Controllers controllers;
     final transient Navigator navigator;
-    final JTextField fromField = new JTextField(10);
-    final JTextField toField = new JTextField(10);
+    final JTextField fromField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JTextField toField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
     final JButton showButton = Theme.secondary(new JButton("Show"));
     final JButton backButton = Theme.secondary(new JButton("Back"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
     final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     // the administrator also moves flights; the agent does not see these
-    final JTextField newDepartureField = new JTextField(14);
-    final JTextField newArrivalField = new JTextField(14);
+    final JTextField newDepartureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final JTextField newArrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
     final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
     private final JPanel rescheduleControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
@@ -56,9 +56,9 @@ class ScheduleView extends JPanel implements Screen {
         JLabel heading = new JLabel("Flight schedule");
         Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        form.add(label("From (yyyy-MM-dd)", 'F', fromField));
+        form.add(label("From", 'F', fromField));
         form.add(fromField);
-        form.add(label("To (yyyy-MM-dd)", 'T', toField));
+        form.add(label("To", 'T', toField));
         form.add(toField);
         form.add(showButton);
         showButton.setMnemonic('S');

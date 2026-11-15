@@ -79,6 +79,22 @@ public final class Theme {
         return label;
     }
 
+    /** A white panel with a thin rounded border, for the login and registration forms. */
+    static javax.swing.JPanel card() {
+        javax.swing.JPanel card = new javax.swing.JPanel(new java.awt.GridBagLayout());
+        card.setBackground(SURFACE);
+        card.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+                new javax.swing.border.LineBorder(BORDER, 1, true),
+                javax.swing.BorderFactory.createEmptyBorder(PAGE, PAGE + 8, PAGE, PAGE + 8)));
+        return card;
+    }
+
+    /** Grey example text inside an empty field, like the shape of a date. */
+    static <T extends javax.swing.text.JTextComponent> T placeholder(T field, String text) {
+        field.putClientProperty("JTextField.placeholderText", text);
+        return field;
+    }
+
     /** A page title for a screen's own heading label, which is already made. */
     static void heading(JLabel label) {
         label.setFont(label.getFont().deriveFont(Font.BOLD, 24f));

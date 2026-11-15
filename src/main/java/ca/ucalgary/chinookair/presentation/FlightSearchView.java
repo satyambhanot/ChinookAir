@@ -42,7 +42,7 @@ class FlightSearchView extends JPanel implements Screen {
 
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
-    final JTextField dateField = new JTextField(10);
+    final JTextField dateField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
     final JButton searchButton = Theme.primary(new JButton("Search"));
     final JButton selectButton = Theme.primary(new JButton("Select flight"));
@@ -69,7 +69,7 @@ class FlightSearchView extends JPanel implements Screen {
         form.add(originCombo);
         form.add(label("To", 'T', destinationCombo));
         form.add(destinationCombo);
-        form.add(label("Date (yyyy-MM-dd)", 'D', dateField));
+        form.add(label("Date", 'D', dateField));
         form.add(dateField);
         form.add(label("Airline", 'A', airlineCombo));
         form.add(airlineCombo);
