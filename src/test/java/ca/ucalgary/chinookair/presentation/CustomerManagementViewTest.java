@@ -71,6 +71,15 @@ class CustomerManagementViewTest {
     }
 
     @Test
+    void theCardIsHeadedByTheNameAndTheNumberOfReservations() {
+        assertEquals("Customer", view.cardTitle());
+        search(jo.email());
+        view.table.setRowSelectionInterval(0, 0);
+        assertEquals(jo.name(), view.cardTitle());
+        assertEquals(jo.username() + "  \u00b7  0 reservations", view.cardSubtitle());
+    }
+
+    @Test
     void searchingForNobodyShowsAnEmptyTable() {
         search("zzzzqq");
         assertEquals(0, view.tableModel.getRowCount());

@@ -5,9 +5,6 @@ import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.Payment;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.BorderFactory;
@@ -25,6 +22,7 @@ class PaymentRecordsView extends JPanel implements Screen {
     private static final long serialVersionUID = 1L;
     private static final String NO_CUSTOMERS = "No customers match. Try another name or email.";
     private static final String CHOOSE = "Select a customer to see their payments.";
+    private static final int LIST_WIDTH = 420;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -35,6 +33,7 @@ class PaymentRecordsView extends JPanel implements Screen {
     final PaymentTableModel paymentModel = new PaymentTableModel();
     final HintTable paymentTable = new HintTable(paymentModel, CHOOSE);
     private final JLabel paymentsHeading = new JLabel("Payments");
+    private final JLabel paymentsTotals = new JLabel(" ");
     private final Alert alert = new Alert(700);
 
     PaymentRecordsView(Controllers controllers, Navigator navigator) {
@@ -47,8 +46,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         JPanel top = new JPanel(new BorderLayout(0, 10));
         top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
-        top.add(searchField, BorderLayout.CENTER);
-        top.add(alert, BorderLayout.SOUTH);
+        top.add(alert, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
         customerTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -58,25 +56,33 @@ class PaymentRecordsView extends JPanel implements Screen {
         paymentTable.getColumnModel().getColumn(0).setCellRenderer(HintTable.timeWithYearRenderer());
         paymentsHeading.setFont(paymentsHeading.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
 
-        // the customers take a quarter of the height, the payments the rest
-        JPanel tables = new JPanel(new GridBagLayout());
-        tables.setOpaque(false);
-        GridBagConstraints at = new GridBagConstraints();
-        at.gridx = 0;
-        at.fill = GridBagConstraints.BOTH;
-        at.weightx = 1;
-        at.gridy = 0;
-        at.weighty = 1;
-        tables.add(new JScrollPane(customerTable), at);
-        at.gridy = 1;
-        at.weighty = 0;
-        at.insets = new Insets(Space.M, 0, Space.S, 0);
-        tables.add(paymentsHeading, at);
-        at.gridy = 2;
-        at.weighty = 3;
-        at.insets = new Insets(0, 0, 0, 0);
-        tables.add(new JScrollPane(paymentTable), at);
-        add(tables, BorderLayout.CENTER);
+        // the customers on the left, and on the right the payments of the one that is chosen
+        customerTable.removeColumn(customerTable.getColumn("Phone"));
+        customerTable.removeColumn(customerTable.getColumn("Username"));
+        JPanel left = new JPanel(new BorderLayout(0, Space.M));
+        left.setOpaque(false);
+        left.setPreferredSize(new java.awt.Dimension(LIST_WIDTH, 10));
+        JPanel searchRow = new JPanel(new BorderLayout());
+        searchRow.setOpaque(false);
+        searchRow.add(searchField, BorderLayout.SOUTH);
+        left.add(searchRow, BorderLayout.NORTH);
+        left.add(new JScrollPane(customerTable), BorderLayout.CENTER);
+        paymentsTotals.setForeground(Theme.MUTED);
+        JPanel headings = new JPanel(new BorderLayout(0, Space.XS));
+        headings.setOpaque(false);
+        headings.add(paymentsHeading, BorderLayout.NORTH);
+        headings.add(paymentsTotals, BorderLayout.CENTER);
+        // both lists start at the same height: the search box sits at the bottom of a row as tall as the headings
+        searchRow.setPreferredSize(new java.awt.Dimension(10, headings.getPreferredSize().height));
+        JPanel right = new JPanel(new BorderLayout(0, Space.M));
+        right.setOpaque(false);
+        right.add(headings, BorderLayout.NORTH);
+        right.add(new JScrollPane(paymentTable), BorderLayout.CENTER);
+        JPanel columns = new JPanel(new BorderLayout(Space.L, 0));
+        columns.setOpaque(false);
+        columns.add(left, BorderLayout.WEST);
+        columns.add(right, BorderLayout.CENTER);
+        add(columns, BorderLayout.CENTER);
 
         searchField.onChange(text -> search());
         customerTable.getSelectionModel().addListSelectionListener(e -> {
@@ -94,6 +100,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         }
         paymentModel.setPayments(List.of());
         paymentsHeading.setText("Payments");
+        paymentsTotals.setText(" ");
         paymentTable.setEmptyText(CHOOSE);
         try {
             customerModel.setCustomers(controllers.customerController().search(agent, searchField.getText()));
@@ -114,6 +121,7 @@ class PaymentRecordsView extends JPanel implements Screen {
             List<Payment> payments = controllers.paymentController().recordsForCustomer(agent, customer.id());
             paymentModel.setPayments(payments);
             paymentsHeading.setText("Payments of " + customer.name());
+            paymentsTotals.setText(totalsText(payments));
             paymentTable.setEmptyText(customer.name() + " has no payments.");
             alert.clear();
         } catch (RuntimeException e) {
@@ -139,6 +147,28 @@ class PaymentRecordsView extends JPanel implements Screen {
 
     String message() {
         return alert.text();
+    }
+
+    /**
+     * What the payments add up to, like "Paid $184.00 · Refunded $0.00 · 2 payments". Only payments
+     * that went through count as paid, and only refunded ones as refunded.
+     */
+    static String totalsText(List<Payment> payments) {
+        java.math.BigDecimal paid = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal refunded = java.math.BigDecimal.ZERO;
+        for (Payment payment : payments) {
+            if (payment.status() == ca.ucalgary.chinookair.business.entity.PaymentStatus.APPROVED) {
+                paid = paid.add(payment.amount());
+            } else if (payment.status() == ca.ucalgary.chinookair.business.entity.PaymentStatus.REFUNDED) {
+                refunded = refunded.add(payment.amount());
+            }
+        }
+        return "Paid " + Format.money(paid) + "  \u00b7  Refunded " + Format.money(refunded) + "  \u00b7  "
+                + payments.size() + (payments.size() == 1 ? " payment" : " payments");
+    }
+
+    String totalsLine() {
+        return paymentsTotals.getText().trim();
     }
 
     String paymentsTitle() {

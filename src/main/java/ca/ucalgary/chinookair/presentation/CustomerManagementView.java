@@ -42,6 +42,7 @@ class CustomerManagementView extends JPanel implements Screen {
     final JButton modifyButton = Theme.secondary(new JButton("Modify a reservation"));
     private final Alert alert = new Alert(SIDE_WIDTH - 90);
     private final JLabel detailsTitle = new JLabel("Customer");
+    private final JLabel detailsSub = Theme.hint(" ");
     private final CardLayout cards = new CardLayout();
     private final JPanel side = new JPanel(cards);
 
@@ -101,7 +102,11 @@ class CustomerManagementView extends JPanel implements Screen {
         JPanel details = new JPanel(new BorderLayout(0, 12));
         details.setBackground(Theme.SURFACE);
         SurfaceBorder.apply(details, Space.XL, Space.XL, Space.L, Space.XL);
-        details.add(detailsTitle, BorderLayout.NORTH);
+        JPanel titles = new JPanel(new BorderLayout(0, Space.XS));
+        titles.setOpaque(false);
+        titles.add(detailsTitle, BorderLayout.NORTH);
+        titles.add(detailsSub, BorderLayout.CENTER);
+        details.add(titles, BorderLayout.NORTH);
         details.add(ScrollableForm.around(form), BorderLayout.CENTER);
         details.add(actions, BorderLayout.SOUTH);
 
@@ -131,7 +136,36 @@ class CustomerManagementView extends JPanel implements Screen {
         modifyButton.setEnabled(chosen);
         saveButton.setEnabled(chosen || form.isNewCustomer());
         cards.show(side, chosen || form.isNewCustomer() ? DETAILS : EMPTY);
-        detailsTitle.setText(form.isNewCustomer() ? "New customer" : "Customer");
+        Customer customer = selected();
+        if (form.isNewCustomer() || customer == null) {
+            detailsTitle.setText(form.isNewCustomer() ? "New customer" : "Customer");
+            detailsSub.setText(" ");
+            return;
+        }
+        // the card is headed by whose it is, and says how many bookings that person has
+        detailsTitle.setText(customer.name());
+        detailsSub.setText(customer.username() + "  \u00b7  " + reservationCount(customer));
+    }
+
+    String cardTitle() {
+        return detailsTitle.getText();
+    }
+
+    String cardSubtitle() {
+        return detailsSub.getText().trim();
+    }
+
+    private String reservationCount(Customer customer) {
+        User agent = controllers.session().currentUser().orElse(null);
+        if (agent == null) {
+            return "";
+        }
+        try {
+            int count = controllers.reservationController().history(agent, customer.id()).size();
+            return count == 1 ? "1 reservation" : count + " reservations";
+        } catch (RuntimeException e) {
+            return "";
+        }
     }
 
     private void rowChosen() {

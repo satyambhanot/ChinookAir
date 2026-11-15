@@ -54,6 +54,7 @@ class FormatTest {
     void moneyKeepsItsTwoDecimals() {
         assertEquals("$184.00", Format.money(new BigDecimal("184.00")));
         assertEquals("$1000.50", Format.money(new BigDecimal("1000.50")));
+        assertEquals("$0.00", Format.money(BigDecimal.ZERO), "a sum that starts at zero still has two decimals");
     }
 
     @Test

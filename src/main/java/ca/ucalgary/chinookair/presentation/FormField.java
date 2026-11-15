@@ -19,6 +19,7 @@ class FormField extends JPanel {
     private final JComponent field;
     private String helper = "";
     private String error = "";
+    private boolean compact;
 
     FormField(String text, JComponent field) {
         super(new BorderLayout(0, 4));
@@ -38,6 +39,16 @@ class FormField extends JPanel {
         add(line, BorderLayout.SOUTH);
         field.getAccessibleContext().setAccessibleName(text);
         refresh();
+    }
+
+    /**
+     * Takes no room for the line under the input until it has something to say, so a long form
+     * fits a short window. An error then pushes what is below it down.
+     */
+    FormField compact() {
+        this.compact = true;
+        refresh();
+        return this;
     }
 
     /** The key that jumps to this field, shown as an underlined letter in the label. */
@@ -68,6 +79,7 @@ class FormField extends JPanel {
         field.putClientProperty("JComponent.outline", wrong ? "error" : null);
         String shown = wrong ? error : helper;
         line.setText(shown.isEmpty() ? " " : shown);
+        line.setVisible(!compact || !shown.isEmpty());
         line.setForeground(wrong ? Theme.DANGER : Theme.MUTED);
         field.getAccessibleContext().setAccessibleDescription(shown);
     }

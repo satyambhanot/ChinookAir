@@ -48,6 +48,8 @@ class RouteManagementView extends JPanel implements Screen {
 
         table.setFillsViewportHeight(true);
         table.describe("Routes");
+        // each starting airport is named once, over the routes that leave from it
+        table.getColumnModel().getColumn(0).setCellRenderer(HintTable.repeatBlankRenderer());
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JLabel title = new JLabel("Add a route");

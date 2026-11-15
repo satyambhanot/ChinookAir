@@ -13,10 +13,13 @@ class RouteTableModel extends AbstractTableModel {
 
     private final transient List<Route> routes = new ArrayList<>();
 
-    /** Replaces all rows. */
+    /** Replaces all rows, ordered by where the route starts and then where it ends. */
     void setRoutes(List<Route> newRoutes) {
         routes.clear();
-        routes.addAll(newRoutes);
+        routes.addAll(newRoutes.stream()
+                .sorted(java.util.Comparator.comparing((Route r) -> r.origin().code())
+                        .thenComparing(r -> r.destination().code()))
+                .toList());
         fireTableDataChanged();
     }
 
