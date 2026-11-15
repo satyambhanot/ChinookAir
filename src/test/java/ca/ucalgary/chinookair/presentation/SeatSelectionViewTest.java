@@ -119,6 +119,62 @@ class SeatSelectionViewTest {
     }
 
     @Test
+    void theCardNamesThePassenger() {
+        view.seatButtonFor("3C").doClick(0);
+        assertEquals(customer.name(), view.summaryRows().stream().filter(r -> r.label().equals("Passenger"))
+                .findFirst().orElseThrow().value());
+    }
+
+    @Test
+    void everySeatHasATooltipWithItsClassAndPrice() {
+        String economy = view.seatButtonFor("3C").getToolTipText();
+        assertTrue(economy.contains("Economy") && economy.contains("$" + offer.fromPrice().toPlainString()), economy);
+        String business = view.seatButtonFor("1A").getToolTipText();
+        assertTrue(business.contains("Business"), business);
+        assertTrue(view.seatButtonFor("1A").getAccessibleContext().getAccessibleName().contains("$"));
+    }
+
+    @Test
+    void eachCabinHasAHeadingOverItsFirstRow() {
+        List<String> headings = new java.util.ArrayList<>();
+        collectLabels(view, headings);
+        assertEquals(1, headings.stream().filter(t -> t.startsWith("Business \u00b7 rows 1 to 2")).count(),
+                headings.toString());
+        assertEquals(1, headings.stream().filter(t -> t.startsWith("Economy \u00b7 rows 3 to")).count(),
+                headings.toString());
+    }
+
+    private static void collectLabels(java.awt.Container root, List<String> out) {
+        for (java.awt.Component c : root.getComponents()) {
+            if (c instanceof javax.swing.JLabel && ((javax.swing.JLabel) c).getText() != null) {
+                out.add(((javax.swing.JLabel) c).getText());
+            }
+            if (c instanceof java.awt.Container) {
+                collectLabels((java.awt.Container) c, out);
+            }
+        }
+    }
+
+    @Test
+    void theWayOnSitsRightUnderTheSummaryCard() {
+        view.setSize(1100, 640);
+        layoutAll(view);
+        int cardBottom = view.summaryHolder().getY() + view.summaryHolder().getHeight();
+        java.awt.Point onScreen = javax.swing.SwingUtilities.convertPoint(view.continueButton.getParent(), 0,
+                view.continueButton.getY(), view.summaryHolder().getParent());
+        assertTrue(onScreen.y - cardBottom < 120, "the button is " + (onScreen.y - cardBottom) + " px below the card");
+    }
+
+    private static void layoutAll(java.awt.Container c) {
+        c.doLayout();
+        for (java.awt.Component k : c.getComponents()) {
+            if (k instanceof java.awt.Container) {
+                layoutAll((java.awt.Container) k);
+            }
+        }
+    }
+
+    @Test
     void theMapHasAnAisleInTheMiddleOfEachRow() {
         assertEquals(3, view.grid().aisleAfter());
     }

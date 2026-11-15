@@ -55,4 +55,23 @@ class FormatTest {
         assertEquals("$184.00", Format.money(new BigDecimal("184.00")));
         assertEquals("$1000.50", Format.money(new BigDecimal("1000.50")));
     }
+
+    @Test
+    void aDurationIsWrittenInHoursAndMinutes() {
+        LocalDateTime start = LocalDateTime.of(2026, 12, 1, 12, 0);
+        assertEquals("1h 30m", Format.duration(start, start.plusMinutes(90)));
+        assertEquals("45m", Format.duration(start, start.plusMinutes(45)));
+        assertEquals("2h", Format.duration(start, start.plusHours(2)));
+    }
+
+    @Test
+    void aFlightThroughMidnightHasTheRightDuration() {
+        LocalDateTime late = LocalDateTime.of(2026, 12, 1, 23, 30);
+        assertEquals("1h 30m", Format.duration(late, LocalDateTime.of(2026, 12, 2, 1, 0)));
+    }
+
+    @Test
+    void aShortDateIsTheWeekdayAndTheDay() {
+        assertEquals("Wed 2", Format.shortDate(LocalDate.of(2026, 12, 2)));
+    }
 }

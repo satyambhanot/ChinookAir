@@ -48,7 +48,7 @@ class PaymentView extends JPanel implements Screen {
 
     final JComboBox<PaymentMethodType> typeCombo = new JComboBox<>(PaymentMethodType.values());
     final JTextField nameField = Theme.placeholder(new JTextField(20), "As printed on the card");
-    final JPasswordField cardField = new JPasswordField(20);
+    final JPasswordField cardField = Theme.placeholder(new JPasswordField(20), "1234 5678 9012 3456");
     final JTextField expiryField = Theme.placeholder(new JTextField(6), "MM/yy");
     final JButton payButton = Theme.primary(new JButton("Pay"));
     final JButton backButton = Theme.secondary(new JButton("Back"));
@@ -70,6 +70,8 @@ class PaymentView extends JPanel implements Screen {
     }
 
     private void build() {
+        // the number is hidden as it is typed; the eye shows it again to check it
+        cardField.putClientProperty("JPasswordField.showRevealButton", Boolean.TRUE);
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));
         JLabel heading = new JLabel("Payment");
         Theme.heading(heading);
@@ -111,6 +113,10 @@ class PaymentView extends JPanel implements Screen {
         form.add(typeAndExpiry);
         messageLabel.setAlignmentX(LEFT_ALIGNMENT);
         form.add(messageLabel);
+        JLabel keptNote = Theme.hint("Only the last four digits of the card are kept.");
+        keptNote.setAlignmentX(LEFT_ALIGNMENT);
+        keptNote.setBorder(BorderFactory.createEmptyBorder(0, Space.fieldEdge(), 0, 0));
+        form.add(keptNote);
         form.add(javax.swing.Box.createVerticalStrut(12));
         ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
@@ -250,10 +256,11 @@ class PaymentView extends JPanel implements Screen {
         String price = Format.money(reservation.price());
         summaryHolder.removeAll();
         summary = new SummaryCard("Order summary")
+                .addRow("Passenger", reservation.customer().name())
                 .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
                 .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
-                .addRow("Seat", reservation.seatNo())
+                .addRow("Departs", Format.dateTime(flight.departure()))
+                .addRow("Seat", Format.seat(flight, reservation.seatNo()))
                 .addTotal("Total", price);
         summaryHolder.add(summary, BorderLayout.NORTH);
         summaryHolder.setPreferredSize(new java.awt.Dimension(SUMMARY_WIDTH, summary.getPreferredSize().height));

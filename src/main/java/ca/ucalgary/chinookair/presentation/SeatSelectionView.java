@@ -65,6 +65,7 @@ class SeatSelectionView extends JPanel implements Screen {
     private transient ButtonGroup group = new ButtonGroup();
     private transient FlightOffer offer;
     private transient String chosenSeat;
+    private String passenger = "";
 
     SeatSelectionView(Controllers controllers, Navigator navigator, BookingSession booking) {
         super(new BorderLayout(0, 10));
@@ -78,12 +79,12 @@ class SeatSelectionView extends JPanel implements Screen {
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
 
-        JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         legend.setOpaque(false);
-        legend.add(swatch("Business", BUSINESS));
-        legend.add(swatch("Economy", ECONOMY));
-        legend.add(swatch("\u00D7 Taken", TAKEN));
-        legend.add(swatch("Your seat", SELECTED));
+        legend.add(legendItem("Business", BUSINESS, false));
+        legend.add(legendItem("Economy", ECONOMY, false));
+        legend.add(legendItem("Taken", TAKEN, true));
+        legend.add(legendItem("Your seat", SELECTED, false));
         JPanel top = new JPanel(new BorderLayout(0, 8));
         top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
@@ -113,12 +114,16 @@ class SeatSelectionView extends JPanel implements Screen {
         side.setOpaque(false);
         side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
         side.setBorder(BorderFactory.createEmptyBorder(0, Space.L, 0, 0));
-        side.add(summaryHolder, BorderLayout.NORTH);
-        JPanel actions = new JPanel(new BorderLayout(0, 8));
+        // the way on sits right under the card it belongs to, not at the bottom of the window
+        JPanel actions = new JPanel(new BorderLayout(0, Space.S));
         actions.setOpaque(false);
         actions.add(messageLabel, BorderLayout.NORTH);
         actions.add(buttons, BorderLayout.SOUTH);
-        side.add(actions, BorderLayout.CENTER);
+        JPanel column = new JPanel(new BorderLayout(0, Space.M));
+        column.setOpaque(false);
+        column.add(summaryHolder, BorderLayout.NORTH);
+        column.add(actions, BorderLayout.CENTER);
+        side.add(column, BorderLayout.NORTH);
         add(side, BorderLayout.EAST);
         showSummary(null);
 
@@ -126,13 +131,53 @@ class SeatSelectionView extends JPanel implements Screen {
         backButton.addActionListener(e -> goBack());
     }
 
-    private static JLabel swatch(String text, Color color) {
-        JLabel label = new JLabel(" " + text + " ", SwingConstants.CENTER);
-        label.setOpaque(true);
-        label.setBackground(color);
-        label.setForeground(color.equals(SELECTED) ? Color.WHITE : Theme.TEXT);
-        label.setBorder(BorderFactory.createEmptyBorder(3, Space.S, 3, Space.S));
+    /** One entry of the legend: a small square in the colour of the seats, and what it means. */
+    private static JLabel legendItem(String text, Color color, boolean crossed) {
+        JLabel label = new JLabel(text, new Swatch(color, crossed), SwingConstants.LEFT);
+        label.setIconTextGap(Space.S);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, Space.L));
+        label.setForeground(Theme.TEXT);
+        label.setFont(label.getFont().deriveFont(Type.LABEL));
         return label;
+    }
+
+    /** A small rounded square in a seat colour; a taken seat has the cross it has on the map. */
+    private static final class Swatch implements javax.swing.Icon {
+
+        private static final int SIZE = 16;
+        private final Color color;
+        private final boolean crossed;
+
+        Swatch(Color color, boolean crossed) {
+            this.color = color;
+            this.crossed = crossed;
+        }
+
+        @Override
+        public void paintIcon(java.awt.Component c, java.awt.Graphics g, int x, int y) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(color);
+            g2.fillRoundRect(x, y, SIZE, SIZE, 6, 6);
+            g2.setColor(Palette.BORDER_STRONG);
+            g2.drawRoundRect(x, y, SIZE - 1, SIZE - 1, 6, 6);
+            if (crossed) {
+                g2.setColor(Theme.MUTED);
+                g2.drawLine(x + 4, y + 4, x + SIZE - 5, y + SIZE - 5);
+                g2.drawLine(x + SIZE - 5, y + 4, x + 4, y + SIZE - 5);
+            }
+            g2.dispose();
+        }
+
+        @Override
+        public int getIconWidth() {
+            return SIZE;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return SIZE;
+        }
     }
 
     @Override
@@ -164,6 +209,7 @@ class SeatSelectionView extends JPanel implements Screen {
                 + flight.route().origin().code() + " → " + flight.route().destination().code());
         continueButton.setText(moving ? "Confirm change" : "Continue to payment");
         try {
+            passenger = customerFor(user.get()).name();
             if (!moving) {
                 Reservation reservation = bookings.startReservation(user.get(), customerFor(user.get()),
                         flight.id());
@@ -228,8 +274,18 @@ class SeatSelectionView extends JPanel implements Screen {
             at.gridy = 0;
             mapPanel.add(centred(String.valueOf(SeatGridModel.letter(c)), Theme.MUTED), at);
         }
+        int y = 1;
         for (int r = 0; r < grid.rowCount(); r++) {
-            at.gridy = r + 1;
+            if (r == 0 || grid.seatAt(r, 0).seatClass() != grid.seatAt(r - 1, 0).seatClass()) {
+                at.gridy = y++;
+                at.gridx = 0;
+                at.gridwidth = last + 1;
+                at.insets = new Insets(r == 0 ? Space.S : Space.L, 2, Space.XS, 2);
+                mapPanel.add(cabinLabel(r), at);
+                at.gridwidth = 1;
+                at.insets = new Insets(2, 2, 2, 2);
+            }
+            at.gridy = y++;
             at.gridx = 0;
             mapPanel.add(centred(String.valueOf(r + 1), Theme.MUTED), at);
             at.gridx = last;
@@ -246,6 +302,20 @@ class SeatSelectionView extends JPanel implements Screen {
         }
         mapPanel.revalidate();
         mapPanel.repaint();
+    }
+
+    /** "BUSINESS, rows 1 to 2": a heading over the first row of a cabin. */
+    private JLabel cabinLabel(int firstRow) {
+        SeatClass cabin = grid.seatAt(firstRow, 0).seatClass();
+        int lastRow = firstRow;
+        while (lastRow + 1 < grid.rowCount() && grid.seatAt(lastRow + 1, 0).seatClass() == cabin) {
+            lastRow++;
+        }
+        String rows = firstRow == lastRow ? "row " + (firstRow + 1) : "rows " + (firstRow + 1) + " to " + (lastRow + 1);
+        JLabel label = new JLabel((cabin == SeatClass.BUSINESS ? "Business" : "Economy") + " \u00b7 " + rows);
+        label.setFont(label.getFont().deriveFont(java.awt.Font.BOLD, Type.CAPTION));
+        label.setForeground(Theme.MUTED);
+        return label;
     }
 
     /** The grid column of a seat column: seats after the aisle move one column to the right. */
@@ -270,8 +340,11 @@ class SeatSelectionView extends JPanel implements Screen {
         button.setMargin(new Insets(2, 2, 2, 2));
         button.setPreferredSize(new java.awt.Dimension(SEAT_WIDTH, SEAT_HEIGHT));
         button.setFont(button.getFont().deriveFont(Type.LABEL));
+        String price = enabled ? Format.money(offer.flight().priceFor(seat.seatClass())) : "";
         button.getAccessibleContext().setAccessibleName("Seat " + seat.number()
-                + (enabled ? ", " + className(seat) : ", taken"));
+                + (enabled ? ", " + className(seat) + ", " + price : ", taken"));
+        button.setToolTipText(enabled ? seat.number() + " \u00b7 " + className(seat) + " \u00b7 " + price
+                : "Seat " + seat.number() + " is taken");
         // the chosen seat turns blue, so it is easy to find in the grid
         button.putClientProperty("FlatLaf.styleClass", "seat");
         if (enabled) {
@@ -328,7 +401,8 @@ class SeatSelectionView extends JPanel implements Screen {
             card.addRow("Seat", "None yet");
         } else {
             Flight flight = offer.flight();
-            card.addRow("Flight", flight.flightNumber())
+            card.addRow("Passenger", passenger)
+                    .addRow("Flight", flight.flightNumber())
                     .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
                     .addRow("Departs", Format.dateTime(flight.departure()))
                     .addRow("Seat", seat.number() + " (" + className(seat) + ")")
@@ -413,6 +487,11 @@ class SeatSelectionView extends JPanel implements Screen {
 
     String message() {
         return messageLabel.getText().trim();
+    }
+
+    /** The panel that holds the summary card, for tests. */
+    JPanel summaryHolder() {
+        return summaryHolder;
     }
 
     String chosenText() {

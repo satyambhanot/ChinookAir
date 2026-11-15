@@ -1,7 +1,6 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -88,74 +87,65 @@ class MyReservationsViewTest {
     }
 
     @Test
-    void aNewCustomerSeesAnEmptyTableAndAShortMessage() {
+    void aNewCustomerSeesAnEmptyStateWithAWayToBook() {
         view.onShow();
-        assertEquals(0, view.tableModel.getRowCount());
-        assertEquals("No reservations yet.", view.message());
-        assertFalse(view.cancelButton.isEnabled());
-        assertFalse(view.payButton.isEnabled());
+        assertEquals(0, view.cards().size());
+        assertEquals("No reservations yet", view.emptyState().title());
+        view.emptyState().action().doClick(0);
+        assertEquals(ViewId.FLIGHT_SEARCH, navigator.last());
     }
 
     @Test
-    void aButtonThatCannotBePressedSaysWhy() {
-        view.onShow();
-        assertEquals("Select a reservation first", view.payButton.getToolTipText());
-        assertEquals("Select a reservation first", view.cancelButton.getToolTipText());
-
-        book("2A", true);
-        view.onShow();
-        view.table.setRowSelectionInterval(0, 0);
-        assertTrue(view.payButton.getToolTipText().contains("awaiting payment"));
-        assertNull(view.cancelButton.getToolTipText(), "a confirmed reservation can be cancelled");
-    }
-
-    @Test
-    void aBookedReservationShowsAsAConfirmedRowWithBothButtonsRightForIt() {
+    void aConfirmedReservationIsOneCardThatOffersOnlyCancel() {
         Reservation r = book("1A", true);
         view.onShow();
-        assertEquals(1, view.tableModel.getRowCount());
-        assertEquals(r.confirmationNumber(), view.tableModel.getValueAt(0, 0));
-        assertEquals(Status.of(ReservationStatus.CONFIRMED), view.tableModel.getValueAt(0, 5));
-        view.table.setRowSelectionInterval(0, 0);
-        assertTrue(view.cancelButton.isEnabled());
-        assertFalse(view.payButton.isEnabled());
+        assertEquals(1, view.cards().size());
+        ReservationCard card = view.cardFor(r.confirmationNumber());
+        assertTrue(card.cancelButton.isVisible());
+        assertFalse(card.payButton.isVisible(), "nothing to pay");
+        assertEquals(List.of("Upcoming (1)"), view.sectionTitles());
     }
 
     @Test
-    void cancellingAfterYesRefundsAndTheRowBecomesCancelled() {
+    void aReservationWaitingForPaymentOffersPayAndCancel() {
+        Reservation waiting = book("2B", false);
+        view.onShow();
+        ReservationCard card = view.cardFor(waiting.confirmationNumber());
+        assertTrue(card.payButton.isVisible());
+        assertTrue(card.cancelButton.isVisible());
+    }
+
+    @Test
+    void cancellingAfterYesRefundsAndTheCardMovesToCancelled() {
         Reservation r = book("1A", true);
         view.onShow();
-        view.table.setRowSelectionInterval(0, 0);
-        view.cancelButton.doClick(0);
+        view.cardFor(r.confirmationNumber()).cancelButton.doClick(0);
         assertEquals("Cancel reservation " + r.confirmationNumber() + "? You will be refunded $"
                 + r.price().toPlainString() + ".", questions.get(0));
-        assertEquals(Status.of(ReservationStatus.CANCELLED), view.tableModel.getValueAt(0, 5));
+        assertEquals(List.of("Cancelled (1)"), view.sectionTitles());
+        assertFalse(view.cardFor(r.confirmationNumber()).cancelButton.isVisible());
         assertEquals(PaymentStatus.REFUNDED,
                 controllers.paymentController().recordsForCustomer(customer, customer.id()).get(0).status());
         assertTrue(controllers.bookingController().availableSeats(offer.flight().id()).stream()
                 .anyMatch(s -> s.number().equals("1A")));
-        view.table.setRowSelectionInterval(0, 0);
-        assertFalse(view.cancelButton.isEnabled());
     }
 
     @Test
     void answeringNoLeavesTheReservationAsItWas() {
-        book("1A", true);
+        Reservation r = book("1A", true);
         view.setConfirmer(q -> false);
         view.onShow();
-        view.table.setRowSelectionInterval(0, 0);
-        view.cancelButton.doClick(0);
-        assertEquals(Status.of(ReservationStatus.CONFIRMED), view.tableModel.getValueAt(0, 5));
+        view.cardFor(r.confirmationNumber()).cancelButton.doClick(0);
+        assertEquals(List.of("Upcoming (1)"), view.sectionTitles());
+        assertEquals(Status.of(ReservationStatus.CONFIRMED),
+                Status.of(view.cardFor(r.confirmationNumber()).reservation().status()));
     }
 
     @Test
-    void aReservationWaitingForPaymentCanBePaidFromTheList() {
+    void aReservationWaitingForPaymentCanBePaidFromItsCard() {
         Reservation waiting = book("2B", false);
         view.onShow();
-        view.table.setRowSelectionInterval(0, 0);
-        assertTrue(view.payButton.isEnabled());
-        assertTrue(view.cancelButton.isEnabled());
-        view.payButton.doClick(0);
+        view.cardFor(waiting.confirmationNumber()).payButton.doClick(0);
         assertEquals(ViewId.PAYMENT, navigator.last());
         assertEquals(waiting.id(), booking.reservation().orElseThrow().id());
         assertEquals(ReservationStatus.PENDING_PAYMENT, booking.reservation().orElseThrow().status());
@@ -165,9 +155,36 @@ class MyReservationsViewTest {
     void cancellingAPendingReservationDoesNotTalkAboutARefund() {
         Reservation waiting = book("2B", false);
         view.onShow();
-        view.table.setRowSelectionInterval(0, 0);
-        view.cancelButton.doClick(0);
+        view.cardFor(waiting.confirmationNumber()).cancelButton.doClick(0);
         assertEquals("Cancel reservation " + waiting.confirmationNumber() + "?", questions.get(0));
+    }
+
+    @Test
+    void theListIsInSectionsWithWhatIsAheadFirst() {
+        Reservation keep = book("3A", true);
+        Reservation drop = book("3B", true);
+        view.onShow();
+        view.cardFor(drop.confirmationNumber()).cancelButton.doClick(0);
+        assertEquals(List.of("Upcoming (1)", "Cancelled (1)"), view.sectionTitles());
+        assertEquals(keep.confirmationNumber(), view.cards().get(0).reservation().confirmationNumber());
+        assertEquals(drop.confirmationNumber(), view.cards().get(1).reservation().confirmationNumber());
+    }
+
+    @Test
+    void typingNarrowsTheListToTheMatchingReservations() {
+        Reservation first = book("4A", true);
+        Reservation second = book("4B", true);
+        view.onShow();
+        assertEquals(2, view.cards().size());
+        view.filterField.setText(first.confirmationNumber().toLowerCase());
+        assertEquals(1, view.cards().size());
+        assertEquals(first.confirmationNumber(), view.cards().get(0).reservation().confirmationNumber());
+        view.filterField.setText("zzzz");
+        assertEquals(0, view.cards().size());
+        assertEquals("No reservation matches", view.emptyState().title());
+        view.filterField.setText("");
+        assertEquals(2, view.cards().size());
+        assertTrue(second.id() > 0);
     }
 
     @Test
@@ -176,7 +193,7 @@ class MyReservationsViewTest {
         controllers.session().login(controllers.loginController().authenticate("agent1", "agent123"));
         booking.bookFor(customer);
         view.onShow();
-        assertEquals(1, view.tableModel.getRowCount());
+        assertEquals(1, view.cards().size());
     }
 
     @Test
@@ -184,7 +201,7 @@ class MyReservationsViewTest {
         controllers.session().login(controllers.loginController().authenticate("agent1", "agent123"));
         view.onShow();
         assertEquals("Choose a customer first", view.message());
-        assertEquals(0, view.tableModel.getRowCount());
+        assertEquals(0, view.cards().size());
     }
 
     @Test

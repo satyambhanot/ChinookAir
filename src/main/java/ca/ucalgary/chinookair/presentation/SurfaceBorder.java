@@ -26,18 +26,25 @@ final class SurfaceBorder extends AbstractBorder {
     private final int left;
     private final int bottom;
     private final int right;
+    private final boolean highlighted;
 
-    private SurfaceBorder(int top, int left, int bottom, int right) {
+    private SurfaceBorder(int top, int left, int bottom, int right, boolean highlighted) {
         this.top = top;
         this.left = left;
         this.bottom = bottom;
         this.right = right;
+        this.highlighted = highlighted;
     }
 
     /** Makes the panel a card with this padding between the edge of the body and its content. */
     static void apply(JComponent panel, int top, int left, int bottom, int right) {
+        apply(panel, false, top, left, bottom, right);
+    }
+
+    /** The same, and when {@code highlighted} the edge is drawn in the accent colour, like a chosen card. */
+    static void apply(JComponent panel, boolean highlighted, int top, int left, int bottom, int right) {
         panel.setOpaque(false);
-        panel.setBorder(new SurfaceBorder(top, left, bottom, right));
+        panel.setBorder(new SurfaceBorder(top, left, bottom, right, highlighted));
     }
 
     @Override
@@ -69,8 +76,11 @@ final class SurfaceBorder extends AbstractBorder {
         g2.fillRoundRect(x + 2, y + 3, width - 4, body, arc, arc);
         g2.setColor(Theme.SURFACE);
         g2.fillRoundRect(x, y, width, body, arc, arc);
-        g2.setColor(Theme.BORDER);
+        g2.setColor(highlighted ? Palette.BLUE_600 : Theme.BORDER);
         g2.drawRoundRect(x, y, width - 1, body - 1, arc, arc);
+        if (highlighted) {
+            g2.drawRoundRect(x + 1, y + 1, width - 3, body - 3, arc - 2, arc - 2);
+        }
         g2.dispose();
     }
 
