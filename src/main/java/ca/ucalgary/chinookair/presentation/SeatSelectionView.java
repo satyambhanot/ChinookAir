@@ -36,10 +36,11 @@ import javax.swing.SwingConstants;
 class SeatSelectionView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color BUSINESS = new Color(0xFFE08A);
-    private static final Color ECONOMY = new Color(0xD7E8FA);
-    private static final Color TAKEN = new Color(0xBDBDBD);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color BUSINESS = new Color(0xFCE7A8);
+    private static final Color ECONOMY = Theme.ACCENT_SOFT;
+    private static final Color TAKEN = new Color(0xDDE1E6);
+    private static final Color SELECTED = Theme.ACCENT;
     private static final String PICK = "Pick a seat";
 
     private final transient Controllers controllers;
@@ -76,7 +77,9 @@ class SeatSelectionView extends JPanel implements Screen {
         legend.add(swatch("Business", BUSINESS));
         legend.add(swatch("Economy", ECONOMY));
         legend.add(swatch("Taken", TAKEN));
-        chosenLabel.setFont(chosenLabel.getFont().deriveFont(Font.BOLD, 14f));
+        legend.add(swatch("Your seat", SELECTED));
+        chosenLabel.setFont(chosenLabel.getFont().deriveFont(Font.BOLD, 15f));
+        chosenLabel.setBorder(BorderFactory.createEmptyBorder(10, 2, 4, 0));
         JPanel info = new JPanel(new BorderLayout());
         info.add(legend, BorderLayout.NORTH);
         info.add(chosenLabel, BorderLayout.CENTER);
@@ -101,6 +104,8 @@ class SeatSelectionView extends JPanel implements Screen {
         JLabel label = new JLabel(" " + text + " ", SwingConstants.CENTER);
         label.setOpaque(true);
         label.setBackground(color);
+        label.setForeground(color.equals(SELECTED) ? Color.WHITE : Theme.TEXT);
+        label.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
         return label;
     }
 
@@ -200,6 +205,9 @@ class SeatSelectionView extends JPanel implements Screen {
         button.setBackground(enabled ? (seat.seatClass() == SeatClass.BUSINESS ? BUSINESS : ECONOMY) : TAKEN);
         button.setEnabled(enabled);
         button.setMargin(new Insets(2, 2, 2, 2));
+        // the chosen seat turns blue, so it is easy to find in the grid
+        button.putClientProperty("FlatLaf.style", "selectedBackground: #0B63CE; selectedForeground: #FFFFFF; "
+                + "borderColor: #C9D3E0; disabledText: #8A94A3; arc: 8");
         if (enabled) {
             button.addActionListener(e -> choose(seat));
         }

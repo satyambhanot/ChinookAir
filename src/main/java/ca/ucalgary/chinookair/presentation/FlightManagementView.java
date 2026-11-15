@@ -94,11 +94,6 @@ class FlightManagementView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
-        // wide enough for "2026-12-02 07:00" and "YYC → YVR"
-        int[] widths = {70, 110, 140, 140, 130};
-        for (int i = 0; i < widths.length; i++) {
-            table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-        }
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(buildForm(), BorderLayout.EAST);
 

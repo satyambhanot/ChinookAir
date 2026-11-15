@@ -8,7 +8,9 @@ import java.awt.RenderingHints;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
@@ -20,6 +22,8 @@ import javax.swing.table.TableModel;
 class HintTable extends JTable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final int SAMPLE = 200;
 
     private String emptyText;
 
@@ -39,6 +43,30 @@ class HintTable extends JTable {
             }
             return cell;
         });
+    }
+
+    /** Every time the rows change, the columns get as wide as their longest text so nothing is cut off. */
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        super.tableChanged(e);
+        fitColumns();
+    }
+
+    private void fitColumns() {
+        JTableHeader header = getTableHeader();
+        if (header == null || getColumnModel() == null) {
+            return;
+        }
+        for (int c = 0; c < getColumnCount(); c++) {
+            TableColumn column = getColumnModel().getColumn(c);
+            Component head = header.getDefaultRenderer()
+                    .getTableCellRendererComponent(this, column.getHeaderValue(), false, false, -1, c);
+            int width = head.getPreferredSize().width;
+            for (int r = 0; r < Math.min(getRowCount(), SAMPLE); r++) {
+                width = Math.max(width, prepareRenderer(getCellRenderer(r, c), r, c).getPreferredSize().width);
+            }
+            column.setPreferredWidth(width + 8);
+        }
     }
 
     /** What to say when the table has no rows. */
