@@ -117,8 +117,13 @@ class RouteManagementViewTest {
     }
 
     @Test
-    void backGoesToTheAdministratorDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.ADMIN_DASHBOARD, navigator.last());
+    void aDuplicateIsShownAsAProblemInTheErrorStrip() {
+        view.originCombo.setSelectedIndex(0);
+        view.destinationCombo.setSelectedIndex(2);
+        // the second press is a duplicate whether or not the first one was
+        view.addButton.doClick(0);
+        view.addButton.doClick(0);
+        assertEquals(Alert.Kind.ERROR, view.messageKind());
+        assertEquals("Route already exists", view.message());
     }
 }

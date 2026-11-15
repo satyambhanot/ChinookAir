@@ -5,8 +5,8 @@ import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +20,13 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
 
-/** For the administrator: the routes there are, and a way to add one between two airports. */
+/** For the administrator: the routes there are, and a card to add one between two airports. */
 class RouteManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = Theme.DANGER;
-    private static final Color NOTICE = Theme.SUCCESS;
+    private static final int CARD_WIDTH = 340;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -34,40 +34,52 @@ class RouteManagementView extends JPanel implements Screen {
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
     final JButton addButton = Theme.primary(new JButton("Add route"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
     final RouteTableModel tableModel = new RouteTableModel();
-    final HintTable table = new HintTable(tableModel, "No routes yet. Add one above.");
-    private final JLabel messageLabel = new JLabel(" ");
+    final HintTable table = new HintTable(tableModel, "No routes yet. Add one with the form.");
+    private final Alert alert = new Alert(CARD_WIDTH - 90);
 
     RouteManagementView(Controllers controllers, Navigator navigator) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(16, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Routes");
         Theme.heading(heading);
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        form.add(label("From", 'F', originCombo));
-        form.add(originCombo);
-        form.add(label("To", 'T', destinationCombo));
-        form.add(destinationCombo);
-        form.add(addButton);
-        addButton.setMnemonic('A');
-        JPanel top = new JPanel(new BorderLayout());
-        top.add(heading, BorderLayout.NORTH);
-        top.add(form, BorderLayout.CENTER);
-        add(top, BorderLayout.NORTH);
+        add(heading, BorderLayout.NORTH);
 
         table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttons.add(backButton);
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messageLabel, BorderLayout.WEST);
-        bottom.add(buttons, BorderLayout.EAST);
-        add(bottom, BorderLayout.SOUTH);
+        JLabel title = new JLabel("Add a route");
+        title.setFont(title.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
+        JPanel fields = new JPanel();
+        fields.setOpaque(false);
+        fields.setLayout(new javax.swing.BoxLayout(fields, javax.swing.BoxLayout.Y_AXIS));
+        for (FormField row : new FormField[] {new FormField("From", originCombo).mnemonic('F'),
+                new FormField("To", destinationCombo).mnemonic('T')}) {
+            row.setAlignmentX(LEFT_ALIGNMENT);
+            fields.add(row);
+        }
+        addButton.setMnemonic('A');
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        buttons.setOpaque(false);
+        buttons.add(addButton);
+        JPanel south = new JPanel(new BorderLayout(0, 12));
+        south.setOpaque(false);
+        south.add(alert, BorderLayout.NORTH);
+        south.add(buttons, BorderLayout.SOUTH);
+        JPanel card = new JPanel(new BorderLayout(0, 12));
+        card.setBackground(Theme.SURFACE);
+        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        card.add(title, BorderLayout.NORTH);
+        card.add(fields, BorderLayout.CENTER);
+        card.add(south, BorderLayout.SOUTH);
+        JPanel side = new JPanel(new BorderLayout());
+        side.setOpaque(false);
+        side.setPreferredSize(new Dimension(CARD_WIDTH, 10));
+        side.add(card, BorderLayout.NORTH);
+        add(side, BorderLayout.EAST);
 
         DefaultListCellRenderer renderer = new DefaultListCellRenderer() {
             private static final long serialVersionUID = 1L;
@@ -83,14 +95,6 @@ class RouteManagementView extends JPanel implements Screen {
         originCombo.setRenderer(renderer);
         destinationCombo.setRenderer(renderer);
         addButton.addActionListener(e -> add());
-        backButton.addActionListener(e -> navigator.show(ViewId.ADMIN_DASHBOARD));
-    }
-
-    private static JLabel label(String text, char mnemonic, Component field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        return label;
     }
 
     private void add() {
@@ -103,15 +107,10 @@ class RouteManagementView extends JPanel implements Screen {
         try {
             controllers.routeController().addRoute(admin, origin.code(), destination.code());
             tableModel.setRoutes(controllers.routeController().list());
-            showMessage("Added route " + origin.code() + " to " + destination.code(), NOTICE);
+            alert.show(Alert.Kind.SUCCESS, "Added route " + origin.code() + " to " + destination.code());
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
-    }
-
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
     }
 
     @Override
@@ -128,10 +127,14 @@ class RouteManagementView extends JPanel implements Screen {
             destinationCombo.setSelectedIndex(1);
         }
         tableModel.setRoutes(controllers.routeController().list());
-        messageLabel.setText(" ");
+        alert.clear();
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
+    }
+
+    Alert.Kind messageKind() {
+        return alert.kind();
     }
 }
