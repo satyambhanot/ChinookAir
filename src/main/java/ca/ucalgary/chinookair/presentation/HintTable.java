@@ -5,7 +5,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.regex.Pattern;
 import javax.swing.JLabel;
+import javax.swing.RowFilter;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
@@ -13,6 +15,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  * A table styled like the rest of the program. Headers sit on the left, except over numbers, which
@@ -68,6 +71,23 @@ class HintTable extends JTable {
                 width = Math.max(width, prepareRenderer(getCellRenderer(r, c), r, c).getPreferredSize().width);
             }
             column.setPreferredWidth(width + 8);
+        }
+    }
+
+    /**
+     * Shows only the rows whose text, in the given columns, contains the words typed. Capitals do not
+     * matter and characters like "(" are taken literally. Blank text shows every row again.
+     */
+    @SuppressWarnings("unchecked")
+    void filterRows(String text, int... columns) {
+        if (getRowSorter() == null) {
+            setAutoCreateRowSorter(true);
+        }
+        TableRowSorter<TableModel> sorter = (TableRowSorter<TableModel>) getRowSorter();
+        if (text == null || text.isBlank()) {
+            sorter.setRowFilter(null);
+        } else {
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(text.trim()), columns));
         }
     }
 
