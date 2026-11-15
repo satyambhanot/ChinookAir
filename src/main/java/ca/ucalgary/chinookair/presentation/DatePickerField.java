@@ -179,6 +179,8 @@ class DatePickerField extends JTextField {
             setDate(day.date());
             popup.setVisible(false);
             requestFocusInWindow();
+            // choosing a day counts like pressing Enter in the field
+            postActionEvent();
         });
         return button;
     }

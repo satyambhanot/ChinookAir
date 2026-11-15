@@ -98,6 +98,12 @@ class PaletteTest {
     }
 
     @Test
+    void theRedButtonOfAConfirmationIsReadable() {
+        atLeast(TEXT, Color.WHITE, Palette.DANGER_TEXT, "red confirm button");
+        atLeast(TEXT, Color.WHITE, Palette.DANGER_DARK, "red confirm button when hovered");
+    }
+
+    @Test
     void theFocusRingAndDisabledControlsStayVisible() {
         atLeast(LARGE_OR_LINE, Palette.BLUE_600, Palette.PAGE, "focus ring on the page");
         atLeast(LARGE_OR_LINE, Palette.BLUE_600, Palette.SURFACE, "focus ring on white");

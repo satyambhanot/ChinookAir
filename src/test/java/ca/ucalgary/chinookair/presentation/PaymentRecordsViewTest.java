@@ -71,7 +71,7 @@ class PaymentRecordsViewTest {
 
     private void search(String text) {
         view.searchField.setText(text);
-        view.searchButton.doClick(0);
+        view.search();
     }
 
     @Test
@@ -92,14 +92,15 @@ class PaymentRecordsViewTest {
         search(none.email());
         view.customerTable.setRowSelectionInterval(0, 0);
         assertEquals(0, view.paymentModel.getRowCount());
-        assertEquals("No Pay has no payments.", view.message());
+        assertEquals("No Pay has no payments.", view.paymentTable.emptyText());
+        assertEquals("Payments of No Pay", view.paymentsTitle());
     }
 
     @Test
     void searchingForNobodyShowsAnEmptyList() {
         search("zzzzqq");
         assertEquals(0, view.customerModel.getRowCount());
-        assertEquals("No customers found.", view.message());
+        assertEquals("No customers match. Try another name or email.", view.customerTable.emptyText());
     }
 
     @Test
@@ -110,9 +111,19 @@ class PaymentRecordsViewTest {
     }
 
     @Test
-    void backGoesToTheAgentDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.AGENT_DASHBOARD, navigator.last());
+    void typingInTheSearchBoxFindsCustomersWithoutAButton() {
+        view.searchField.setText(payer.email());
+        assertEquals(1, view.customerModel.getRowCount());
+    }
+
+    @Test
+    void searchingAgainClearsThePaymentsOfTheEarlierCustomer() {
+        search(payer.email());
+        view.customerTable.setRowSelectionInterval(0, 0);
+        assertEquals(2, view.paymentModel.getRowCount());
+        search("zzzzqq");
+        assertEquals(0, view.paymentModel.getRowCount());
+        assertEquals("Payments", view.paymentsTitle());
     }
 
     @Test

@@ -99,6 +99,15 @@ class DatePickerFieldTest {
     }
 
     @Test
+    void clickingADayCountsLikePressingEnterInTheField() {
+        java.util.List<String> heard = new java.util.ArrayList<>();
+        field.addActionListener(e -> heard.add(field.getText()));
+        field.openCalendar();
+        button("2026-12-24").doClick(0);
+        assertEquals(java.util.List.of("2026-12-24"), heard);
+    }
+
+    @Test
     void clickingADayFillsTheField() {
         field.openCalendar();
         button("2026-12-24").doClick(0);

@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -135,6 +136,16 @@ class LoginView extends JPanel implements Screen {
         usernameField.setText("");
         passwordField.setText("");
         alert.clear();
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return loginButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return usernameField;
     }
 
     @Override

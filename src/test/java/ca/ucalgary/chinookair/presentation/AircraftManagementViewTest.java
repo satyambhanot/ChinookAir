@@ -100,8 +100,40 @@ class AircraftManagementViewTest {
     }
 
     @Test
-    void backGoesToTheAdministratorDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.ADMIN_DASHBOARD, navigator.last());
+    void theSeatTotalShowsWhileTheNumbersAreTyped() {
+        assertEquals("", view.totalText());
+        view.rowsField.setText("25");
+        assertEquals("", view.totalText(), "one number is not enough");
+        view.seatsField.setText("4");
+        assertEquals("100 seats in total", view.totalText());
+        view.seatsField.setText("x");
+        assertEquals("", view.totalText());
+    }
+
+    @Test
+    void theSeatCountIsRowsTimesSeatsAndOnlyForPositiveWholeNumbers() {
+        assertEquals(java.util.Optional.of(180), AircraftManagementView.seatCount("30", "6"));
+        assertEquals(java.util.Optional.of(12), AircraftManagementView.seatCount(" 3 ", " 4 "));
+        assertEquals(java.util.Optional.empty(), AircraftManagementView.seatCount("0", "6"));
+        assertEquals(java.util.Optional.empty(), AircraftManagementView.seatCount("-2", "6"));
+        assertEquals(java.util.Optional.empty(), AircraftManagementView.seatCount("a", "6"));
+        assertEquals(java.util.Optional.empty(), AircraftManagementView.seatCount("", ""));
+    }
+
+    @Test
+    void aProblemIsShownUnderTheFieldItIsAbout() {
+        view.modelField.setText("E190");
+        view.rowsField.setText("x");
+        view.seatsField.setText("4");
+        view.addButton.doClick(0);
+        assertTrue(view.rowsRow().hasError());
+        assertTrue(!view.seatsRow().hasError());
+        assertTrue(!view.modelRow().hasError());
+
+        view.rowsField.setText("25");
+        view.seatsField.setText("0");
+        view.addButton.doClick(0);
+        assertTrue(!view.rowsRow().hasError(), "the old error goes away");
+        assertTrue(view.seatsRow().hasError());
     }
 }

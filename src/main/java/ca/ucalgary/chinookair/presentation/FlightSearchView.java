@@ -20,6 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -110,6 +111,7 @@ class FlightSearchView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
+        table.describe("Flights found");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         selectButton.setMnemonic('E');
@@ -154,7 +156,7 @@ class FlightSearchView extends JPanel implements Screen {
                     destination == null ? null : destination.code(), InputParser.date(dateField.getText()),
                     airline == null ? null : airline.code());
             List<FlightOffer> offers = controllers.flightSearchController().search(criteria);
-            booking.rememberSearch(criteria.origin(), criteria.destination(), criteria.airlineCode());
+            booking.rememberSearch(criteria.origin(), criteria.destination(), criteria.airlineCode(), criteria.date());
             tableModel.setOffers(offers);
             table.setEmptyText("No flights match this search.");
             if (offers.isEmpty()) {
@@ -200,6 +202,16 @@ class FlightSearchView extends JPanel implements Screen {
     }
 
     @Override
+    public JButton defaultButton() {
+        return searchButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return originCombo;
+    }
+
+    @Override
     public void onShow() {
         if (controllers.session().currentUser().isEmpty()) {
             navigator.show(ViewId.LOGIN);
@@ -220,22 +232,29 @@ class FlightSearchView extends JPanel implements Screen {
         LocalDate today = controllers.flightSearchController().today();
         dateField.setMinDate(today);
         dateField.setText(today.toString());
-        startFromLastSearchOrFirstRoute(airports, today);
         tableModel.setOffers(List.of());
         messageLabel.setText(" ");
+        // the flights of the starting route show at once, so a booking needs one click less
+        if (startFromLastSearchOrFirstRoute(airports, today)) {
+            search();
+        }
     }
 
     /**
      * Starts the form where the user left it. The first time there is nothing to remember, so it picks the
-     * first route that has a flight in the coming week, so the first search is not an empty one.
+     * first route that has a flight in the coming week, so the first search is not an empty one. It says
+     * whether it found a route to start on.
      */
-    private void startFromLastSearchOrFirstRoute(List<Airport> airports, LocalDate today) {
+    private boolean startFromLastSearchOrFirstRoute(List<Airport> airports, LocalDate today) {
         Optional<BookingSession.SearchMemory> last = booking.lastSearch();
         if (last.isPresent()) {
             selectByCode(originCombo, last.get().origin());
             selectByCode(destinationCombo, last.get().destination());
             selectAirline(last.get().airline());
-            return;
+            // an earlier day is no use now, so the form starts today
+            LocalDate remembered = last.get().date();
+            dateField.setDate(remembered == null || remembered.isBefore(today) ? today : remembered);
+            return true;
         }
         for (int day = 0; day < ROUTE_LOOKAHEAD_DAYS; day++) {
             for (Airport from : airports) {
@@ -245,11 +264,12 @@ class FlightSearchView extends JPanel implements Screen {
                         originCombo.setSelectedItem(from);
                         destinationCombo.setSelectedItem(to);
                         dateField.setDate(today.plusDays(day));
-                        return;
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
     private static void selectByCode(JComboBox<Airport> combo, String code) {

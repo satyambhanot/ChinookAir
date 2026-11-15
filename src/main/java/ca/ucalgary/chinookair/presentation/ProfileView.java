@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,7 +30,6 @@ class ProfileView extends JPanel implements Screen {
 
     final CustomerForm form = new CustomerForm();
     final JButton saveButton = Theme.primary(new JButton("Save changes"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final Alert alert = new Alert(CARD_WIDTH - 100);
     private transient Customer loaded;
 
@@ -43,10 +43,8 @@ class ProfileView extends JPanel implements Screen {
         add(heading, BorderLayout.NORTH);
 
         saveButton.setMnemonic('V');
-        backButton.setMnemonic('B');
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.setOpaque(false);
-        buttons.add(backButton);
         buttons.add(saveButton);
         JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(Theme.SURFACE);
@@ -85,7 +83,6 @@ class ProfileView extends JPanel implements Screen {
         form.phoneField.getDocument().addDocumentListener(changes);
         saveButton.setEnabled(false);
         saveButton.addActionListener(e -> save());
-        backButton.addActionListener(e -> goBack());
     }
 
     /** Save is only useful when the form differs from what is stored. */
@@ -115,9 +112,14 @@ class ProfileView extends JPanel implements Screen {
         }
     }
 
-    private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+    @Override
+    public JButton defaultButton() {
+        return saveButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return form.nameField;
     }
 
     @Override

@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -135,7 +136,8 @@ class ConfirmationView extends JPanel implements Screen {
         column.add(savedRow);
         column.add(Box.createVerticalStrut(16));
         column.add(buttons);
-        add(column, BorderLayout.NORTH);
+        // a small window scrolls the page, so the buttons are never cut off
+        add(ScrollableForm.around(column), BorderLayout.CENTER);
 
         dashboardButton.addActionListener(e -> backToDashboard());
         anotherButton.addActionListener(e -> bookAnother());
@@ -164,6 +166,16 @@ class ConfirmationView extends JPanel implements Screen {
         Timer timer = new Timer(2000, e -> copyButton.setText("Copy"));
         timer.setRepeats(false);
         timer.start();
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return dashboardButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return dashboardButton;
     }
 
     @Override

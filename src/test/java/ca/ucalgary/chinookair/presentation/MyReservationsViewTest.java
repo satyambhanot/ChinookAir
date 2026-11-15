@@ -10,6 +10,7 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.control.FlightOffer;
 import ca.ucalgary.chinookair.business.control.SearchCriteria;
 import ca.ucalgary.chinookair.business.entity.Customer;
+import ca.ucalgary.chinookair.data.DatabaseSeeder;
 import ca.ucalgary.chinookair.business.entity.PaymentDetails;
 import ca.ucalgary.chinookair.business.entity.PaymentMethodType;
 import ca.ucalgary.chinookair.business.entity.PaymentStatus;
@@ -187,10 +188,19 @@ class MyReservationsViewTest {
     }
 
     @Test
-    void backGoesToTheDashboard() {
+    void aCustomerHasNoBackButtonBecauseTheTabsTakeThemAnywhere() {
         view.onShow();
+        assertFalse(view.backButton.isVisible());
+    }
+
+    @Test
+    void anAgentCanGoBackToTheCustomers() {
+        controllers.session().login(controllers.loginController()
+                .authenticate(DatabaseSeeder.AGENT_USERNAME, DatabaseSeeder.AGENT_PASSWORD));
+        view.onShow();
+        assertTrue(view.backButton.isVisible());
         view.backButton.doClick(0);
-        assertEquals(ViewId.CUSTOMER_DASHBOARD, navigator.last());
+        assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
     }
 
     @Test

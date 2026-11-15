@@ -189,7 +189,7 @@ class FlightManagementViewTest {
         add(number);
         view.table.setRowSelectionInterval(rowOf(number), rowOf(number));
         view.removeButton.doClick(0);
-        assertEquals("Remove flight " + number + "?", questions.get(0));
+        assertTrue(questions.get(0).startsWith("Flight " + number + " will be taken off the schedule"));
         assertEquals(-1, rowOf(number));
         assertEquals("Removed " + number, view.message());
     }
@@ -233,8 +233,63 @@ class FlightManagementViewTest {
     }
 
     @Test
-    void backGoesToTheAdministratorDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.ADMIN_DASHBOARD, navigator.last());
+    void theCardIsHiddenUntilAFlightIsChosenOrAddIsPressed() {
+        assertFalse(view.cardShown());
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.cardShown());
+        view.table.clearSelection();
+        view.newButton.doClick(0);
+        assertTrue(view.cardShown());
+        assertEquals("", view.numberField.getText(), "a new flight starts empty");
+    }
+
+    @Test
+    void theFilterBoxShowsOnlyMatchingFlights() {
+        int all = view.table.getRowCount();
+        String number = (String) view.tableModel.getValueAt(0, 0);
+        view.filterField.setText(number);
+        assertTrue(view.table.getRowCount() >= 1);
+        assertTrue(view.table.getRowCount() < all);
+        view.filterField.setText("zzzzqq");
+        assertEquals(0, view.table.getRowCount());
+        assertTrue(view.table.emptyText().startsWith("No flights match"));
+        view.filterField.setText("");
+        assertEquals(all, view.table.getRowCount());
+    }
+
+    @Test
+    void theFilterAlsoMatchesTheRoute() {
+        view.filterField.setText("YVR");
+        assertTrue(view.table.getRowCount() > 0);
+        for (int row = 0; row < view.table.getRowCount(); row++) {
+            String route = (String) view.table.getValueAt(row, 1);
+            assertTrue(route.contains("YVR"), route);
+        }
+    }
+
+    @Test
+    void chosenRowsStillMeanTheRightFlightAfterFilteringAndSorting() {
+        view.filterField.setText("YVR");
+        view.table.getRowSorter().toggleSortOrder(0);
+        view.table.setRowSelectionInterval(0, 0);
+        String shown = (String) view.table.getValueAt(0, 0);
+        assertEquals(shown, view.numberField.getText());
+    }
+
+    @Test
+    void theMainButtonFollowsWhatTheCardIsFor() {
+        view.newButton.doClick(0);
+        assertEquals("primary", view.addButton.getClientProperty("FlatLaf.styleClass"));
+        view.table.setRowSelectionInterval(0, 0);
+        assertEquals("primary", view.updateButton.getClientProperty("FlatLaf.styleClass"));
+        assertEquals("Duplicate", view.addButton.getText());
+    }
+
+    @Test
+    void theTableLeavesOutTheArrivalTimeBecauseTheCardShowsIt() {
+        assertEquals(4, view.table.getColumnCount());
+        assertEquals(5, view.tableModel.getColumnCount(), "the model still has it");
+        view.table.setRowSelectionInterval(0, 0);
+        assertFalse(view.arrivalField.getText().isEmpty());
     }
 }

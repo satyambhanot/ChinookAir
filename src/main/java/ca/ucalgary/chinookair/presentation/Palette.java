@@ -50,6 +50,7 @@ final class Palette {
     static final Color WARNING_TINT = new Color(0xFFF4D6);
     static final Color DANGER_TEXT = new Color(0xB3261E);
     static final Color DANGER_TINT = new Color(0xFDECEA);
+    static final Color DANGER_DARK = new Color(0x8C1C16);
     static final Color DANGER_BORDER = new Color(0xE3B5B5);
 
     private Palette() {

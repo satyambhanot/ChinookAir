@@ -58,8 +58,9 @@ class CustomerManagementViewTest {
     }
 
     private void search(String text) {
+        // typing searches by itself
         view.searchField.setText(text);
-        view.searchButton.doClick(0);
+        view.search();
     }
 
     @Test
@@ -73,7 +74,7 @@ class CustomerManagementViewTest {
     void searchingForNobodyShowsAnEmptyTable() {
         search("zzzzqq");
         assertEquals(0, view.tableModel.getRowCount());
-        assertEquals("No customers found.", view.message());
+        assertEquals("No customers match. Try another name or email.", view.table.emptyText());
     }
 
     @Test
@@ -170,9 +171,35 @@ class CustomerManagementViewTest {
     }
 
     @Test
-    void backGoesToTheAgentDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.AGENT_DASHBOARD, navigator.last());
+    void typingInTheSearchBoxFiltersWithoutPressingAnything() {
+        view.searchField.setText("smithson" + (next - 1));
+        assertEquals(1, view.tableModel.getRowCount());
+        view.searchField.setText("zzzzqq");
+        assertEquals(0, view.tableModel.getRowCount());
+        view.searchField.setText("");
+        assertTrue(view.tableModel.getRowCount() >= 1);
+    }
+
+    @Test
+    void thePanelOnTheRightWaitsForAChoiceAndThenShowsTheCustomer() {
+        assertFalse(view.saveButton.isEnabled());
+        search("smithson" + (next - 1));
+        view.table.setRowSelectionInterval(0, 0);
+        assertEquals(jo.username(), view.form.usernameField.getText());
+        assertTrue(view.modifyButton.isEnabled());
+        view.newButton.doClick(0);
+        assertTrue(view.form.isNewCustomer());
+        assertEquals("", view.form.nameField.getText());
+    }
+
+    @Test
+    void savingWithTheSameSearchTextStillRefreshesTheTable() {
+        // the box already holds the email that the save will put there
+        search(jo.email());
+        view.table.setRowSelectionInterval(0, 0);
+        view.form.phoneField.setText("403-555-0188");
+        view.saveButton.doClick(0);
+        assertEquals("403-555-0188", view.tableModel.getValueAt(0, 2));
     }
 
     @Test

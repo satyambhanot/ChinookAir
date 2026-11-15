@@ -57,4 +57,60 @@ class HintTableTest {
                 .getTableCellRendererComponent(table, "Seats", false, false, -1, 1);
         assertEquals(SwingConstants.RIGHT, ((JLabel) seats).getHorizontalAlignment());
     }
+
+    private static HintTable tableWith(String... names) {
+        DefaultTableModel model = model();
+        for (String name : names) {
+            model.addRow(new Object[] {name, 1});
+        }
+        return new HintTable(model, "");
+    }
+
+    @Test
+    void filteringKeepsOnlyTheRowsThatContainTheWords() {
+        HintTable table = tableWith("AC101 Calgary", "WS302 Toronto", "ac555 Edmonton");
+        table.filterRows("ac", 0);
+        assertEquals(2, table.getRowCount(), "capitals do not matter");
+        table.filterRows("toronto", 0);
+        assertEquals(1, table.getRowCount());
+        table.filterRows("   ", 0);
+        assertEquals(3, table.getRowCount(), "blank text shows everything again");
+        table.filterRows(null, 0);
+        assertEquals(3, table.getRowCount());
+    }
+
+    @Test
+    void filteringTreatsSpecialCharactersAsPlainText() {
+        HintTable table = tableWith("YYC (main)", "YVR");
+        table.filterRows("(main", 0);
+        assertEquals(1, table.getRowCount());
+        table.filterRows(".*", 0);
+        assertEquals(0, table.getRowCount());
+    }
+
+    @Test
+    void filteringLooksOnlyInTheGivenColumns() {
+        DefaultTableModel model = model();
+        model.addRow(new Object[] {"alpha", 7});
+        HintTable table = new HintTable(model, "");
+        table.filterRows("7", 0);
+        assertEquals(0, table.getRowCount());
+        table.filterRows("7", 1);
+        assertEquals(1, table.getRowCount());
+    }
+
+    @Test
+    void theRowsThatShowCanBeMappedBackToTheModel() {
+        HintTable table = tableWith("one", "two", "three");
+        table.filterRows("t", 0);
+        assertEquals(2, table.getRowCount());
+        assertEquals("three", table.getModel().getValueAt(table.convertRowIndexToModel(1), 0));
+    }
+
+    @Test
+    void aTableCanBeNamedForAScreenReader() {
+        HintTable table = tableWith("one");
+        table.describe("Flights");
+        assertEquals("Flights", table.getAccessibleContext().getAccessibleName());
+    }
 }

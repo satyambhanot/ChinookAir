@@ -4,6 +4,7 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
+import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,10 +12,10 @@ import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -37,7 +38,7 @@ class MyReservationsView extends JPanel implements Screen {
     final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
     final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
     final JButton payButton = Theme.primary(new JButton("Pay now"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton backButton = Theme.secondary(new JButton("Back to customers"));
     private final JLabel messageLabel = new JLabel(" ");
     private transient Customer owner;
 
@@ -57,6 +58,7 @@ class MyReservationsView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Reservations");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         cancelButton.setMnemonic('C');
@@ -130,14 +132,13 @@ class MyReservationsView extends JPanel implements Screen {
         navigator.show(ViewId.PAYMENT);
     }
 
+    /** Only an agent came here from somewhere (a customer's row); a customer is on a tab. */
     private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+        navigator.show(ViewId.CUSTOMER_MANAGEMENT);
     }
 
     private boolean askYesNo(String question) {
-        return JOptionPane.showConfirmDialog(this, question, "ChinookAir", JOptionPane.YES_NO_OPTION)
-                == JOptionPane.YES_OPTION;
+        return ConfirmDialog.ask(this, "Cancel this reservation?", question, "Cancel reservation", true);
     }
 
     /** The customer whose reservations are shown: the one an agent chose, or else the person logged in. */
@@ -171,12 +172,18 @@ class MyReservationsView extends JPanel implements Screen {
     }
 
     @Override
+    public JComponent initialFocus() {
+        return table;
+    }
+
+    @Override
     public void onShow() {
         Optional<User> user = controllers.session().currentUser();
         if (user.isEmpty()) {
             navigator.show(ViewId.LOGIN);
             return;
         }
+        backButton.setVisible(user.get().role() == Role.AGENT);
         tableModel.setReservations(List.of());
         updateButtons();
         try {

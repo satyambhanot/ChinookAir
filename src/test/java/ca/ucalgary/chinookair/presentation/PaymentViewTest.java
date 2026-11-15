@@ -217,4 +217,28 @@ class PaymentViewTest {
         view.onShow();
         assertEquals("", view.message());
     }
+
+    @Test
+    void theFieldsAreInTheOrderTabVisitsThem() {
+        java.util.List<java.awt.Component> order = new java.util.ArrayList<>();
+        collectFields(view, order);
+        int name = order.indexOf(view.nameField);
+        int card = order.indexOf(view.cardField);
+        int type = order.indexOf(view.typeCombo);
+        int expiry = order.indexOf(view.expiryField);
+        assertTrue(name >= 0 && name < card, "name before number");
+        assertTrue(card < type, "number before the card type");
+        assertTrue(type < expiry, "type before the expiry date");
+    }
+
+    private static void collectFields(java.awt.Container root, java.util.List<java.awt.Component> out) {
+        for (java.awt.Component c : root.getComponents()) {
+            if (c instanceof javax.swing.JTextField || c instanceof javax.swing.JComboBox) {
+                out.add(c);
+            }
+            if (c instanceof java.awt.Container) {
+                collectFields((java.awt.Container) c, out);
+            }
+        }
+    }
 }

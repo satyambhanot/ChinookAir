@@ -113,6 +113,19 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         }
         // after onShow, because a screen may have sent the user elsewhere
         appBar.refresh(current);
+        if (current == view && screen instanceof Screen) {
+            useKeyboardDefaults((Screen) screen);
+        }
+    }
+
+    /** Enter presses the screen's default button and the keyboard starts in the screen's first field. */
+    private void useKeyboardDefaults(Screen screen) {
+        getRootPane().setDefaultButton(screen.defaultButton());
+        JComponent focus = screen.initialFocus();
+        if (focus != null) {
+            // later, so the card has been shown before it is asked for the focus
+            SwingUtilities.invokeLater(focus::requestFocusInWindow);
+        }
     }
 
     /** Puts a built screen in place of the one that stands for it. */
@@ -149,6 +162,11 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     /** The screen that is showing now, for tests. */
     ViewId currentView() {
         return current;
+    }
+
+    /** The screen that stands for a view, for tests. */
+    Component screenFor(ViewId view) {
+        return screens.get(view);
     }
 
     AppBar appBar() {

@@ -177,6 +177,38 @@ class AppBarTest {
     }
 
     @Test
+    void eachTabHasANumberedShortcutThatOpensIt() {
+        logIn("admin", "admin123");
+        bar.refresh(ViewId.ADMIN_DASHBOARD);
+        javax.swing.InputMap keys = bar.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        assertEquals("tab-1", keys.get(AppBar.shortcut(1)));
+        assertEquals("tab-4", keys.get(AppBar.shortcut(4)));
+        assertNull(keys.get(AppBar.shortcut(5)), "an admin has four tabs");
+        bar.getActionMap().get("tab-3").actionPerformed(null);
+        assertEquals(ViewId.AIRCRAFT_MANAGEMENT, navigator.last());
+    }
+
+    @Test
+    void theShortcutsFollowTheRoleOfTheNewUser() {
+        logIn("admin", "admin123");
+        bar.refresh(ViewId.ADMIN_DASHBOARD);
+        logIn("customer1", "customer123");
+        bar.refresh(ViewId.CUSTOMER_DASHBOARD);
+        javax.swing.InputMap keys = bar.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
+        assertNull(keys.get(AppBar.shortcut(4)), "the customer has three tabs");
+        bar.getActionMap().get("tab-2").actionPerformed(null);
+        assertEquals(ViewId.MY_RESERVATIONS, navigator.last());
+    }
+
+    @Test
+    void theTabsNameTheirShortcutInTheTip() {
+        logIn("customer1", "customer123");
+        bar.refresh(ViewId.CUSTOMER_DASHBOARD);
+        assertTrue(bar.tabs().get(0).getToolTipText().startsWith("Find flights ("));
+        assertTrue(bar.tabs().get(0).getToolTipText().endsWith("1)"));
+    }
+
+    @Test
     void theHomeButtonCanBeReachedByScreenReadersAndHasATip() {
         assertEquals("ChinookAir home", bar.homeButton().getAccessibleContext().getAccessibleName());
         assertNotNull(bar.homeButton().getToolTipText());

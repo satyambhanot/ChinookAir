@@ -86,15 +86,28 @@ class FlightSearchViewTest {
         assertNull(view.airlineCombo.getItemAt(0));
         assertTrue(view.airlineCombo.getItemCount() >= 2);
         assertFalse(view.dateField.date().orElseThrow().isBefore(LocalDate.of(2026, 12, 1)));
-        assertEquals(0, view.tableModel.getRowCount());
         assertFalse(view.selectButton.isEnabled());
     }
 
     @Test
-    void theFirstSearchStartsOnARouteThatHasFlights() {
-        view.searchButton.doClick(0);
+    void theFlightsOfTheStartingRouteShowWithoutPressingSearch() {
         assertTrue(view.tableModel.getRowCount() > 0, "the starting route should have a flight");
         assertEquals("", view.message());
+        assertFalse(view.selectButton.isEnabled(), "nothing is chosen yet");
+    }
+
+    @Test
+    void aRememberedSearchShowsItsFlightsAgainOnTheSameDayOrToday() {
+        choose("YVR", "YYZ", "2026-12-03", "WS");
+        view.searchButton.doClick(0);
+        FlightSearchView next = new FlightSearchView(controllers, navigator, booking);
+        next.onShow();
+        assertEquals("2026-12-03", next.dateField.getText());
+        // a remembered day that has passed starts today instead
+        booking.rememberSearch("YVR", "YYZ", null, LocalDate.of(2026, 11, 1));
+        FlightSearchView later = new FlightSearchView(controllers, navigator, booking);
+        later.onShow();
+        assertEquals("2026-12-01", later.dateField.getText());
     }
 
     @Test
@@ -166,10 +179,12 @@ class FlightSearchViewTest {
 
     @Test
     void aBadDateIsExplainedAndNothingIsSearched() {
+        int startingRows = view.tableModel.getRowCount();
         choose("YYC", "YVR", "2026-13-40", null);
         view.searchButton.doClick(0);
         assertTrue(view.message().startsWith("Date must look like yyyy-MM-dd"));
-        assertEquals(0, view.tableModel.getRowCount());
+        // the flights of the starting route are still shown, nothing was searched again
+        assertEquals(startingRows, view.tableModel.getRowCount());
     }
 
     @Test
@@ -209,9 +224,10 @@ class FlightSearchViewTest {
 
     @Test
     void anEmptyTableSaysWhatToDo() {
-        assertEquals("Choose the airports and a date, then press Search.", view.table.emptyText());
-        choose("YYC", "YVR", "2026-12-02", null);
+        // the starting route has flights, so a search that finds none is what shows the hint
+        choose("YEG", "YOW", "2026-12-02", null);
         view.searchButton.doClick(0);
+        assertEquals(0, view.tableModel.getRowCount());
         assertEquals("No flights match this search.", view.table.emptyText());
     }
 

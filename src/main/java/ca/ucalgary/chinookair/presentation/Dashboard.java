@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -78,6 +79,11 @@ abstract class Dashboard extends JPanel implements Screen {
             default:
                 throw new IllegalArgumentException("Unknown role " + role);
         }
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return taskButtons.isEmpty() ? null : taskButtons.get(0);
     }
 
     @Override
