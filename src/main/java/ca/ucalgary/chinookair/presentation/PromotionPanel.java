@@ -26,7 +26,7 @@ class PromotionPanel extends JPanel {
 
     PromotionPanel(Promotion promotion, Runnable onOk) {
         super(new BorderLayout(0, 12));
-        setBorder(BorderFactory.createEmptyBorder(20, 24, 16, 24));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.XL, Space.L, Space.XL));
 
         setBackground(Theme.SURFACE);
         JLabel mark = new JLabel(new ImageIcon(Brand.scaledToWidth(Brand.mark(), MARK_WIDTH)), SwingConstants.CENTER);

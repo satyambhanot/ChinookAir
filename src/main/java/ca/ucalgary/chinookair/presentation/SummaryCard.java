@@ -35,7 +35,7 @@ class SummaryCard extends JPanel {
         at.gridy = 0;
         at.gridwidth = 2;
         at.anchor = GridBagConstraints.WEST;
-        at.insets = new Insets(0, 0, 12, 0);
+        at.insets = new Insets(0, 0, Space.M, 0);
         add(heading, at);
     }
 
@@ -54,7 +54,7 @@ class SummaryCard extends JPanel {
         JLabel name = new JLabel(row.label());
         JLabel value = new JLabel(row.value(), SwingConstants.RIGHT);
         // a few pixels of room, so the last letter is never cut off
-        value.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
+        value.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, Space.XS));
         name.setForeground(row.total() ? Theme.TEXT : Theme.MUTED);
         value.setForeground(Theme.TEXT);
         if (row.total()) {
@@ -63,14 +63,14 @@ class SummaryCard extends JPanel {
         }
         at.gridy = next++;
         at.gridwidth = 1;
-        at.insets = new Insets(row.total() ? 12 : 3, 0, 3, 16);
+        at.insets = new Insets(row.total() ? Space.M : 3, 0, 3, Space.L);
         at.gridx = 0;
         at.weightx = 0;
         add(name, at);
         at.gridx = 1;
         at.weightx = 1;
         at.anchor = GridBagConstraints.EAST;
-        at.insets = new Insets(row.total() ? 12 : 3, 0, 3, 0);
+        at.insets = new Insets(row.total() ? Space.M : 3, 0, 3, 0);
         add(value, at);
         at.anchor = GridBagConstraints.WEST;
         return this;

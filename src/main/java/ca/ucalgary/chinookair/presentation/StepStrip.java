@@ -60,7 +60,7 @@ class StepStrip extends JPanel {
 
         Font plain = getFont().deriveFont(Font.PLAIN, Type.LABEL + 1);
         Font bold = plain.deriveFont(Font.BOLD);
-        int x = Theme.PAGE;
+        int x = Space.PAGE;
         int middle = (getHeight() - 1) / 2;
         for (int i = 0; i < flow.steps().size(); i++) {
             boolean done = i < flow.current();

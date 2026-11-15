@@ -28,10 +28,7 @@ public final class Theme {
     static final Color DANGER = Palette.DANGER_TEXT;
     static final Color WARNING = Palette.WARNING_TEXT;
 
-    // spacing, in pixels
-    static final int GAP = 8;
-    static final int PAD = 16;
-    static final int PAGE = 32;
+    /** The rounding of a card's corners, in pixels. Distances between things are in {@link Space}. */
     static final int ARC = 12;
 
     private Theme() {

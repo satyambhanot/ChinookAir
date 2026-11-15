@@ -55,7 +55,7 @@ class CustomerManagementView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Customers");
         Theme.heading(heading);
         newButton.setMnemonic('W');
@@ -108,7 +108,7 @@ class CustomerManagementView extends JPanel implements Screen {
 
         side.setOpaque(false);
         side.setPreferredSize(new Dimension(SIDE_WIDTH, 10));
-        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.setBorder(BorderFactory.createEmptyBorder(0, Space.L, 0, 0));
         side.add(emptyHolder, EMPTY);
         side.add(details, DETAILS);
         add(side, BorderLayout.EAST);

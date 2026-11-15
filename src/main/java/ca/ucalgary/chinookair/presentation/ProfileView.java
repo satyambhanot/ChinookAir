@@ -36,7 +36,7 @@ class ProfileView extends JPanel implements Screen {
         super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));
         JLabel heading = new JLabel("My profile");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);

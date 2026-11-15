@@ -70,7 +70,7 @@ class PaymentView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));
         JLabel heading = new JLabel("Payment");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
@@ -128,7 +128,7 @@ class PaymentView extends JPanel implements Screen {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
-        c.insets = new Insets(0, 0, 0, 24);
+        c.insets = new Insets(0, 0, 0, Space.XL);
         form.setPreferredSize(new java.awt.Dimension(FORM_WIDTH, form.getPreferredSize().height));
         columns.add(form, c);
         c.gridx = 1;

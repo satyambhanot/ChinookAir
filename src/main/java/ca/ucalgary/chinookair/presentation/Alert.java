@@ -46,7 +46,7 @@ class Alert extends JPanel {
         super(new BorderLayout(10, 0));
         this.textWidth = textWidth;
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 14));
+        setBorder(BorderFactory.createEmptyBorder(Space.M, Space.M, Space.M, Space.M));
         add(icon, BorderLayout.WEST);
         add(words, BorderLayout.CENTER);
         icon.setVerticalAlignment(JLabel.TOP);

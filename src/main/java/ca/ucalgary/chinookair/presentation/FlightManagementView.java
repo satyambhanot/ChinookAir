@@ -82,7 +82,7 @@ class FlightManagementView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Flights");
         Theme.heading(heading);
         newButton.setMnemonic('W');
@@ -98,12 +98,12 @@ class FlightManagementView extends JPanel implements Screen {
         range.add(new FormField("To", toField).mnemonic('T'));
         JPanel showHolder = new JPanel(new BorderLayout());
         showHolder.setOpaque(false);
-        showHolder.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        showHolder.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         showHolder.add(showButton, BorderLayout.CENTER);
         range.add(showHolder);
         JPanel filter = new JPanel(new BorderLayout());
         filter.setOpaque(false);
-        filter.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        filter.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         filter.add(filterField, BorderLayout.NORTH);
         JPanel controls = new JPanel(new BorderLayout(12, 0));
         controls.setOpaque(false);

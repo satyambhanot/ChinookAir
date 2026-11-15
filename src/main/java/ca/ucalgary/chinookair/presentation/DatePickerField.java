@@ -107,7 +107,7 @@ class DatePickerField extends JTextField {
 
     private JPanel buildCalendar() {
         JPanel panel = new JPanel(new BorderLayout(0, 6));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(Space.M, Space.M, Space.M, Space.M));
         panel.setBackground(Theme.SURFACE);
 
         JButton previous = nav("chevron-left", "Previous month", shown.canGoPrevious(), shown.previous());

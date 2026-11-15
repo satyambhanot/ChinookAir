@@ -46,7 +46,7 @@ class AircraftManagementView extends JPanel implements Screen {
         super(new BorderLayout(16, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Aircraft");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);

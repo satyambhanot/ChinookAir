@@ -62,7 +62,7 @@ class ConfirmationView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.PAGE, Space.PAGE, Space.PAGE, Space.PAGE));
         JPanel column = new JPanel();
         column.setOpaque(false);
         column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
@@ -95,7 +95,7 @@ class ConfirmationView extends JPanel implements Screen {
         numberCard.setBackground(Theme.SURFACE);
         numberCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, Palette.GOLD_500),
-                BorderFactory.createEmptyBorder(16, 20, 16, 20)));
+                BorderFactory.createEmptyBorder(Space.L, Space.XL, Space.L, Space.XL)));
         numberCard.add(numberWords, BorderLayout.CENTER);
         numberCard.add(copyButton, BorderLayout.EAST);
         copyButton.setIcon(Icons.muted("copy", 16));

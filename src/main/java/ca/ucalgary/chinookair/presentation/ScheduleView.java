@@ -53,7 +53,7 @@ class ScheduleView extends JPanel implements Screen {
         this.navigator = navigator;
         this.fromField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         this.toField = new DatePickerField(10, () -> controllers.flightSearchController().today());
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Flight schedule");
         Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
@@ -63,12 +63,12 @@ class ScheduleView extends JPanel implements Screen {
         showButton.setMnemonic('S');
         JPanel showHolder = new JPanel(new BorderLayout());
         showHolder.setOpaque(false);
-        showHolder.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        showHolder.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         showHolder.add(showButton, BorderLayout.CENTER);
         form.add(showHolder);
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         quick.setOpaque(false);
-        quick.setBorder(BorderFactory.createEmptyBorder(22, 8, 0, 0));
+        quick.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, Space.S, 0, 0));
         quick.add(todayButton);
         quick.add(weekButton);
         quick.add(monthButton);
@@ -93,7 +93,7 @@ class ScheduleView extends JPanel implements Screen {
         moveRow.add(new FormField("New arrival", newArrivalField).mnemonic('A'));
         JPanel moveButton = new JPanel(new BorderLayout());
         moveButton.setOpaque(false);
-        moveButton.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        moveButton.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         moveButton.add(rescheduleButton, BorderLayout.CENTER);
         moveRow.add(moveButton);
         rescheduleButton.setMnemonic('R');

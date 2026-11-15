@@ -49,7 +49,7 @@ final class ConfirmDialog extends JDialog {
         buttons.add(confirmButton);
         JPanel content = new JPanel(new BorderLayout(0, 20));
         content.setBackground(Theme.SURFACE);
-        content.setBorder(BorderFactory.createEmptyBorder(24, 24, 20, 24));
+        content.setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.XL, Space.XL, Space.XL));
         content.add(text, BorderLayout.CENTER);
         content.add(buttons, BorderLayout.SOUTH);
         setContentPane(content);

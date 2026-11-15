@@ -75,7 +75,7 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
 
         JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -112,7 +112,7 @@ class SeatSelectionView extends JPanel implements Screen {
         JPanel side = new JPanel(new BorderLayout(0, 12));
         side.setOpaque(false);
         side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
-        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.setBorder(BorderFactory.createEmptyBorder(0, Space.L, 0, 0));
         side.add(summaryHolder, BorderLayout.NORTH);
         JPanel actions = new JPanel(new BorderLayout(0, 8));
         actions.setOpaque(false);
@@ -131,7 +131,7 @@ class SeatSelectionView extends JPanel implements Screen {
         label.setOpaque(true);
         label.setBackground(color);
         label.setForeground(color.equals(SELECTED) ? Color.WHITE : Theme.TEXT);
-        label.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        label.setBorder(BorderFactory.createEmptyBorder(3, Space.S, 3, Space.S));
         return label;
     }
 

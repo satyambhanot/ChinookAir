@@ -38,7 +38,7 @@ abstract class Dashboard extends JPanel implements Screen {
         this.controllers = controllers;
         this.navigator = navigator;
         this.role = role;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE, Theme.PAGE + 8, Theme.PAGE, Theme.PAGE + 8));
+        setBorder(BorderFactory.createEmptyBorder(Space.PAGE, Space.PAGE, Space.PAGE, Space.PAGE));
         setName(title + " dashboard");
 
         JPanel top = new JPanel(new BorderLayout(0, 4));
