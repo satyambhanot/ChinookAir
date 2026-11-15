@@ -91,9 +91,16 @@ class ScreenDefaultsTest {
     }
 
     @Test
-    void aDashboardStartsOnItsFirstCard() {
-        CustomerDashboard dashboard = new CustomerDashboard(c, NAV);
+    void anAgentDashboardStartsOnItsFirstCard() {
+        AgentDashboard dashboard = new AgentDashboard(c, NAV);
         assertSame(dashboard.taskButtons().get(0), dashboard.initialFocus());
+    }
+
+    @Test
+    void theCustomerHomeStartsInTheFromBoxAndEnterSearches() {
+        CustomerHome home = new CustomerHome(c, NAV, BOOKING);
+        assertSame(home.originCombo, home.initialFocus());
+        assertSame(home.searchButton, home.defaultButton());
     }
 
     @Test

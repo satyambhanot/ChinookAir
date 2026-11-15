@@ -76,10 +76,10 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
             login.prefill(username);
             login.showNotice(message);
         }));
-        register(ViewId.CUSTOMER_DASHBOARD, new CustomerDashboard(controllers, this));
+        BookingSession booking = new BookingSession();
+        register(ViewId.CUSTOMER_DASHBOARD, new CustomerHome(controllers, this, booking));
         register(ViewId.AGENT_DASHBOARD, new AgentDashboard(controllers, this));
         register(ViewId.ADMIN_DASHBOARD, new AdminDashboard(controllers, this));
-        BookingSession booking = new BookingSession();
         register(ViewId.FLIGHT_SEARCH, new FlightSearchView(controllers, this, booking));
         register(ViewId.SEAT_SELECTION, new SeatSelectionView(controllers, this, booking));
         register(ViewId.PAYMENT, new PaymentView(controllers, this, booking));

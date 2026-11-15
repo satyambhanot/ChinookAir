@@ -66,4 +66,12 @@ class ThemeTest {
             assertEquals(1, in.top, key);
         }
     }
+
+    @Test
+    void aLinkHasNoSidePaddingSoItLinesUpWithTheTextAroundIt() {
+        javax.swing.JButton link = Theme.link(new JButton("Open folder"));
+        link.updateUI();
+        assertEquals(0, link.getMargin().left);
+        assertEquals(0, link.getMargin().right);
+    }
 }

@@ -18,6 +18,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -121,9 +122,17 @@ class ModifyReservationViewTest {
     }
 
     @Test
-    void backGoesToTheCustomerList() {
-        view.backButton.doClick(0);
+    void theBreadcrumbShowsTheWayBackAndForgetsTheCustomerWhenUsed() {
+        assertEquals(List.of("Customers", customer.name(), "Modify reservation"), view.breadcrumb.texts());
+        assertEquals(1, view.breadcrumb.links().size());
+        view.breadcrumb.links().get(0).doClick(0);
         assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
+        assertTrue(booking.customer().isEmpty(), "the booking for this customer is cleared");
+    }
+
+    @Test
+    void theHeadingNamesTheCustomer() {
+        assertTrue(view.breadcrumb.isVisible());
     }
 
     @Test

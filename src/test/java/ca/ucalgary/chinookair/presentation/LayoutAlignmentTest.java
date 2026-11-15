@@ -58,7 +58,7 @@ class LayoutAlignmentTest {
 
         c.session().login(c.loginController()
                 .authenticate(DatabaseSeeder.CUSTOMER_USERNAME, DatabaseSeeder.CUSTOMER_PASSWORD));
-        SCREENS.put("customer home", shown(new CustomerDashboard(c, NAV)));
+        SCREENS.put("customer home", shown(new CustomerHome(c, NAV, booking)));
         FlightSearchView search = new FlightSearchView(c, NAV, booking);
         SCREENS.put("find flights", search);
         FlightOffer offer = c.flightSearchController()

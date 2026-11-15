@@ -1,6 +1,6 @@
 # ChinookAir UI refinement plan (round two)
 
-Status: R1 and R2 are built; R3 to R8 are still to do. This file started as a plan only (PR 208).
+Status: R1 to R3 are built; R4 to R8 are still to do. This file started as a plan only (PR 208).
 
 ## Progress
 
@@ -8,7 +8,8 @@ Status: R1 and R2 are built; R3 to R8 are still to do. This file started as a pl
 |---|---|---|
 | R1 Tokens and consistency | Done | `Space`, `Format`, `SurfaceBorder`, `SuccessMark`; dates written for people and real times in the table models; spacing and format rules enforced by tests. Deviations: cards get their shadow through one border (`SurfaceBorder.apply`) instead of `Theme.card`, because a border can paint the rounded body only on a see-through panel; the right-aligned money column moves to R4 and R5, where those tables are rebuilt; the `Dashboard` side padding fix from F3 landed here |
 | R2 Layout and alignment | Done | `ContentPane` (readable width, centred), `FilterBar`, `ButtonRow`, `TableArea` (sized to rows, with the buttons right under it), label inset in `FormField`, plain one-pixel line on every scroll pane so tables line up with cards, success banner and buttons moved onto the page edge. `LayoutAlignmentTest` measures all of it (headings, labels against input edges, filter-bar centre lines, button rows, table edges, card tops, wide and small windows). Deviations: tables that sit beside a card (customers, flights, routes, aircraft, payment records) still fill the height so they end level with the card; the left-aligned confirmation buttons are drawn 2 px inside the page edge (FlatLaf keeps a 2 px focus margin around buttons); the customers card starts level with the search box, not the table |
-| R3 to R8 | To do | |
+| R3 Navigation and Home | Done | One name per screen (tab, title, card: Find flights, My reservations, Schedule; Modify reservation); login lands on Home for a customer, Customers for an agent, Flights for the administrator (`ViewId.landingFor`); the agent's dead-end Reservations card is gone; the customer Home shows the next trip, a Find a flight box that starts on a route with flights, and the three latest bookings, all from data already stored; a `Breadcrumb` shows the agent's way back (Customers › name › Reservations or Modify reservation) and replaces the two Back buttons; a customer is shown by name in the bar and the greeting. Deviations: the step names stay "Find a flight, Choose a seat, Pay, Done" (the naming table had "Choose flight", the text above it said they stay); the agent and administrator Homes keep their cards and have no counts, because the logo reaches them but nobody lands there; link buttons lose their side padding so a link lines up with the text beside it |
+| R4 to R8 | To do | |
 
 
 This builds on the redesign that is already on `dev`. Nothing here replaces the design system, the brand colours or the layers. The aim is to close the gap between "modern and consistent" and "feels designed".

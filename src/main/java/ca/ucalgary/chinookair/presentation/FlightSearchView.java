@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.time.LocalDate;
 import java.awt.Dimension;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -18,11 +17,9 @@ import java.util.Optional;
 import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 
@@ -34,7 +31,6 @@ class FlightSearchView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
     private static final Color ERROR = Theme.DANGER;
-    private static final int ROUTE_LOOKAHEAD_DAYS = 7;
     private static final String NO_FLIGHTS = "No flights found. Try another date or airline.";
 
     private final transient Controllers controllers;
@@ -51,7 +47,7 @@ class FlightSearchView extends JPanel implements Screen {
     final JButton swapButton = new JButton(Icons.muted("swap", 18));
     final FlightTableModel tableModel = new FlightTableModel();
     final HintTable table = new HintTable(tableModel, "Choose the airports and a date, then press Search.");
-    private final JLabel heading = new JLabel("Find available flights");
+    private final JLabel heading = new JLabel("Find flights");
     private final JLabel messageLabel = new JLabel(" ");
     FilterBar searchBar;
 
@@ -170,7 +166,7 @@ class FlightSearchView extends JPanel implements Screen {
             return;
         }
         Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+        navigator.show(user.isPresent() ? ViewId.landingFor(user.get().role()) : ViewId.LOGIN);
     }
 
     private void showMessage(String text) {
@@ -206,7 +202,7 @@ class FlightSearchView extends JPanel implements Screen {
         if (booking.modifying().isEmpty()) {
             booking.clear();
         }
-        heading.setText(booking.modifying().isPresent() ? "Find the new flight" : "Find available flights");
+        heading.setText(booking.modifying().isPresent() ? "Find the new flight" : "Find flights");
         List<Airport> airports = controllers.flightSearchController().airports();
         fill(originCombo, airports, 0);
         fill(destinationCombo, airports, 1);
@@ -241,18 +237,12 @@ class FlightSearchView extends JPanel implements Screen {
             dateField.setDate(remembered == null || remembered.isBefore(today) ? today : remembered);
             return true;
         }
-        for (int day = 0; day < ROUTE_LOOKAHEAD_DAYS; day++) {
-            for (Airport from : airports) {
-                for (Airport to : airports) {
-                    if (!from.equals(to) && !controllers.flightSearchController()
-                            .search(new SearchCriteria(from.code(), to.code(), today.plusDays(day), null)).isEmpty()) {
-                        originCombo.setSelectedItem(from);
-                        destinationCombo.setSelectedItem(to);
-                        dateField.setDate(today.plusDays(day));
-                        return true;
-                    }
-                }
-            }
+        Optional<StartingRoute.Start> start = StartingRoute.find(controllers.flightSearchController(), airports, today);
+        if (start.isPresent()) {
+            originCombo.setSelectedItem(start.get().from());
+            destinationCombo.setSelectedItem(start.get().to());
+            dateField.setDate(start.get().date());
+            return true;
         }
         return false;
     }
@@ -286,28 +276,6 @@ class FlightSearchView extends JPanel implements Screen {
         combo.setModel(new DefaultComboBoxModel<>(airports.toArray(new Airport[0])));
         if (selected < airports.size()) {
             combo.setSelectedIndex(selected);
-        }
-    }
-
-    /** Shows "YYC - Calgary" for an airport, "AC - Air Canada" for an airline, "Any" for none. */
-    private static final class CodeRenderer extends DefaultListCellRenderer {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean selected,
-                                                      boolean focus) {
-            String text;
-            if (value instanceof Airport) {
-                Airport airport = (Airport) value;
-                text = airport.code() + " - " + airport.city();
-            } else if (value instanceof Airline) {
-                Airline airline = (Airline) value;
-                text = airline.code() + " - " + airline.name();
-            } else {
-                text = "Any";
-            }
-            return super.getListCellRendererComponent(list, text, index, selected, focus);
         }
     }
 }

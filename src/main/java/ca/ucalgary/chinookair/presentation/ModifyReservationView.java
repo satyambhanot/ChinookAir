@@ -31,7 +31,7 @@ class ModifyReservationView extends JPanel implements Screen {
     final ReservationTableModel tableModel = new ReservationTableModel();
     final HintTable table = new HintTable(tableModel, "This customer has no reservations to change.");
     final JButton modifyButton = Theme.primary(new JButton("Modify"));
-    final JButton backButton = Theme.secondary(new JButton("Back to customers"));
+    final Breadcrumb breadcrumb = new Breadcrumb();
     private final JLabel heading = new JLabel("Modify a reservation");
     private final Alert alert = new Alert(600);
 
@@ -42,9 +42,13 @@ class ModifyReservationView extends JPanel implements Screen {
         this.booking = booking;
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
-        JPanel top = new JPanel(new BorderLayout(0, 4));
+        JPanel top = new JPanel(new BorderLayout(0, Space.XS));
         top.setOpaque(false);
-        top.add(heading, BorderLayout.NORTH);
+        JPanel titles = new JPanel(new BorderLayout(0, Space.S));
+        titles.setOpaque(false);
+        titles.add(breadcrumb, BorderLayout.NORTH);
+        titles.add(heading, BorderLayout.CENTER);
+        top.add(titles, BorderLayout.NORTH);
         top.add(Theme.hint("Pick a reservation, then choose its new flight and seat."), BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -52,9 +56,7 @@ class ModifyReservationView extends JPanel implements Screen {
         table.describe("Reservations of the customer");
 
         modifyButton.setMnemonic('M');
-        backButton.setMnemonic('B');
         ButtonRow buttons = ButtonRow.right();
-        buttons.add(backButton);
         buttons.add(modifyButton);
         JPanel bottom = new JPanel(new BorderLayout(0, 8));
         bottom.setOpaque(false);
@@ -65,10 +67,6 @@ class ModifyReservationView extends JPanel implements Screen {
         modifyButton.setEnabled(false);
         table.getSelectionModel().addListSelectionListener(e -> updateButton());
         modifyButton.addActionListener(e -> modifySelected());
-        backButton.addActionListener(e -> {
-            booking.clear();
-            navigator.show(ViewId.CUSTOMER_MANAGEMENT);
-        });
     }
 
     private Reservation selected() {
@@ -119,16 +117,24 @@ class ModifyReservationView extends JPanel implements Screen {
         Optional<Customer> customer = booking.customer();
         if (customer.isEmpty()) {
             heading.setText("Modify a reservation");
+            breadcrumb.show(List.of());
             alert.show(Alert.Kind.ERROR, "Choose a customer first");
             return;
         }
         heading.setText("Modify a reservation of " + customer.get().name());
+        breadcrumb.show(List.of(Breadcrumb.Crumb.link("Customers", this::backToCustomers),
+                Breadcrumb.Crumb.text(customer.get().name()), Breadcrumb.Crumb.text("Modify reservation")));
         try {
             tableModel.setReservations(controllers.reservationController().history(user.get(), customer.get().id()));
             alert.show(Alert.Kind.SUCCESS, notice);
         } catch (RuntimeException e) {
             alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
+    }
+
+    private void backToCustomers() {
+        booking.clear();
+        navigator.show(ViewId.CUSTOMER_MANAGEMENT);
     }
 
     String message() {

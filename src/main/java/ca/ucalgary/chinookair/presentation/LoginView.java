@@ -102,7 +102,7 @@ class LoginView extends JPanel implements Screen {
             User user = controllers.loginController().authenticate(usernameField.getText(), new String(typed));
             controllers.session().login(user);
             clearFields();
-            navigator.show(ViewId.dashboardFor(user.role()));
+            navigator.show(ViewId.landingFor(user.role()));
         } catch (RuntimeException e) {
             alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
             // a wrong password is never kept on the screen, and the cursor is where the retry starts
