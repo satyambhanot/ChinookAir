@@ -194,7 +194,8 @@ class CustomerManagementViewTest {
 
     @Test
     void savingWithTheSameSearchTextStillRefreshesTheTable() {
-        search("smithson" + (next - 1));
+        // the box already holds the email that the save will put there, so no typing event follows
+        search(jo.email());
         view.table.setRowSelectionInterval(0, 0);
         view.form.phoneField.setText("403-555-0188");
         view.saveButton.doClick(0);
