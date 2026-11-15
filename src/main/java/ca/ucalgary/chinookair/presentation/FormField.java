@@ -51,6 +51,33 @@ class FormField extends JPanel {
         return this;
     }
 
+    /**
+     * Checks what was typed when the cursor leaves the box and says what is wrong right there, instead
+     * of when the form is sent. The check gets the text and returns a message, or null when it is fine.
+     * An empty box is left alone, so tabbing past a box does not scold.
+     */
+    FormField checkOnLeave(java.util.function.Function<String, String> check) {
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (e.isTemporary() || !(field instanceof javax.swing.text.JTextComponent)) {
+                    return;
+                }
+                String text = ((javax.swing.text.JTextComponent) field).getText();
+                if (text.isBlank()) {
+                    return;
+                }
+                String message = check.apply(text);
+                if (message == null) {
+                    clearError();
+                } else {
+                    showError(message);
+                }
+            }
+        });
+        return this;
+    }
+
     /** The key that jumps to this field, shown as an underlined letter in the label. */
     FormField mnemonic(char key) {
         label.setDisplayedMnemonic(key);

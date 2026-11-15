@@ -173,4 +173,10 @@ class RegisterViewTest {
     void thePasswordRuleIsShownAsAHintBeforeAnythingGoesWrong() {
         assertEquals("At least 8 characters and one digit", view.passwordRow().lineText());
     }
+
+    @Test
+    void thePhoneBoxTakesDigitsAndTheCharactersANumberIsWrittenWith() {
+        view.phoneField.setText("(403) 555-0100 x");
+        assertEquals("(403) 555-0100 ", view.phoneField.getText());
+    }
 }

@@ -35,8 +35,10 @@ class AircraftManagementView extends JPanel implements Screen {
     final AircraftTableModel tableModel = new AircraftTableModel();
     final HintTable table = new HintTable(tableModel, "No aircraft yet. Add one with the form.");
     private final FormField modelRow = new FormField("Model", modelField).mnemonic('M');
-    private final FormField rowsRow = new FormField("Rows", rowsField).mnemonic('R');
-    private final FormField seatsRow = new FormField("Seats per row", seatsField).mnemonic('S');
+    private final FormField rowsRow = new FormField("Rows", rowsField).mnemonic('R')
+            .checkOnLeave(text -> InputParser.problem(() -> InputParser.positiveInt(text, "Rows")));
+    private final FormField seatsRow = new FormField("Seats per row", seatsField).mnemonic('S')
+            .checkOnLeave(text -> InputParser.problem(() -> InputParser.positiveInt(text, "Seats per row")));
     private final JLabel total = Theme.hint(" ");
     private final Alert alert = new Alert(CARD_WIDTH - 90);
     private String shown = "";
@@ -101,6 +103,8 @@ class AircraftManagementView extends JPanel implements Screen {
                 showTotal();
             }
         };
+        InputFilters.digits(rowsField, 3);
+        InputFilters.digits(seatsField, 2);
         rowsField.getDocument().addDocumentListener(recount);
         seatsField.getDocument().addDocumentListener(recount);
 

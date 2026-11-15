@@ -75,6 +75,16 @@ final class InputParser {
         return number;
     }
 
+    /** The message of the complaint a parse would make, or null when it would accept the text. */
+    static String problem(Runnable parse) {
+        try {
+            parse.run();
+            return null;
+        } catch (IllegalArgumentException e) {
+            return e.getMessage();
+        }
+    }
+
     private static String clean(String text) {
         return text == null ? "" : text.trim();
     }

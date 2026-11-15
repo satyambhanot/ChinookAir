@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
@@ -135,5 +136,25 @@ class AircraftManagementViewTest {
         view.addButton.doClick(0);
         assertTrue(!view.rowsRow().hasError(), "the old error goes away");
         assertTrue(view.seatsRow().hasError());
+    }
+
+    @Test
+    void theRowsAndSeatsBoxesTakeOnlyDigits() {
+        view.rowsField.setText("2a5");
+        view.seatsField.setText("x6");
+        assertEquals("25", view.rowsField.getText());
+        assertEquals("6", view.seatsField.getText());
+        view.rowsField.setText("12345");
+        assertEquals(3, view.rowsField.getText().length(), "at most three digits of rows");
+    }
+
+    @Test
+    void leavingTheRowsBoxWithZeroSaysWhatIsWrongAtOnce() {
+        view.rowsField.setText("0");
+        FocusTesting.leave(view.rowsField);
+        assertTrue(view.rowsRow().lineText().contains("Rows"), view.rowsRow().lineText());
+        view.rowsField.setText("20");
+        FocusTesting.leave(view.rowsField);
+        assertFalse(view.rowsRow().hasError());
     }
 }

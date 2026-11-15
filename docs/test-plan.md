@@ -91,6 +91,8 @@ safety net, not a replacement for walking the screen once.
 | T61 | UC-14 Manage Flights | admin | Flights tab at the smallest window, choose a flight or press Add flight; set Departure and Arrival with the calendar and the time boxes | 3 | Flight number, price, Departure and Arrival are in view without scrolling; each time has a calendar for the day and a `HH:mm` box; a mistake in either is explained by the same message as before | `FlightManagementViewTest`, `DateTimeFieldTest`, `LayoutAlignmentTest` | | |
 | T62 | UC-13 Update Schedules | agent | Schedule tab, look at the flights of a week | 1 | The day is written once, in bold, on the first flight of the day; the rows show only the time of departure and arrival | `ScheduleViewTest`, `DayColumnsTest` | | |
 | T63 | UC-15 Manage Routes | admin | Routes tab | 1 | The routes are in order of where they start and then where they end, and each starting airport is named once over its routes | `RouteTableModelTest`, `RouteManagementViewTest` | | |
+| T64 | Input | any | Try typing letters in the Rows and Seats per row boxes of the Aircraft screen, in Base price, in the time box of a flight, in the card number and expiry boxes and in a phone box; type `0` in Rows and click into another box | 0 | Letters and other characters that could never be part of a number, a time, a card or a phone number do not appear (a pasted text keeps only what fits); a price takes digits and one dot; leaving Rows with `0` shows its message under it at once, and an empty box is not scolded | `InputFiltersTest`, `FormFieldTest`, `AircraftManagementViewTest`, `FlightManagementViewTest`, `PaymentViewTest`, `RegisterViewTest` | | |
+| T65 | Dialogs | any | At the start of a month, with the promotion open, press Enter, then again and press Esc; in a red dialog press Esc | 0 | Enter or Esc closes the promotion; Esc in a confirmation answers no | `PromotionDialogTest`, `ConfirmDialogTest` | | |
 
 ### Taking a seat from another session (T20)
 
@@ -109,7 +111,7 @@ Then press Continue in the first window.
 Every use case has at least one row: UC-01 T01 to T03, UC-02 T04 to T06, UC-03 T07 to T11,
 UC-04 T12 to T16, UC-05 T17, UC-06 T18 to T21, UC-07 T22 to T27, UC-08 T28, UC-09 T29 to T31,
 UC-10 T32 to T35, UC-11 T36, UC-12 T37, UC-13 T38 and T39, UC-14 T40 to T44, UC-15 T45 and T46,
-UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T63 (roles, keyboard, window sizes, start-up, customer Home, the agent's path, nearby days and sorting, payment details, confirmation, reservation sections, flight times, schedule days, route order).
+UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T65 (roles, keyboard, window sizes, start-up, customer Home, the agent's path, nearby days and sorting, payment details, confirmation, reservation sections, flight times, schedule days, route order, what may be typed, dialog keys).
 
 ## Clicks from Home
 

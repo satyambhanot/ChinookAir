@@ -255,4 +255,12 @@ class PaymentViewTest {
             }
         }
     }
+
+    @Test
+    void theCardAndExpiryBoxesTakeOnlyWhatACardHas() {
+        view.cardField.setText("4111 abcd 1111-1111");
+        assertEquals("4111  1111-1111", new String(view.cardField.getPassword()));
+        view.expiryField.setText("12/3x0");
+        assertEquals("12/30", view.expiryField.getText());
+    }
 }
