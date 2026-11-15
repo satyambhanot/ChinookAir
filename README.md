@@ -28,6 +28,25 @@ with `-Dchinookair.db=/path/to/file.db`.
 
 Passwords are stored as PBKDF2 hashes, never as text.
 
+## Screens
+
+The colours come from the ChinookAir logo, the font is Inter, and each role gets its own tabs in the
+top bar. The design is described in [docs/ui-redesign-plan.md](docs/ui-redesign-plan.md).
+
+| | |
+|---|---|
+| ![Login](docs/screenshots/login.png) | ![Find flights](docs/screenshots/find-flights.png) |
+| Log in | Find flights (customer) |
+| ![Choose a seat](docs/screenshots/choose-seat.png) | ![Payment](docs/screenshots/payment.png) |
+| Choose a seat | Payment |
+| ![Confirmation](docs/screenshots/confirmation.png) | ![My reservations](docs/screenshots/my-reservations.png) |
+| Confirmation | My reservations |
+| ![Customers](docs/screenshots/agent-customers.png) | ![Flights](docs/screenshots/admin-flights.png) |
+| Customers (flight agent) | Flights (administrator) |
+
+Keyboard: Cmd+1, Cmd+2 and so on (Ctrl on Windows and Linux) open the tabs of the top bar, Enter presses the
+main button of a screen, and Esc closes a dialog.
+
 ## Project layout
 
 Three layers, one package each:
