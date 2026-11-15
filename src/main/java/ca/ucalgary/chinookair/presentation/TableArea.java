@@ -5,6 +5,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -22,20 +23,38 @@ final class TableArea extends JPanel {
 
     private final HintTable table;
     private final JScrollPane scroll;
+    private final JComponent footer;
 
     TableArea(HintTable table) {
+        this(table, null);
+    }
+
+    /** The footer, like a row of buttons, sits right under the table, wherever the table ends. */
+    TableArea(HintTable table, JComponent footer) {
         super(null);
         this.table = table;
         this.scroll = new JScrollPane(table);
+        this.footer = footer;
         setOpaque(false);
         setLayout(new Fitting());
         add(scroll);
+        if (footer != null) {
+            add(footer);
+        }
         // more or fewer rows change how tall it wants to be
         table.getModel().addTableModelListener(e -> revalidate());
     }
 
     /** The height the table wants, in pixels, for the rows it has now. */
     int wantedHeight() {
+        return tableHeight() + footerHeight();
+    }
+
+    private int footerHeight() {
+        return footer == null ? 0 : Space.M + footer.getPreferredSize().height;
+    }
+
+    private int tableHeight() {
         int rows = Math.max(MIN_ROWS, table.getRowCount());
         int body = Math.max(table.getPreferredSize().height, rows * (table.getRowHeight() + table.getRowMargin()));
         Insets in = scroll.getInsets();
@@ -75,7 +94,11 @@ final class TableArea extends JPanel {
 
         @Override
         public void layoutContainer(Container parent) {
-            scroll.setBounds(0, 0, parent.getWidth(), Math.min(parent.getHeight(), wantedHeight()));
+            int height = Math.min(parent.getHeight() - footerHeight(), tableHeight());
+            scroll.setBounds(0, 0, parent.getWidth(), height);
+            if (footer != null) {
+                footer.setBounds(0, height + Space.M, parent.getWidth(), footer.getPreferredSize().height);
+            }
         }
     }
 }

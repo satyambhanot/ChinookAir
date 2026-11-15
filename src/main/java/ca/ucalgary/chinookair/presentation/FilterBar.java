@@ -1,10 +1,12 @@
 package ca.ucalgary.chinookair.presentation;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,6 +21,8 @@ final class FilterBar extends JPanel {
     private static final long serialVersionUID = 1L;
 
     private final List<JComponent> controls = new ArrayList<>();
+    private final Component filler = Box.createHorizontalGlue();
+    private boolean filled;
     private int column;
 
     FilterBar() {
@@ -60,11 +64,23 @@ final class FilterBar extends JPanel {
         if (fill) {
             at.fill = GridBagConstraints.HORIZONTAL;
             at.weightx = 1;
+            filled = true;
         }
         add(control, at);
         controls.add(control);
         column++;
+        placeFiller();
         return this;
+    }
+
+    /** Spare width goes to an empty cell at the end, so the controls stay at the left, not centred. */
+    private void placeFiller() {
+        remove(filler);
+        if (!filled) {
+            GridBagConstraints at = constraints(1);
+            at.weightx = 1;
+            add(filler, at);
+        }
     }
 
     private GridBagConstraints constraints(int row) {

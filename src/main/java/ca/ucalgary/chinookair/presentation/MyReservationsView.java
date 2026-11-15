@@ -57,7 +57,6 @@ class MyReservationsView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.describe("Reservations");
-        add(new TableArea(table), BorderLayout.CENTER);
 
         cancelButton.setMnemonic('C');
         payButton.setMnemonic('P');
@@ -69,7 +68,7 @@ class MyReservationsView extends JPanel implements Screen {
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.add(messageLabel, BorderLayout.WEST);
         bottom.add(buttons, BorderLayout.EAST);
-        add(bottom, BorderLayout.SOUTH);
+        add(new TableArea(table, bottom), BorderLayout.CENTER);
 
         updateButtons();
         table.getSelectionModel().addListSelectionListener(e -> updateButtons());

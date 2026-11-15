@@ -330,7 +330,7 @@ class SeatSelectionView extends JPanel implements Screen {
             Flight flight = offer.flight();
             card.addRow("Flight", flight.flightNumber())
                     .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                    .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
+                    .addRow("Departs", Format.dateTime(flight.departure()))
                     .addRow("Seat", seat.number() + " (" + className(seat) + ")")
                     .addTotal("Price", Format.money(flight.priceFor(seat.seatClass())));
         }

@@ -235,6 +235,54 @@ class LayoutAlignmentTest {
     }
 
     @Test
+    void aFilterBarStartsAtItsLeftEdgeInsteadOfCentringItsControls() {
+        int bars = 0;
+        for (Map.Entry<String, JComponent> entry : SCREENS.entrySet()) {
+            ContentPane pane = laidOut(entry.getValue(), WIDTH, HEIGHT);
+            for (FilterBar bar : all(pane, FilterBar.class)) {
+                bars++;
+                assertEquals(left(bar, pane), left(bar.controls().get(0), pane), entry.getKey());
+            }
+        }
+        assertTrue(bars >= 3);
+    }
+
+    @Test
+    void tablesStartAtTheSameEdgeAsTheHeadingAndAreDrawnToTheirBounds() {
+        for (String name : new String[] {"find flights", "my reservations", "customers", "flights", "routes",
+                "aircraft", "schedule", "payment records"}) {
+            ContentPane pane = laidOut(SCREENS.get(name), WIDTH, HEIGHT);
+            javax.swing.JScrollPane first = all(pane, javax.swing.JScrollPane.class).get(0);
+            assertEquals(Space.PAGE, left(first, pane), name);
+            assertEquals(1, first.getBorder().getBorderInsets(first).left, name + ": the line is at the edge");
+        }
+    }
+
+    @Test
+    void aTableAndTheCardBesideItStartAtTheSameHeight() {
+        for (String name : new String[] {"routes", "aircraft", "flights", "choose seat"}) {
+            ContentPane pane = laidOut(SCREENS.get(name), WIDTH, HEIGHT);
+            if (name.equals("flights")) {
+                // the card of this screen shows only when a flight is chosen
+                ((FlightManagementView) SCREENS.get(name)).newButton.doClick(0);
+                pane = laidOut(SCREENS.get(name), WIDTH, HEIGHT);
+            }
+            javax.swing.JScrollPane table = all(pane, javax.swing.JScrollPane.class).get(0);
+            JComponent card = null;
+            for (JComponent c : all(pane, JComponent.class)) {
+                if (c.getBorder() instanceof SurfaceBorder) {
+                    card = c;
+                    break;
+                }
+            }
+            assertTrue(card != null, name + " has no card");
+            int top = SwingUtilities.convertPoint(table.getParent(), table.getX(), table.getY(), pane).y;
+            int cardTop = SwingUtilities.convertPoint(card.getParent(), card.getX(), card.getY(), pane).y;
+            assertEquals(top, cardTop, name);
+        }
+    }
+
+    @Test
     void aButtonRowEndsAtTheEdgeOfTheFieldsAboveIt() {
         ContentPane pane = laidOut(SCREENS.get("payment"), WIDTH, HEIGHT);
         assertEquals(right(payment.nameField, pane), right(payment.payButton, pane),

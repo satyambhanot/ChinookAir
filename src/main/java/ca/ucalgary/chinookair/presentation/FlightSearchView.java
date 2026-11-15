@@ -98,7 +98,6 @@ class FlightSearchView extends JPanel implements Screen {
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.describe("Flights found");
-        add(new TableArea(table), BorderLayout.CENTER);
 
         selectButton.setMnemonic('E');
         backButton.setMnemonic('B');
@@ -108,7 +107,7 @@ class FlightSearchView extends JPanel implements Screen {
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.add(messageLabel, BorderLayout.WEST);
         bottom.add(buttons, BorderLayout.EAST);
-        add(bottom, BorderLayout.SOUTH);
+        add(new TableArea(table, bottom), BorderLayout.CENTER);
 
         originCombo.setRenderer(new CodeRenderer());
         destinationCombo.setRenderer(new CodeRenderer());

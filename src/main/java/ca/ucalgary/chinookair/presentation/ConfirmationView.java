@@ -90,11 +90,12 @@ class ConfirmationView extends JPanel implements Screen {
         numberWords.setLayout(new BoxLayout(numberWords, BoxLayout.Y_AXIS));
         numberWords.add(caption);
         numberWords.add(number);
+        // the gold edge is 5 px wide, 4 more than a card's line, so the words inside start where a card's do
         JPanel numberCard = new JPanel(new BorderLayout(16, 0));
         numberCard.setBackground(Theme.SURFACE);
         numberCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, Palette.GOLD_500),
-                BorderFactory.createEmptyBorder(Space.L, Space.XL, Space.L, Space.XL)));
+                BorderFactory.createEmptyBorder(Space.L, Space.XL - 4, Space.L, Space.XL)));
         numberCard.add(numberWords, BorderLayout.CENTER);
         numberCard.add(copyButton, BorderLayout.EAST);
         copyButton.setIcon(Icons.muted("copy", 16));
