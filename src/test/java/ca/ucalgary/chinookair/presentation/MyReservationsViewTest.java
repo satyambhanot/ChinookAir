@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -95,12 +96,25 @@ class MyReservationsViewTest {
     }
 
     @Test
+    void aButtonThatCannotBePressedSaysWhy() {
+        view.onShow();
+        assertEquals("Select a reservation first", view.payButton.getToolTipText());
+        assertEquals("Select a reservation first", view.cancelButton.getToolTipText());
+
+        book("2A", true);
+        view.onShow();
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.payButton.getToolTipText().contains("awaiting payment"));
+        assertNull(view.cancelButton.getToolTipText(), "a confirmed reservation can be cancelled");
+    }
+
+    @Test
     void aBookedReservationShowsAsAConfirmedRowWithBothButtonsRightForIt() {
         Reservation r = book("1A", true);
         view.onShow();
         assertEquals(1, view.tableModel.getRowCount());
         assertEquals(r.confirmationNumber(), view.tableModel.getValueAt(0, 0));
-        assertEquals("CONFIRMED", view.tableModel.getValueAt(0, 5));
+        assertEquals(Status.of(ReservationStatus.CONFIRMED), view.tableModel.getValueAt(0, 5));
         view.table.setRowSelectionInterval(0, 0);
         assertTrue(view.cancelButton.isEnabled());
         assertFalse(view.payButton.isEnabled());
@@ -114,7 +128,7 @@ class MyReservationsViewTest {
         view.cancelButton.doClick(0);
         assertEquals("Cancel reservation " + r.confirmationNumber() + "? You will be refunded $"
                 + r.price().toPlainString() + ".", questions.get(0));
-        assertEquals("CANCELLED", view.tableModel.getValueAt(0, 5));
+        assertEquals(Status.of(ReservationStatus.CANCELLED), view.tableModel.getValueAt(0, 5));
         assertEquals(PaymentStatus.REFUNDED,
                 controllers.paymentController().recordsForCustomer(customer, customer.id()).get(0).status());
         assertTrue(controllers.bookingController().availableSeats(offer.flight().id()).stream()
@@ -130,7 +144,7 @@ class MyReservationsViewTest {
         view.onShow();
         view.table.setRowSelectionInterval(0, 0);
         view.cancelButton.doClick(0);
-        assertEquals("CONFIRMED", view.tableModel.getValueAt(0, 5));
+        assertEquals(Status.of(ReservationStatus.CONFIRMED), view.tableModel.getValueAt(0, 5));
     }
 
     @Test

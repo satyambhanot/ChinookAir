@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.BorderFactory;
@@ -14,7 +13,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -25,23 +23,24 @@ import javax.swing.ListSelectionModel;
 class CustomerManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final int SIDE_WIDTH = 340;
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
     final JTextField searchField = new JTextField(20);
-    final JButton searchButton = new JButton("Search");
+    final JButton searchButton = Theme.primary(new JButton("Search"));
     final CustomerTableModel tableModel = new CustomerTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No customers match. Try another name or email.");
     final CustomerForm form = new CustomerForm();
-    final JButton newButton = new JButton("New customer");
-    final JButton saveButton = new JButton("Save");
-    final JButton reservationsButton = new JButton("Reservations");
-    final JButton modifyButton = new JButton("Modify a reservation");
-    final JButton backButton = new JButton("Back");
+    final JButton newButton = Theme.secondary(new JButton("New customer"));
+    final JButton saveButton = Theme.primary(new JButton("Save"));
+    final JButton reservationsButton = Theme.secondary(new JButton("Reservations"));
+    final JButton modifyButton = Theme.primary(new JButton("Modify a reservation"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
 
     CustomerManagementView(Controllers controllers, Navigator navigator, BookingSession booking) {
@@ -55,7 +54,7 @@ class CustomerManagementView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Customers");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         JLabel searchLabel = new JLabel("Name or email");
         searchLabel.setDisplayedMnemonic('M');
@@ -84,8 +83,14 @@ class CustomerManagementView extends JPanel implements Screen {
         buttons.add(modifyButton);
         buttons.add(newButton);
         buttons.add(saveButton);
+        // the list on the left, the chosen customer on the right
+        JPanel side = new JPanel(new BorderLayout());
+        side.setOpaque(false);
+        side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
+        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.add(form, BorderLayout.NORTH);
+        add(side, BorderLayout.EAST);
         JPanel bottom = new JPanel(new BorderLayout(0, 6));
-        bottom.add(form, BorderLayout.NORTH);
         bottom.add(messageLabel, BorderLayout.CENTER);
         bottom.add(buttons, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);

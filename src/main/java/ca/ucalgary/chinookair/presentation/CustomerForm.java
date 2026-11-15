@@ -1,12 +1,9 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.entity.Customer;
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.Arrays;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -24,35 +21,25 @@ class CustomerForm extends JPanel {
     final JTextField nameField = new JTextField(20);
     final JTextField emailField = new JTextField(20);
     final JTextField phoneField = new JTextField(20);
-    private final JLabel passwordLabel = new JLabel("Starting password");
+    private final FormField passwordRow = new FormField("Starting password", passwordField);
 
     CustomerForm() {
         super(new GridBagLayout());
+        setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(3, 6, 3, 6);
-        c.anchor = GridBagConstraints.WEST;
-        addRow(c, 0, new JLabel("Username"), usernameField);
-        addRow(c, 1, passwordLabel, passwordField);
-        addRow(c, 2, label("Name", 'N', nameField), nameField);
-        addRow(c, 3, label("Email", 'E', emailField), emailField);
-        addRow(c, 4, label("Phone", 'H', phoneField), phoneField);
+        c.gridx = 0;
+        c.weightx = 1;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        int row = 0;
+        for (FormField field : new FormField[] {new FormField("Username", usernameField), passwordRow,
+                new FormField("Name", nameField).mnemonic('N'), new FormField("Email", emailField).mnemonic('E'),
+                new FormField("Phone", phoneField).mnemonic('H')}) {
+            c.gridy = row++;
+            add(field, c);
+        }
         usernameField.setEditable(false);
         showNewCustomerFields(false);
-    }
-
-    private static JLabel label(String text, char mnemonic, Component field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        return label;
-    }
-
-    private void addRow(GridBagConstraints c, int row, JLabel label, Component field) {
-        c.gridx = 0;
-        c.gridy = row;
-        add(label, c);
-        c.gridx = 1;
-        add(field, c);
     }
 
     /** Shows a customer. The username can not be changed. */
@@ -88,7 +75,7 @@ class CustomerForm extends JPanel {
 
     private void showNewCustomerFields(boolean isNew) {
         usernameField.setEditable(isNew);
-        passwordLabel.setVisible(isNew);
+        passwordRow.setVisible(isNew);
         passwordField.setVisible(isNew);
     }
 

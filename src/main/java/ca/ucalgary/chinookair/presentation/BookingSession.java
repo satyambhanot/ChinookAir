@@ -19,6 +19,20 @@ final class BookingSession {
     private PaymentResult payment;
     private Reservation modifying;
     private String notice;
+    private SearchMemory lastSearch;
+
+    /** The airports and airline of the last search, so the next search starts from them. */
+    record SearchMemory(String origin, String destination, String airline) {
+    }
+
+    void rememberSearch(String origin, String destination, String airline) {
+        lastSearch = new SearchMemory(origin, destination, airline);
+    }
+
+    /** The last search; it is kept when a booking is cleared, because the next booking often is similar. */
+    Optional<SearchMemory> lastSearch() {
+        return Optional.ofNullable(lastSearch);
+    }
 
     void select(FlightOffer chosen) {
         if (chosen == null) {

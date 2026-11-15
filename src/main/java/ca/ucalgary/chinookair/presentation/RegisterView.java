@@ -2,14 +2,16 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -18,23 +20,35 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-/** Creates a customer account. The checks and the duplicate messages come from the CustomerController. */
+/**
+ * Creates a customer account. The checks and the duplicate messages come from the CustomerController;
+ * a message about one field is shown under that field, any other message in a strip above the button.
+ */
 class RegisterView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
+    private static final int FIELD_WIDTH = 320;
+    private static final String PASSWORD_HINT = "At least 8 characters and one digit";
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BiConsumer<String, String> onRegistered;
 
-    final JTextField usernameField = new JTextField(20);
+    final JTextField usernameField = Theme.placeholder(new JTextField(20), "Choose a username");
     final JPasswordField passwordField = new JPasswordField(20);
-    final JTextField nameField = new JTextField(20);
-    final JTextField emailField = new JTextField(20);
-    final JTextField phoneField = new JTextField(20);
-    final JButton registerButton = new JButton("Create account");
-    final JButton backButton = new JButton("Back to log in");
-    private final JLabel messageLabel = new JLabel(" ", SwingConstants.CENTER);
+    final JTextField nameField = Theme.placeholder(new JTextField(20), "First and last name");
+    final JTextField emailField = Theme.placeholder(new JTextField(20), "name@example.com");
+    final JTextField phoneField = Theme.placeholder(new JTextField(20), "403-555-0100");
+    final JButton registerButton = Theme.primary(new JButton("Create account"));
+    final JButton backButton = Theme.secondary(new JButton("Back to log in"));
+    private final FormField usernameRow = new FormField("Username", usernameField).mnemonic('U');
+    private final FormField passwordRow = new FormField("Password", passwordField).mnemonic('P')
+            .helper(PASSWORD_HINT);
+    private final FormField nameRow = new FormField("Full name", nameField).mnemonic('N');
+    private final FormField emailRow = new FormField("Email", emailField).mnemonic('E');
+    private final FormField phoneRow = new FormField("Phone (optional)", phoneField).mnemonic('H');
+    private final Alert alert = new Alert(FIELD_WIDTH - 40);
+    private String shown = "";
 
     /**
      * @param onRegistered told the new username and a friendly message once the account exists
@@ -48,36 +62,47 @@ class RegisterView extends JPanel implements Screen {
     }
 
     private void build() {
-        JLabel title = new JLabel("Create an account", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
-        messageLabel.setForeground(new Color(0xB00020));
-        messageLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        JPanel card = Theme.card();
+        card.removeAll();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(4, 6, 4, 6);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        add(title, c);
-        c.gridwidth = 1;
-        addRow(c, 1, "Username", 'U', usernameField);
-        addRow(c, 2, "Password", 'P', passwordField);
-        addRow(c, 3, "Full name", 'N', nameField);
-        addRow(c, 4, "Email", 'E', emailField);
-        addRow(c, 5, "Phone (optional)", 'H', phoneField);
-        c.gridx = 0;
-        c.gridy = 6;
-        c.gridwidth = 2;
-        add(new JLabel("The password needs at least 8 characters and one digit.", SwingConstants.CENTER), c);
-        c.gridy = 7;
-        add(messageLabel, c);
-        c.gridy = 8;
+        JLabel logo = new JLabel(new ImageIcon(Brand.scaledToWidth(Brand.mark(), 120)));
+        logo.getAccessibleContext().setAccessibleName("ChinookAir");
+        JLabel title = new JLabel("Create your account", SwingConstants.CENTER);
+        Theme.heading(title);
+        JLabel subtitle = Theme.hint("You can book and manage flights once you have logged in");
+        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
+        passwordField.putClientProperty("JPasswordField.showRevealButton", Boolean.TRUE);
+
         registerButton.setMnemonic('C');
-        add(registerButton, c);
-        c.gridy = 9;
         backButton.setMnemonic('B');
-        add(backButton, c);
+        registerButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        backButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        for (JComponent part : new JComponent[] {logo, title, subtitle}) {
+            part.setAlignmentX(Component.CENTER_ALIGNMENT);
+        }
+        card.add(logo);
+        card.add(Box.createVerticalStrut(6));
+        card.add(title);
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(16));
+        for (FormField row : new FormField[] {usernameRow, passwordRow, nameRow, emailRow, phoneRow}) {
+            row.setPreferredSize(new Dimension(FIELD_WIDTH, row.getPreferredSize().height));
+            row.setAlignmentX(Component.CENTER_ALIGNMENT);
+            card.add(row);
+        }
+        alert.setAlignmentX(Component.CENTER_ALIGNMENT);
+        alert.setMaximumSize(new Dimension(Integer.MAX_VALUE, alert.getMaximumSize().height));
+        registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(alert);
+        card.add(Box.createVerticalStrut(8));
+        card.add(registerButton);
+        card.add(Box.createVerticalStrut(8));
+        card.add(backButton);
+        card.setBorder(BorderFactory.createCompoundBorder(card.getBorder(), BorderFactory.createEmptyBorder()));
+        add(card, new GridBagConstraints());
 
         registerButton.addActionListener(e -> register());
         // Enter in the last field submits, like the default button
@@ -85,19 +110,8 @@ class RegisterView extends JPanel implements Screen {
         backButton.addActionListener(e -> navigator.show(ViewId.LOGIN));
     }
 
-    private void addRow(GridBagConstraints c, int row, String text, char mnemonic, JComponent field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        c.gridx = 0;
-        c.gridy = row;
-        add(label, c);
-        c.gridx = 1;
-        add(field, c);
-    }
-
     private void register() {
-        messageLabel.setText(" ");
+        clearErrors();
         char[] typed = passwordField.getPassword();
         try {
             Customer created = controllers.customerController().register(usernameField.getText(), new String(typed),
@@ -105,15 +119,43 @@ class RegisterView extends JPanel implements Screen {
             clearFields();
             onRegistered.accept(created.username(), "Account created. You can log in now.");
         } catch (RuntimeException e) {
-            messageLabel.setText(ErrorMessages.forException(e));
+            showError(ErrorMessages.forException(e));
             passwordField.setText("");
         } finally {
             Arrays.fill(typed, ' ');
         }
     }
 
+    /** Puts the problem under the field it is about; anything else goes in the strip. */
+    private void showError(String text) {
+        shown = text;
+        String lower = text.toLowerCase();
+        if (lower.contains("username")) {
+            usernameRow.showError(text);
+        } else if (lower.contains("password")) {
+            passwordRow.showError(text);
+        } else if (lower.contains("email")) {
+            emailRow.showError(text);
+        } else if (lower.contains("phone")) {
+            phoneRow.showError(text);
+        } else if (lower.contains("name")) {
+            nameRow.showError(text);
+        } else {
+            alert.show(Alert.Kind.ERROR, text);
+        }
+    }
+
+    private void clearErrors() {
+        shown = "";
+        alert.clear();
+        for (FormField row : new FormField[] {usernameRow, passwordRow, nameRow, emailRow, phoneRow}) {
+            row.clearError();
+        }
+    }
+
+    /** The last problem shown, wherever it appears on the screen. */
     String message() {
-        return messageLabel.getText().trim();
+        return shown;
     }
 
     private void clearFields() {
@@ -122,12 +164,30 @@ class RegisterView extends JPanel implements Screen {
         nameField.setText("");
         emailField.setText("");
         phoneField.setText("");
-        messageLabel.setText(" ");
+        clearErrors();
     }
 
     @Override
     public void onShow() {
         clearFields();
         usernameField.requestFocusInWindow();
+    }
+
+    // ---- for the tests
+
+    FormField usernameRow() {
+        return usernameRow;
+    }
+
+    FormField passwordRow() {
+        return passwordRow;
+    }
+
+    FormField emailRow() {
+        return emailRow;
+    }
+
+    FormField nameRow() {
+        return nameRow;
     }
 }

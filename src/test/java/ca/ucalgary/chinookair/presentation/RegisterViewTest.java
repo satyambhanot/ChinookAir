@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -137,5 +138,39 @@ class RegisterViewTest {
         view.onShow();
         assertEquals("", view.usernameField.getText());
         assertEquals("", view.emailField.getText());
+    }
+
+    @Test
+    void aProblemIsShownUnderTheFieldItIsAbout() {
+        view.usernameField.setText("fieldtest");
+        view.passwordField.setText("short1");
+        view.nameField.setText("Field Test");
+        view.emailField.setText("field@x.ca");
+        view.registerButton.doClick(0);
+        assertTrue(view.passwordRow().hasError());
+        assertTrue(view.passwordRow().lineText().contains("at least 8 characters"));
+        assertFalse(view.usernameRow().hasError());
+        assertFalse(view.emailRow().hasError());
+    }
+
+    @Test
+    void theErrorMovesWhenTheProblemChanges() {
+        view.usernameField.setText("movetest");
+        view.passwordField.setText("short1");
+        view.nameField.setText("Move Test");
+        view.emailField.setText("move@x.ca");
+        view.registerButton.doClick(0);
+        assertTrue(view.passwordRow().hasError());
+
+        view.passwordField.setText("password1");
+        view.emailField.setText("not an email");
+        view.registerButton.doClick(0);
+        assertFalse(view.passwordRow().hasError(), "the old error is gone");
+        assertTrue(view.emailRow().hasError());
+    }
+
+    @Test
+    void thePasswordRuleIsShownAsAHintBeforeAnythingGoesWrong() {
+        assertEquals("At least 8 characters and one digit", view.passwordRow().lineText());
     }
 }

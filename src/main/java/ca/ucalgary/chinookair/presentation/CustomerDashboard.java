@@ -11,8 +11,10 @@ class CustomerDashboard extends Dashboard {
 
     CustomerDashboard(Controllers controllers, Navigator navigator) {
         super(controllers, navigator, Role.CUSTOMER, "Customer", List.of(
-                new Task("Search flights", 'S', ViewId.FLIGHT_SEARCH),
-                new Task("My reservations", 'M', ViewId.MY_RESERVATIONS),
-                new Task("My profile", 'P', ViewId.PROFILE)));
+                new Task("Search flights", "Find a flight, pick your seat and pay",
+                        "search", 'S', ViewId.FLIGHT_SEARCH),
+                new Task("My reservations", "See, pay for or cancel your bookings",
+                        "ticket", 'M', ViewId.MY_RESERVATIONS),
+                new Task("My profile", "Keep your contact details up to date", "user", 'P', ViewId.PROFILE)));
     }
 }

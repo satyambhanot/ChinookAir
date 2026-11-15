@@ -8,7 +8,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.BorderFactory;
@@ -16,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -27,17 +25,17 @@ import javax.swing.ListSelectionModel;
 class ModifyReservationView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
     final ReservationTableModel tableModel = new ReservationTableModel();
-    final JTable table = new JTable(tableModel);
-    final JButton modifyButton = new JButton("Modify");
-    final JButton backButton = new JButton("Back");
+    final HintTable table = new HintTable(tableModel, "This customer has no reservations to change.");
+    final JButton modifyButton = Theme.primary(new JButton("Modify"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel heading = new JLabel("Modify a reservation");
     private final JLabel messageLabel = new JLabel(" ");
 
@@ -47,7 +45,7 @@ class ModifyReservationView extends JPanel implements Screen {
         this.navigator = navigator;
         this.booking = booking;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);

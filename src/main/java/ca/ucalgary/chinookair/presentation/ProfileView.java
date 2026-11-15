@@ -4,50 +4,96 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.DocumentEvent;
 
-/** The customer's own profile: the name, email and phone can be changed, the username can not. */
+/**
+ * The customer's own profile: the name, email and phone can be changed, the username can not. Save
+ * stays off until something is different from what is stored, and the answer shows in a strip.
+ */
 class ProfileView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final int CARD_WIDTH = 560;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
 
     final CustomerForm form = new CustomerForm();
-    final JButton saveButton = new JButton("Save");
-    final JButton backButton = new JButton("Back");
-    private final JLabel messageLabel = new JLabel(" ");
+    final JButton saveButton = Theme.primary(new JButton("Save changes"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
+    private final Alert alert = new Alert(CARD_WIDTH - 100);
+    private transient Customer loaded;
 
     ProfileView(Controllers controllers, Navigator navigator) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
         JLabel heading = new JLabel("My profile");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
-        JPanel center = new JPanel(new BorderLayout());
-        center.add(form, BorderLayout.NORTH);
-        center.add(messageLabel, BorderLayout.CENTER);
-        add(center, BorderLayout.CENTER);
+
         saveButton.setMnemonic('V');
         backButton.setMnemonic('B');
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(saveButton);
-        add(buttons, BorderLayout.SOUTH);
+        JPanel card = new JPanel(new BorderLayout(0, 12));
+        card.setBackground(Theme.SURFACE);
+        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(24, 24, 20, 24)));
+        card.add(form, BorderLayout.NORTH);
+        JPanel south = new JPanel(new BorderLayout(0, 12));
+        south.setOpaque(false);
+        south.add(alert, BorderLayout.NORTH);
+        south.add(buttons, BorderLayout.SOUTH);
+        card.add(south, BorderLayout.SOUTH);
+        card.setPreferredSize(new Dimension(CARD_WIDTH, card.getPreferredSize().height));
+        JPanel holder = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        holder.setOpaque(false);
+        holder.add(card);
+        add(holder, BorderLayout.CENTER);
+
+        DocumentListener changes = new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                updateSave();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateSave();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateSave();
+            }
+        };
+        form.nameField.getDocument().addDocumentListener(changes);
+        form.emailField.getDocument().addDocumentListener(changes);
+        form.phoneField.getDocument().addDocumentListener(changes);
+        saveButton.setEnabled(false);
         saveButton.addActionListener(e -> save());
         backButton.addActionListener(e -> goBack());
+    }
+
+    /** Save is only useful when the form differs from what is stored. */
+    private void updateSave() {
+        boolean changed = loaded != null && !(form.nameField.getText().equals(loaded.name())
+                && form.emailField.getText().equals(loaded.email())
+                && form.phoneField.getText().equals(loaded.phone() == null ? "" : loaded.phone()));
+        saveButton.setEnabled(changed);
     }
 
     private void save() {
@@ -60,21 +106,18 @@ class ProfileView extends JPanel implements Screen {
                     form.nameField.getText(), form.emailField.getText(), form.phoneField.getText());
             // the session keeps the new data too
             controllers.session().login(saved);
+            loaded = saved;
             form.show(saved);
-            showMessage("Saved", NOTICE);
+            updateSave();
+            alert.show(Alert.Kind.SUCCESS, "Saved");
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
     private void goBack() {
         Optional<User> user = controllers.session().currentUser();
         navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
-    }
-
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
     }
 
     @Override
@@ -84,11 +127,17 @@ class ProfileView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
-        form.show((Customer) user.get());
-        messageLabel.setText(" ");
+        loaded = (Customer) user.get();
+        form.show(loaded);
+        alert.clear();
+        updateSave();
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
+    }
+
+    Alert.Kind messageKind() {
+        return alert.kind();
     }
 }

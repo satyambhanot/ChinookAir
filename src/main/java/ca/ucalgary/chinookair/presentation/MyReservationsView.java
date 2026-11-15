@@ -8,7 +8,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -18,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -28,7 +26,7 @@ import javax.swing.ListSelectionModel;
 class MyReservationsView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
+    private static final Color ERROR = Theme.DANGER;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -36,10 +34,10 @@ class MyReservationsView extends JPanel implements Screen {
     private transient Predicate<String> confirmer = this::askYesNo;
 
     final ReservationTableModel tableModel = new ReservationTableModel();
-    final JTable table = new JTable(tableModel);
-    final JButton cancelButton = new JButton("Cancel reservation");
-    final JButton payButton = new JButton("Pay now");
-    final JButton backButton = new JButton("Back");
+    final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
+    final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
+    final JButton payButton = Theme.primary(new JButton("Pay now"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
     private transient Customer owner;
 
@@ -52,9 +50,9 @@ class MyReservationsView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Reservations");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -82,8 +80,15 @@ class MyReservationsView extends JPanel implements Screen {
 
     private void updateButtons() {
         Reservation selected = selected();
-        payButton.setEnabled(selected != null && selected.status() == ReservationStatus.PENDING_PAYMENT);
-        cancelButton.setEnabled(selected != null && controllers.reservationController().canCancel(selected));
+        boolean canPay = selected != null && selected.status() == ReservationStatus.PENDING_PAYMENT;
+        boolean canCancel = selected != null && controllers.reservationController().canCancel(selected);
+        payButton.setEnabled(canPay);
+        cancelButton.setEnabled(canCancel);
+        // a button that cannot be pressed says why, so it never looks broken
+        payButton.setToolTipText(canPay ? null : selected == null ? "Select a reservation first"
+                : "Only a reservation that is awaiting payment can be paid");
+        cancelButton.setToolTipText(canCancel ? null : selected == null ? "Select a reservation first"
+                : "This reservation can no longer be cancelled");
     }
 
     private Reservation selected() {
@@ -153,7 +158,7 @@ class MyReservationsView extends JPanel implements Screen {
         tableModel.setReservations(history);
         updateButtons();
         if (history.isEmpty()) {
-            messageLabel.setForeground(Color.DARK_GRAY);
+            messageLabel.setForeground(Theme.MUTED);
             messageLabel.setText("No reservations yet.");
         } else {
             messageLabel.setText(" ");

@@ -15,7 +15,7 @@ class PromotionPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    final JButton okButton = new JButton("OK");
+    final JButton okButton = Theme.primary(new JButton("OK"));
     private final JLabel titleLabel;
     private final JTextArea descriptionArea;
 
@@ -25,7 +25,7 @@ class PromotionPanel extends JPanel {
 
         JLabel heading = new JLabel("This month's promotion", SwingConstants.CENTER);
         titleLabel = new JLabel(promotion.title(), SwingConstants.CENTER);
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 22f));
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, Type.PAGE_HEADING));
         JPanel top = new JPanel(new BorderLayout(0, 6));
         top.add(heading, BorderLayout.NORTH);
         top.add(titleLabel, BorderLayout.CENTER);
@@ -36,7 +36,7 @@ class PromotionPanel extends JPanel {
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setOpaque(false);
-        descriptionArea.setFont(descriptionArea.getFont().deriveFont(15f));
+        descriptionArea.setFont(descriptionArea.getFont().deriveFont(Type.SECTION));
         add(descriptionArea, BorderLayout.CENTER);
 
         okButton.setMnemonic('O');

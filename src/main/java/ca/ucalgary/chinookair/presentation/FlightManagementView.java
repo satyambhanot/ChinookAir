@@ -12,7 +12,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -32,7 +31,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -44,8 +42,8 @@ import javax.swing.ListSelectionModel;
 class FlightManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
     private static final int DEFAULT_DAYS = 30;
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -53,22 +51,22 @@ class FlightManagementView extends JPanel implements Screen {
     private final transient Navigator navigator;
     private transient Predicate<String> confirmer = this::askYesNo;
 
-    final JTextField fromField = new JTextField(10);
-    final JTextField toField = new JTextField(10);
-    final JButton showButton = new JButton("Show");
+    final JTextField fromField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JTextField toField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JButton showButton = Theme.secondary(new JButton("Show"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     final JTextField numberField = new JTextField(12);
     final JComboBox<Route> routeCombo = new JComboBox<>();
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
     final JComboBox<Aircraft> aircraftCombo = new JComboBox<>();
-    final JTextField departureField = new JTextField(14);
-    final JTextField arrivalField = new JTextField(14);
+    final JTextField departureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final JTextField arrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
     final JTextField priceField = new JTextField(10);
-    final JButton addButton = new JButton("Add");
-    final JButton updateButton = new JButton("Update");
-    final JButton removeButton = new JButton("Remove");
-    final JButton backButton = new JButton("Back");
+    final JButton addButton = Theme.primary(new JButton("Add"));
+    final JButton updateButton = Theme.secondary(new JButton("Update"));
+    final JButton removeButton = Theme.danger(new JButton("Remove"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
 
     FlightManagementView(Controllers controllers, Navigator navigator) {
@@ -81,11 +79,11 @@ class FlightManagementView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Flights");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        range.add(new JLabel("From (yyyy-MM-dd)"));
+        range.add(new JLabel("From"));
         range.add(fromField);
-        range.add(new JLabel("To (yyyy-MM-dd)"));
+        range.add(new JLabel("To"));
         range.add(toField);
         range.add(showButton);
         showButton.setMnemonic('S');
@@ -138,8 +136,8 @@ class FlightManagementView extends JPanel implements Screen {
         row(form, c, 1, "Route", 'O', routeCombo);
         row(form, c, 2, "Airline", 'L', airlineCombo);
         row(form, c, 3, "Aircraft", 'C', aircraftCombo);
-        row(form, c, 4, "Departure (yyyy-MM-dd HH:mm)", 'D', departureField);
-        row(form, c, 5, "Arrival (yyyy-MM-dd HH:mm)", 'I', arrivalField);
+        row(form, c, 4, "Departure", 'D', departureField);
+        row(form, c, 5, "Arrival", 'I', arrivalField);
         row(form, c, 6, "Base price", 'P', priceField);
         return form;
     }

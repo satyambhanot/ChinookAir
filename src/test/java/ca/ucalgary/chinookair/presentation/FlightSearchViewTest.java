@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.control.SearchCriteria;
+import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.data.DatabaseSeeder;
@@ -78,15 +79,51 @@ class FlightSearchViewTest {
     }
 
     @Test
-    void theScreenStartsWithTodayAndTheListsFilled() {
-        assertEquals("2026-12-01", view.dateField.getText());
+    void theListsAreFilledAndTheDateIsNotInThePast() {
         assertTrue(view.originCombo.getItemCount() >= 2);
         assertEquals(view.originCombo.getItemCount(), view.destinationCombo.getItemCount());
         // "Any airline" first, then the airlines
         assertNull(view.airlineCombo.getItemAt(0));
         assertTrue(view.airlineCombo.getItemCount() >= 2);
+        assertFalse(view.dateField.date().orElseThrow().isBefore(LocalDate.of(2026, 12, 1)));
         assertEquals(0, view.tableModel.getRowCount());
         assertFalse(view.selectButton.isEnabled());
+    }
+
+    @Test
+    void theFirstSearchStartsOnARouteThatHasFlights() {
+        view.searchButton.doClick(0);
+        assertTrue(view.tableModel.getRowCount() > 0, "the starting route should have a flight");
+        assertEquals("", view.message());
+    }
+
+    @Test
+    void swapExchangesTheTwoAirports() {
+        choose("YYC", "YVR", "2026-12-02", null);
+        view.swapButton.doClick(0);
+        assertEquals("YVR", ((Airport) view.originCombo.getSelectedItem()).code());
+        assertEquals("YYC", ((Airport) view.destinationCombo.getSelectedItem()).code());
+        view.swapButton.doClick(0);
+        assertEquals("YYC", ((Airport) view.originCombo.getSelectedItem()).code());
+    }
+
+    @Test
+    void theNextVisitStartsFromTheLastSearch() {
+        choose("YVR", "YYZ", "2026-12-03", "WS");
+        view.searchButton.doClick(0);
+        FlightSearchView next = new FlightSearchView(controllers, navigator, booking);
+        next.onShow();
+        assertEquals("YVR", ((Airport) next.originCombo.getSelectedItem()).code());
+        assertEquals("YYZ", ((Airport) next.destinationCombo.getSelectedItem()).code());
+        assertEquals("WS", ((Airline) next.airlineCombo.getSelectedItem()).code());
+    }
+
+    @Test
+    void aNoFlightsAnswerIsAHintNotAnError() {
+        choose("YEG", "YOW", "2026-12-02", null);
+        view.searchButton.doClick(0);
+        assertTrue(view.message().startsWith("No flights found"));
+        assertEquals(Theme.MUTED, view.messageColor());
     }
 
     @Test
@@ -156,6 +193,31 @@ class FlightSearchViewTest {
         assertEquals(ViewId.SEAT_SELECTION, navigator.last());
         assertEquals(view.tableModel.offerAt(view.table.convertRowIndexToModel(0)),
                 booking.selectedOffer().orElseThrow());
+    }
+
+    @Test
+    void doubleClickingAFlightSelectsItLikeTheButton() {
+        choose("YYC", "YVR", "2026-12-02", null);
+        view.searchButton.doClick(0);
+        view.table.setRowSelectionInterval(0, 0);
+        click(1);
+        assertEquals(0, navigator.shown.size());
+        click(2);
+        assertEquals(ViewId.SEAT_SELECTION, navigator.last());
+        assertTrue(booking.selectedOffer().isPresent());
+    }
+
+    @Test
+    void anEmptyTableSaysWhatToDo() {
+        assertEquals("Choose the airports and a date, then press Search.", view.table.emptyText());
+        choose("YYC", "YVR", "2026-12-02", null);
+        view.searchButton.doClick(0);
+        assertEquals("No flights match this search.", view.table.emptyText());
+    }
+
+    private void click(int count) {
+        view.table.dispatchEvent(new java.awt.event.MouseEvent(view.table, java.awt.event.MouseEvent.MOUSE_CLICKED,
+                0L, 0, 5, 5, count, false));
     }
 
     @Test

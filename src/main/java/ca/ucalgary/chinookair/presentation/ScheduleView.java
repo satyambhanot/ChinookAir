@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +17,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -29,23 +27,23 @@ import javax.swing.ListSelectionModel;
 class ScheduleView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int DEFAULT_DAYS = 7;
 
     final transient Controllers controllers;
     final transient Navigator navigator;
-    final JTextField fromField = new JTextField(10);
-    final JTextField toField = new JTextField(10);
-    final JButton showButton = new JButton("Show");
-    final JButton backButton = new JButton("Back");
+    final JTextField fromField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JTextField toField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final JButton showButton = Theme.secondary(new JButton("Show"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     // the administrator also moves flights; the agent does not see these
-    final JTextField newDepartureField = new JTextField(14);
-    final JTextField newArrivalField = new JTextField(14);
-    final JButton rescheduleButton = new JButton("Reschedule");
+    final JTextField newDepartureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final JTextField newArrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
     private final JPanel rescheduleControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JLabel messageLabel = new JLabel(" ");
@@ -56,11 +54,11 @@ class ScheduleView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Flight schedule");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        form.add(label("From (yyyy-MM-dd)", 'F', fromField));
+        form.add(label("From", 'F', fromField));
         form.add(fromField);
-        form.add(label("To (yyyy-MM-dd)", 'T', toField));
+        form.add(label("To", 'T', toField));
         form.add(toField);
         form.add(showButton);
         showButton.setMnemonic('S');
@@ -142,7 +140,7 @@ class ScheduleView extends JPanel implements Screen {
             LocalDate to = InputParser.date(toField.getText());
             List<Flight> flights = controllers.scheduleController().schedule(user, from, to);
             tableModel.setFlights(flights);
-            showMessage(flights.isEmpty() ? "No flights in this period." : " ", Color.DARK_GRAY);
+            showMessage(flights.isEmpty() ? "No flights in this period." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             // the table keeps what it showed before
             showMessage(ErrorMessages.forException(e), ERROR);

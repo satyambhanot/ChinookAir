@@ -37,6 +37,48 @@ public enum ViewId {
         }
     }
 
+    /** The name the top bar shows: short and in the words a user would use. */
+    public String label() {
+        switch (this) {
+            case LOGIN:
+                return "Log in";
+            case REGISTER:
+                return "Create account";
+            case CUSTOMER_DASHBOARD:
+            case AGENT_DASHBOARD:
+            case ADMIN_DASHBOARD:
+                return "Home";
+            case FLIGHT_SEARCH:
+                return "Find flights";
+            case SEAT_SELECTION:
+                return "Choose seats";
+            case PAYMENT:
+                return "Payment";
+            case CONFIRMATION:
+                return "Confirmation";
+            case MY_RESERVATIONS:
+                return "Reservations";
+            case MODIFY_RESERVATION:
+                return "Change reservation";
+            case CUSTOMER_MANAGEMENT:
+                return "Customers";
+            case PROFILE:
+                return "My profile";
+            case PAYMENT_RECORDS:
+                return "Payment records";
+            case FLIGHT_MANAGEMENT:
+                return "Flights";
+            case ROUTE_MANAGEMENT:
+                return "Routes";
+            case AIRCRAFT_MANAGEMENT:
+                return "Aircraft";
+            case SCHEDULE:
+                return "Schedule";
+            default:
+                return title();
+        }
+    }
+
     /** The name in words, like "Flight search". */
     public String title() {
         String words = name().replace('_', ' ').toLowerCase();

@@ -2,18 +2,20 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.control.PaymentResult;
+import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.PaymentDetails;
 import ca.ucalgary.chinookair.business.entity.PaymentMethodType;
 import ca.ucalgary.chinookair.business.entity.PaymentStatus;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.User;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.swing.BorderFactory;
@@ -27,31 +29,41 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 /**
- * Step three of booking: the card details for the reservation that waits for payment. It sends them to
- * the PaymentController. An approved payment opens the confirmation; a declined one shows the reason and
- * lets the customer try again. The card number is never kept on the screen after an attempt.
+ * Step three of booking: the card details on the left and what is being paid for on the right. It sends
+ * the details to the PaymentController. An approved payment opens the confirmation; a declined one
+ * shows the reason and lets the customer try again. A problem with one field is shown under that field.
+ * The card number is never kept on the screen after an attempt.
  */
 class PaymentView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
+    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final int FORM_WIDTH = 440;
+    private static final int SUMMARY_WIDTH = 320;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
     final JComboBox<PaymentMethodType> typeCombo = new JComboBox<>(PaymentMethodType.values());
-    final JTextField nameField = new JTextField(20);
+    final JTextField nameField = Theme.placeholder(new JTextField(20), "As printed on the card");
     final JPasswordField cardField = new JPasswordField(20);
-    final JTextField expiryField = new JTextField(6);
-    final JTextField amountField = new JTextField(10);
-    final JButton payButton = new JButton("Pay");
-    final JButton backButton = new JButton("Back");
+    final JTextField expiryField = Theme.placeholder(new JTextField(6), "MM/yy");
+    final JButton payButton = Theme.primary(new JButton("Pay"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
+    private final FormField typeRow = new FormField("Card type", typeCombo).mnemonic('T');
+    private final FormField nameRow = new FormField("Name on card", nameField).mnemonic('N');
+    private final FormField cardRow = new FormField("Card number", cardField).mnemonic('C');
+    private final FormField expiryRow = new FormField("Expiry date", expiryField).mnemonic('E');
     private final JLabel messageLabel = new JLabel(" ");
+    private final JPanel summaryHolder = new JPanel(new BorderLayout());
+    private SummaryCard summary = new SummaryCard("Order summary");
+    private String shown = "";
 
     PaymentView(Controllers controllers, Navigator navigator, BookingSession booking) {
-        super(new GridBagLayout());
+        super(new BorderLayout(0, 16));
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
@@ -59,10 +71,11 @@ class PaymentView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
         JLabel heading = new JLabel("Payment");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
-        amountField.setEditable(false);
+        Theme.heading(heading);
+        add(heading, BorderLayout.NORTH);
+
         typeCombo.setRenderer(new DefaultListCellRenderer() {
             private static final long serialVersionUID = 1L;
 
@@ -75,29 +88,51 @@ class PaymentView extends JPanel implements Screen {
         });
         payButton.setMnemonic('P');
         backButton.setMnemonic('B');
+        messageLabel.setFont(messageLabel.getFont().deriveFont(Type.LABEL));
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(4, 6, 4, 6);
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        add(heading, c);
-        c.gridwidth = 1;
-        addRow(c, 1, "Card type", 'T', typeCombo);
-        addRow(c, 2, "Name on card", 'N', nameField);
-        addRow(c, 3, "Card number", 'C', cardField);
-        addRow(c, 4, "Expiry (MM/yy)", 'E', expiryField);
-        addRow(c, 5, "Amount", 'A', amountField);
-        c.gridx = 0;
-        c.gridy = 6;
-        c.gridwidth = 2;
-        add(messageLabel, c);
-        JPanel buttons = new JPanel();
+        JPanel form = new JPanel();
+        form.setBackground(Theme.SURFACE);
+        form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
+        form.setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(24, 24, 20, 24)));
+        JLabel section = new JLabel("Card details");
+        section.setFont(section.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
+        section.setAlignmentX(LEFT_ALIGNMENT);
+        form.add(section);
+        form.add(javax.swing.Box.createVerticalStrut(12));
+        for (FormField row : new FormField[] {typeRow, nameRow, cardRow, expiryRow}) {
+            row.setAlignmentX(LEFT_ALIGNMENT);
+            form.add(row);
+        }
+        messageLabel.setAlignmentX(LEFT_ALIGNMENT);
+        form.add(messageLabel);
+        form.add(javax.swing.Box.createVerticalStrut(12));
+        JPanel buttons = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(payButton);
-        c.gridy = 7;
-        add(buttons, c);
+        buttons.setAlignmentX(LEFT_ALIGNMENT);
+        form.add(buttons);
+
+        summaryHolder.setOpaque(false);
+        summaryHolder.add(summary, BorderLayout.NORTH);
+
+        JPanel columns = new JPanel(new GridBagLayout());
+        columns.setOpaque(false);
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.insets = new Insets(0, 0, 0, 24);
+        form.setPreferredSize(new java.awt.Dimension(FORM_WIDTH, form.getPreferredSize().height));
+        columns.add(form, c);
+        c.gridx = 1;
+        c.insets = new Insets(0, 0, 0, 0);
+        columns.add(summaryHolder, c);
+        c.gridx = 2;
+        c.weightx = 1;
+        columns.add(javax.swing.Box.createHorizontalGlue(), c);
+        add(columns, BorderLayout.CENTER);
 
         // Enter in any field presses Pay
         nameField.addActionListener(e -> pay());
@@ -109,19 +144,8 @@ class PaymentView extends JPanel implements Screen {
                 booking.selectedOffer().isPresent() ? ViewId.SEAT_SELECTION : ViewId.MY_RESERVATIONS));
     }
 
-    private void addRow(GridBagConstraints c, int row, String text, char mnemonic, Component field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        c.gridx = 0;
-        c.gridy = row;
-        add(label, c);
-        c.gridx = 1;
-        add(field, c);
-    }
-
     private void pay() {
-        messageLabel.setText(" ");
+        clearErrors();
         Optional<User> user = controllers.session().currentUser();
         Optional<Reservation> reservation = booking.reservation();
         if (user.isEmpty() || reservation.isEmpty()) {
@@ -150,9 +174,28 @@ class PaymentView extends JPanel implements Screen {
         }
     }
 
+    /** Puts the problem under the field it is about, or in the general line when it is about the payment. */
     private void showError(String text) {
-        messageLabel.setForeground(ERROR);
-        messageLabel.setText(text);
+        shown = text;
+        String lower = text.toLowerCase();
+        if (lower.contains("card number")) {
+            cardRow.showError(text);
+        } else if (lower.contains("expir")) {
+            expiryRow.showError(text);
+        } else if (lower.contains("name")) {
+            nameRow.showError(text);
+        } else {
+            messageLabel.setForeground(ERROR);
+            messageLabel.setText(text);
+        }
+    }
+
+    private void clearErrors() {
+        shown = "";
+        messageLabel.setText(" ");
+        for (FormField row : new FormField[] {typeRow, nameRow, cardRow, expiryRow}) {
+            row.clearError();
+        }
     }
 
     private void clearFields() {
@@ -161,8 +204,9 @@ class PaymentView extends JPanel implements Screen {
         expiryField.setText("");
     }
 
+    /** The last message shown, wherever it appears on the screen. */
     String message() {
-        return messageLabel.getText().trim();
+        return shown.isEmpty() ? messageLabel.getText().trim() : shown;
     }
 
     @Override
@@ -178,10 +222,52 @@ class PaymentView extends JPanel implements Screen {
             return;
         }
         clearFields();
+        clearErrors();
         String notice = booking.takeNotice();
         messageLabel.setForeground(NOTICE);
         messageLabel.setText(notice == null ? " " : notice);
         typeCombo.setSelectedItem(PaymentMethodType.CREDIT);
-        amountField.setText("$" + reservation.get().price().toPlainString());
+        showSummary(reservation.get());
+    }
+
+    private void showSummary(Reservation reservation) {
+        Flight flight = reservation.flight();
+        String price = "$" + reservation.price().toPlainString();
+        summaryHolder.removeAll();
+        summary = new SummaryCard("Order summary")
+                .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
+                .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
+                .addRow("Departs", flight.departure().format(WHEN))
+                .addRow("Seat", reservation.seatNo())
+                .addTotal("Total", price);
+        summaryHolder.add(summary, BorderLayout.NORTH);
+        summaryHolder.setPreferredSize(new java.awt.Dimension(SUMMARY_WIDTH, summary.getPreferredSize().height));
+        summaryHolder.revalidate();
+        summaryHolder.repaint();
+        payButton.setText("Pay " + price);
+    }
+
+    // ---- for the tests
+
+    /** The total of the order summary, like "$184.00". */
+    String summaryTotal() {
+        java.util.List<SummaryCard.Row> rows = summary.rows();
+        return rows.isEmpty() ? "" : rows.get(rows.size() - 1).value();
+    }
+
+    java.util.List<SummaryCard.Row> summaryRows() {
+        return summary.rows();
+    }
+
+    FormField cardRow() {
+        return cardRow;
+    }
+
+    FormField expiryRow() {
+        return expiryRow;
+    }
+
+    FormField nameRow() {
+        return nameRow;
     }
 }

@@ -13,8 +13,8 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,22 +36,33 @@ import javax.swing.SwingConstants;
 class SeatSelectionView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color BUSINESS = new Color(0xFFE08A);
-    private static final Color ECONOMY = new Color(0xD7E8FA);
-    private static final Color TAKEN = new Color(0xBDBDBD);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color BUSINESS = Palette.GOLD_100;
+    private static final Color ECONOMY = Theme.ACCENT_SOFT;
+    private static final Color TAKEN = Palette.TAKEN;
+    private static final Color SELECTED = Theme.ACCENT;
+    private static final java.time.format.DateTimeFormatter WHEN =
+            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String PICK = "Pick a seat";
+    private static final int SIDE_WIDTH = 320;
+    private static final int SEAT_WIDTH = 56;
+    private static final int SEAT_HEIGHT = 30;
+    private static final int AISLE_WIDTH = 28;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
-    final JButton continueButton = new JButton("Continue to payment");
-    final JButton backButton = new JButton("Back");
+    final JButton continueButton = Theme.primary(new JButton("Continue to payment"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel heading = new JLabel(" ");
-    private final JLabel chosenLabel = new JLabel(PICK);
     private final JLabel messageLabel = new JLabel(" ");
-    private final JPanel mapPanel = new JPanel();
+    private final JPanel mapPanel = new JPanel(new GridBagLayout());
+    private final JPanel summaryHolder = new JPanel(new BorderLayout());
+    private String chosenText = PICK;
+    private SummaryCard summary = new SummaryCard("Your seat");
+    private transient SeatGridModel grid;
+    private transient JToggleButton[][] buttons = new JToggleButton[0][0];
     private final transient Map<String, JToggleButton> seatButtons = new HashMap<>();
     private transient ButtonGroup group = new ButtonGroup();
     private transient FlightOffer offer;
@@ -66,32 +77,52 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
-        add(heading, BorderLayout.NORTH);
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        Theme.heading(heading);
 
-        add(new JScrollPane(mapPanel), BorderLayout.CENTER);
-
-        JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        legend.setOpaque(false);
         legend.add(swatch("Business", BUSINESS));
         legend.add(swatch("Economy", ECONOMY));
-        legend.add(swatch("Taken", TAKEN));
-        chosenLabel.setFont(chosenLabel.getFont().deriveFont(Font.BOLD, 14f));
-        JPanel info = new JPanel(new BorderLayout());
-        info.add(legend, BorderLayout.NORTH);
-        info.add(chosenLabel, BorderLayout.CENTER);
-        info.add(messageLabel, BorderLayout.SOUTH);
+        legend.add(swatch("\u00D7 Taken", TAKEN));
+        legend.add(swatch("Your seat", SELECTED));
+        JPanel top = new JPanel(new BorderLayout(0, 8));
+        top.setOpaque(false);
+        top.add(heading, BorderLayout.NORTH);
+        top.add(legend, BorderLayout.CENTER);
+        add(top, BorderLayout.NORTH);
 
+        // the map keeps its natural size and sits in the middle of the free space
+        JPanel mapWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8));
+        mapWrapper.setBackground(Theme.SURFACE);
+        mapPanel.setOpaque(false);
+        mapWrapper.add(mapPanel);
+        JScrollPane scroll = new JScrollPane(mapWrapper);
+        scroll.getVerticalScrollBar().setUnitIncrement(24);
+        add(scroll, BorderLayout.CENTER);
+
+        // what has been chosen, and the way on
+        summaryHolder.setOpaque(false);
         backButton.setMnemonic('B');
         continueButton.setMnemonic('C');
         continueButton.setEnabled(false);
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(continueButton);
-        JPanel bottom = new JPanel(new BorderLayout(0, 8));
-        bottom.add(info, BorderLayout.CENTER);
-        bottom.add(buttons, BorderLayout.SOUTH);
-        add(bottom, BorderLayout.SOUTH);
+        messageLabel.setFont(messageLabel.getFont().deriveFont(Type.LABEL));
+        JPanel side = new JPanel(new BorderLayout(0, 12));
+        side.setOpaque(false);
+        side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
+        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.add(summaryHolder, BorderLayout.NORTH);
+        JPanel actions = new JPanel(new BorderLayout(0, 8));
+        actions.setOpaque(false);
+        actions.add(messageLabel, BorderLayout.NORTH);
+        actions.add(buttons, BorderLayout.SOUTH);
+        side.add(actions, BorderLayout.CENTER);
+        add(side, BorderLayout.EAST);
+        showSummary(null);
 
         continueButton.addActionListener(e -> continueToPayment());
         backButton.addActionListener(e -> goBack());
@@ -101,6 +132,8 @@ class SeatSelectionView extends JPanel implements Screen {
         JLabel label = new JLabel(" " + text + " ", SwingConstants.CENTER);
         label.setOpaque(true);
         label.setBackground(color);
+        label.setForeground(color.equals(SELECTED) ? Color.WHITE : Theme.TEXT);
+        label.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
         return label;
     }
 
@@ -172,49 +205,136 @@ class SeatSelectionView extends JPanel implements Screen {
     private void drawMap() {
         BookingController bookings = controllers.bookingController();
         Flight flight = offer.flight();
-        SeatGridModel grid = SeatGridModel.of(flight.aircraft(), bookings.availableSeats(flight.id()));
+        grid = SeatGridModel.of(flight.aircraft(), bookings.availableSeats(flight.id()));
         mapPanel.removeAll();
         seatButtons.clear();
         group = new ButtonGroup();
         chosenSeat = null;
-        chosenLabel.setText(PICK);
+        chosenText = PICK;
+        showSummary(null);
         continueButton.setEnabled(false);
-        mapPanel.setLayout(new GridLayout(grid.rowCount() + 1, grid.columnCount() + 1, 4, 4));
-        mapPanel.add(new JLabel(" "));
+        buttons = new JToggleButton[grid.rowCount()][grid.columnCount()];
+
+        int aisle = grid.aisleAfter();
+        int last = grid.columnCount() + (aisle >= 0 ? 1 : 0) + 1;
+        GridBagConstraints at = new GridBagConstraints();
+        at.insets = new Insets(2, 2, 2, 2);
+        at.fill = GridBagConstraints.BOTH;
         for (int c = 0; c < grid.columnCount(); c++) {
-            mapPanel.add(new JLabel(String.valueOf(SeatGridModel.letter(c)), SwingConstants.CENTER));
+            at.gridx = 1 + column(c, aisle);
+            at.gridy = 0;
+            mapPanel.add(centred(String.valueOf(SeatGridModel.letter(c)), Theme.MUTED), at);
         }
         for (int r = 0; r < grid.rowCount(); r++) {
-            mapPanel.add(new JLabel(String.valueOf(r + 1), SwingConstants.CENTER));
+            at.gridy = r + 1;
+            at.gridx = 0;
+            mapPanel.add(centred(String.valueOf(r + 1), Theme.MUTED), at);
+            at.gridx = last;
+            mapPanel.add(centred(String.valueOf(r + 1), Theme.MUTED), at);
             for (int c = 0; c < grid.columnCount(); c++) {
-                mapPanel.add(seatButton(grid.seatAt(r, c), grid.isEnabled(r, c)));
+                at.gridx = 1 + column(c, aisle);
+                mapPanel.add(seatButton(grid.seatAt(r, c), grid.isEnabled(r, c), r, c), at);
             }
+        }
+        if (aisle >= 0) {
+            at.gridx = 1 + aisle;
+            at.gridy = 0;
+            mapPanel.add(javax.swing.Box.createHorizontalStrut(AISLE_WIDTH), at);
         }
         mapPanel.revalidate();
         mapPanel.repaint();
     }
 
-    private JToggleButton seatButton(Seat seat, boolean enabled) {
-        JToggleButton button = new JToggleButton(seat.number());
+    /** The grid column of a seat column: seats after the aisle move one column to the right. */
+    private static int column(int seatColumn, int aisleAfter) {
+        return aisleAfter >= 0 && seatColumn >= aisleAfter ? seatColumn + 1 : seatColumn;
+    }
+
+    private static JLabel centred(String text, Color color) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setForeground(color);
+        label.setFont(label.getFont().deriveFont(Type.LABEL));
+        label.setPreferredSize(new java.awt.Dimension(28, SEAT_HEIGHT));
+        return label;
+    }
+
+    private JToggleButton seatButton(Seat seat, boolean enabled, int row, int column) {
+        // a taken seat shows a cross, so it differs from a free seat by more than its colour
+        JToggleButton button = new JToggleButton(enabled ? seat.number() : "\u00D7");
         button.setOpaque(true);
         button.setBackground(enabled ? (seat.seatClass() == SeatClass.BUSINESS ? BUSINESS : ECONOMY) : TAKEN);
         button.setEnabled(enabled);
         button.setMargin(new Insets(2, 2, 2, 2));
+        button.setPreferredSize(new java.awt.Dimension(SEAT_WIDTH, SEAT_HEIGHT));
+        button.setFont(button.getFont().deriveFont(Type.LABEL));
+        button.getAccessibleContext().setAccessibleName("Seat " + seat.number()
+                + (enabled ? ", " + className(seat) : ", taken"));
+        // the chosen seat turns blue, so it is easy to find in the grid
+        button.putClientProperty("FlatLaf.styleClass", "seat");
         if (enabled) {
             button.addActionListener(e -> choose(seat));
+            bindArrows(button, row, column);
         }
         group.add(button);
         seatButtons.put(seat.number(), button);
+        buttons[row][column] = button;
         return button;
+    }
+
+    /** The arrow keys move from seat to seat, skipping the seats that are taken. */
+    private void bindArrows(JToggleButton button, int row, int column) {
+        int[][] steps = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        String[] keys = {"UP", "DOWN", "LEFT", "RIGHT"};
+        for (int i = 0; i < keys.length; i++) {
+            int[] step = steps[i];
+            String name = "seat-" + keys[i];
+            button.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(javax.swing.KeyStroke.getKeyStroke(keys[i]),
+                    name);
+            button.getActionMap().put(name, new javax.swing.AbstractAction() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    int[] next = grid.nextEnabled(row, column, step[0], step[1]);
+                    if (next != null) {
+                        buttons[next[0]][next[1]].requestFocusInWindow();
+                    }
+                }
+            });
+        }
+    }
+
+    private static String className(Seat seat) {
+        return seat.seatClass() == SeatClass.BUSINESS ? "Business" : "Economy";
     }
 
     private void choose(Seat seat) {
         chosenSeat = seat.number();
-        String className = seat.seatClass() == SeatClass.BUSINESS ? "Business" : "Economy";
-        chosenLabel.setText("Seat " + seat.number() + " (" + className + ") - $"
-                + offer.flight().priceFor(seat.seatClass()).toPlainString());
+        chosenText = "Seat " + seat.number() + " (" + className(seat) + ") - $"
+                + offer.flight().priceFor(seat.seatClass()).toPlainString();
+        showSummary(seat);
         continueButton.setEnabled(true);
         messageLabel.setText(" ");
+    }
+
+    /** The card on the right: what is chosen so far, or a hint to choose. */
+    private void showSummary(Seat seat) {
+        summaryHolder.removeAll();
+        SummaryCard card = new SummaryCard("Your seat");
+        if (seat == null || offer == null) {
+            card.addRow("Seat", "None yet");
+        } else {
+            Flight flight = offer.flight();
+            card.addRow("Flight", flight.flightNumber())
+                    .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
+                    .addRow("Departs", flight.departure().format(WHEN))
+                    .addRow("Seat", seat.number() + " (" + className(seat) + ")")
+                    .addTotal("Price", "$" + flight.priceFor(seat.seatClass()).toPlainString());
+        }
+        summary = card;
+        summaryHolder.add(card, BorderLayout.NORTH);
+        summaryHolder.revalidate();
+        summaryHolder.repaint();
     }
 
     private void continueToPayment() {
@@ -293,7 +413,15 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     String chosenText() {
-        return chosenLabel.getText();
+        return chosenText;
+    }
+
+    java.util.List<SummaryCard.Row> summaryRows() {
+        return summary.rows();
+    }
+
+    SeatGridModel grid() {
+        return grid;
     }
 
     JToggleButton seatButtonFor(String number) {

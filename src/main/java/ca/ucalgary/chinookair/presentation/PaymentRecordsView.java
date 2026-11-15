@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -24,18 +22,18 @@ import javax.swing.ListSelectionModel;
 class PaymentRecordsView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
+    private static final Color ERROR = Theme.DANGER;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
 
     final JTextField searchField = new JTextField(20);
-    final JButton searchButton = new JButton("Search");
-    final JButton backButton = new JButton("Back");
+    final JButton searchButton = Theme.primary(new JButton("Search"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final CustomerTableModel customerModel = new CustomerTableModel();
-    final JTable customerTable = new JTable(customerModel);
+    final HintTable customerTable = new HintTable(customerModel, "Search for a customer above.");
     final PaymentTableModel paymentModel = new PaymentTableModel();
-    final JTable paymentTable = new JTable(paymentModel);
+    final HintTable paymentTable = new HintTable(paymentModel, "Select a customer to see their payments.");
     private final JLabel messageLabel = new JLabel(" ");
 
     PaymentRecordsView(Controllers controllers, Navigator navigator) {
@@ -44,7 +42,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Payment records");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         JLabel searchLabel = new JLabel("Name or email");
         searchLabel.setDisplayedMnemonic('M');
@@ -92,7 +90,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         try {
             List<Customer> found = controllers.customerController().search(agent, searchField.getText());
             customerModel.setCustomers(found);
-            showMessage(found.isEmpty() ? "No customers found." : " ", Color.DARK_GRAY);
+            showMessage(found.isEmpty() ? "No customers found." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             showMessage(ErrorMessages.forException(e), ERROR);
         }
@@ -108,7 +106,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         try {
             List<Payment> payments = controllers.paymentController().recordsForCustomer(agent, customer.id());
             paymentModel.setPayments(payments);
-            showMessage(payments.isEmpty() ? customer.name() + " has no payments." : " ", Color.DARK_GRAY);
+            showMessage(payments.isEmpty() ? customer.name() + " has no payments." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             showMessage(ErrorMessages.forException(e), ERROR);
         }
