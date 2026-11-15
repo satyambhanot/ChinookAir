@@ -69,6 +69,12 @@ class FormField extends JPanel {
         field.getAccessibleContext().setAccessibleDescription(shown);
     }
 
+    /** A vertical layout must not stretch the field taller than it needs to be. */
+    @Override
+    public java.awt.Dimension getMaximumSize() {
+        return new java.awt.Dimension(super.getMaximumSize().width, getPreferredSize().height);
+    }
+
     JComponent field() {
         return field;
     }

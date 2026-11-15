@@ -61,6 +61,11 @@ class FormFieldTest {
     }
 
     @Test
+    void aVerticalLayoutDoesNotStretchTheFieldTallerThanItNeeds() {
+        assertEquals(field.getPreferredSize().height, field.getMaximumSize().height);
+    }
+
+    @Test
     void aNullMessageClearsTheError() {
         field.showError("x");
         field.showError(null);
