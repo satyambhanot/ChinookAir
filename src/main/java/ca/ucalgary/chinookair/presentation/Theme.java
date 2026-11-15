@@ -71,9 +71,7 @@ public final class Theme {
     static javax.swing.JPanel card() {
         javax.swing.JPanel card = new javax.swing.JPanel(new java.awt.GridBagLayout());
         card.setBackground(SURFACE);
-        card.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                new javax.swing.border.LineBorder(BORDER, 1, true),
-                javax.swing.BorderFactory.createEmptyBorder(PAGE, PAGE + 8, PAGE, PAGE + 8)));
+        SurfaceBorder.apply(card, Space.XXL, Space.XXXL, Space.XXL, Space.XXXL);
         return card;
     }
 

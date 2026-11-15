@@ -14,7 +14,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -77,8 +76,7 @@ class AircraftManagementView extends JPanel implements Screen {
         south.add(buttons, BorderLayout.SOUTH);
         JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        SurfaceBorder.apply(card, Space.XL, Space.XL, Space.L, Space.XL);
         card.add(title, BorderLayout.NORTH);
         card.add(fields, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);

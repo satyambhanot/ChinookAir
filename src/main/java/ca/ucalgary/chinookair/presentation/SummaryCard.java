@@ -10,7 +10,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
 
 /** A white card with a title and rows of "label, value", and a total in bold at the bottom. */
 class SummaryCard extends JPanel {
@@ -28,8 +27,7 @@ class SummaryCard extends JPanel {
     SummaryCard(String title) {
         super(new GridBagLayout());
         setBackground(Theme.SURFACE);
-        setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 24, 20, 24)));
+        SurfaceBorder.apply(this, Space.XL, Space.XL, Space.XL, Space.XL);
         JLabel heading = new JLabel(title);
         heading.setFont(heading.getFont().deriveFont(Font.BOLD, Type.SECTION));
         heading.setForeground(Theme.TEXT);

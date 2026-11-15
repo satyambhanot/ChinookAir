@@ -28,7 +28,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -140,8 +139,7 @@ class FlightManagementView extends JPanel implements Screen {
 
         cardTitle.setFont(cardTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        SurfaceBorder.apply(card, Space.XL, Space.XL, Space.L, Space.XL);
         card.setPreferredSize(new Dimension(CARD_WIDTH, 10));
         card.add(cardTitle, BorderLayout.NORTH);
         card.add(buildForm(), BorderLayout.CENTER);

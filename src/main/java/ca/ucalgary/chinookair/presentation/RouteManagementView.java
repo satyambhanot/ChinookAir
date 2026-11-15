@@ -21,7 +21,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.border.LineBorder;
 
 /** For the administrator: the routes there are, and a card to add one between two airports. */
 class RouteManagementView extends JPanel implements Screen {
@@ -72,8 +71,7 @@ class RouteManagementView extends JPanel implements Screen {
         south.add(buttons, BorderLayout.SOUTH);
         JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        SurfaceBorder.apply(card, Space.XL, Space.XL, Space.L, Space.XL);
         card.add(title, BorderLayout.NORTH);
         card.add(fields, BorderLayout.CENTER);
         card.add(south, BorderLayout.SOUTH);

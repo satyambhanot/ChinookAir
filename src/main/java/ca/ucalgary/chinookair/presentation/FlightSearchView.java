@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import javax.swing.border.LineBorder;
 import java.time.LocalDate;
 import java.awt.Insets;
 import java.awt.GridBagLayout;
@@ -83,8 +82,7 @@ class FlightSearchView extends JPanel implements Screen {
 
         JPanel card = new JPanel(new GridBagLayout());
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(16, 20, 8, 20)));
+        SurfaceBorder.apply(card, Space.L, Space.XL, Space.S, Space.XL);
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.NORTHWEST;
         c.insets = new Insets(0, 0, 0, 12);

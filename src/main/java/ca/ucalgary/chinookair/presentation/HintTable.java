@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -11,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.RowFilter;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
@@ -47,11 +49,19 @@ class HintTable extends JTable {
         header.setDefaultRenderer((table, value, selected, focus, row, column) -> {
             Component cell = base.getTableCellRendererComponent(table, value, selected, focus, row, column);
             if (cell instanceof JLabel) {
+                cell.setFont(headerFont(cell.getFont()));
                 boolean number = Number.class.isAssignableFrom(table.getColumnClass(column));
                 ((JLabel) cell).setHorizontalAlignment(number ? SwingConstants.RIGHT : SwingConstants.LEFT);
             }
             return cell;
         });
+    }
+
+    /** Column titles are a little smaller than the cells and semibold, so the rows are what the eye reads. */
+    static Font headerFont(Font current) {
+        Font semibold = UIManager.getFont("semibold.font");
+        Font base = semibold != null ? semibold : current.deriveFont(Font.BOLD);
+        return base.deriveFont(Type.CAPTION);
     }
 
     /** The renderer for a time column that also shows the year, for records that are kept for long. */

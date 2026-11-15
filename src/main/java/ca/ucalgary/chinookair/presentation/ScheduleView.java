@@ -99,9 +99,7 @@ class ScheduleView extends JPanel implements Screen {
         rescheduleButton.setMnemonic('R');
         rescheduleControls.setLayout(new BorderLayout(0, 8));
         rescheduleControls.setBackground(Theme.SURFACE);
-        rescheduleControls.setBorder(BorderFactory.createCompoundBorder(
-                new javax.swing.border.LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(14, 18, 6, 18)));
+        SurfaceBorder.apply(rescheduleControls, Space.M, Space.L, Space.S, Space.L);
         rescheduleControls.add(moveTitle, BorderLayout.NORTH);
         rescheduleControls.add(moveRow, BorderLayout.CENTER);
         rescheduleControls.setVisible(false);

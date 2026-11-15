@@ -113,4 +113,13 @@ class HintTableTest {
         table.describe("Flights");
         assertEquals("Flights", table.getAccessibleContext().getAccessibleName());
     }
+
+    @Test
+    void columnTitlesAreSmallAndSemibold() {
+        HintTable table = new HintTable(new javax.swing.table.DefaultTableModel(new Object[] {"Departs"}, 0), "none");
+        java.awt.Font font = table.getTableHeader().getDefaultRenderer()
+                .getTableCellRendererComponent(table, "Departs", false, false, -1, 0).getFont();
+        assertEquals(Type.CAPTION, font.getSize2D());
+        assertTrue(font.isBold() || font.getName().toLowerCase().contains("semibold"), font.getName());
+    }
 }

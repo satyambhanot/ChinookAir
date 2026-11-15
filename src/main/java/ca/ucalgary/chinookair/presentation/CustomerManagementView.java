@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.LineBorder;
 
 /**
  * The agent's customers: the list with a search that follows the typing, and the chosen customer on the
@@ -80,7 +79,7 @@ class CustomerManagementView extends JPanel implements Screen {
         EmptyState hint = new EmptyState("Choose a customer", "Pick someone from the list, or add a new customer.");
         JPanel emptyHolder = new JPanel(new BorderLayout());
         emptyHolder.setBackground(Theme.SURFACE);
-        emptyHolder.setBorder(new LineBorder(Theme.BORDER, 1, true));
+        SurfaceBorder.apply(emptyHolder, 0, 0, 0, 0);
         emptyHolder.add(hint, BorderLayout.NORTH);
 
         detailsTitle.setFont(detailsTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
@@ -102,8 +101,7 @@ class CustomerManagementView extends JPanel implements Screen {
         actions.add(save, BorderLayout.SOUTH);
         JPanel details = new JPanel(new BorderLayout(0, 12));
         details.setBackground(Theme.SURFACE);
-        details.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        SurfaceBorder.apply(details, Space.XL, Space.XL, Space.L, Space.XL);
         details.add(detailsTitle, BorderLayout.NORTH);
         details.add(ScrollableForm.around(form), BorderLayout.CENTER);
         details.add(actions, BorderLayout.SOUTH);

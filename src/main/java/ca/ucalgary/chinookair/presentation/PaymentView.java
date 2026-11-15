@@ -92,8 +92,7 @@ class PaymentView extends JPanel implements Screen {
         JPanel form = new JPanel();
         form.setBackground(Theme.SURFACE);
         form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
-        form.setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(24, 24, 20, 24)));
+        SurfaceBorder.apply(form, Space.XL, Space.XL, Space.XL, Space.XL);
         JLabel section = new JLabel("Card details");
         section.setFont(section.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         section.setAlignmentX(LEFT_ALIGNMENT);
