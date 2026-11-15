@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
@@ -79,8 +80,9 @@ class PaymentViewTest {
 
     @Test
     void theAmountIsTheReservationPriceAndCannotBeEdited() {
-        assertEquals("$" + booking.reservation().orElseThrow().price().toPlainString(), view.amountField.getText());
-        assertTrue(!view.amountField.isEditable());
+        String price = "$" + booking.reservation().orElseThrow().price().toPlainString();
+        assertEquals(price, view.summaryTotal());
+        assertEquals("Pay " + price, view.payButton.getText());
     }
 
     @Test
@@ -128,6 +130,43 @@ class PaymentViewTest {
         view.payButton.doClick(0);
         assertTrue(view.message().toLowerCase().contains("name"));
         assertTrue(navigator.shown.isEmpty());
+    }
+
+    @Test
+    void aProblemIsShownUnderTheFieldItIsAbout() {
+        fill("Jo Smith", "1234", "12/30");
+        view.payButton.doClick(0);
+        assertTrue(view.cardRow().hasError());
+        assertTrue(view.cardRow().lineText().contains("16 digits"));
+        assertFalse(view.expiryRow().hasError());
+        assertFalse(view.nameRow().hasError());
+
+        fill("Jo Smith", "4111 1111 1111 1111", "01/20");
+        view.payButton.doClick(0);
+        assertFalse(view.cardRow().hasError(), "the old error goes away");
+        assertTrue(view.expiryRow().hasError());
+
+        fill("", "4111 1111 1111 1111", "12/30");
+        view.payButton.doClick(0);
+        assertFalse(view.expiryRow().hasError());
+        assertTrue(view.nameRow().hasError());
+    }
+
+    @Test
+    void aDeclinedCardIsNotBlamedOnAField() {
+        fill("Jo Smith", "4111 1111 1111 0000", "12/30");
+        view.payButton.doClick(0);
+        assertFalse(view.cardRow().hasError());
+        assertFalse(view.expiryRow().hasError());
+        assertFalse(view.nameRow().hasError());
+        assertEquals("Card declined", view.message());
+    }
+
+    @Test
+    void theOrderSummaryListsTheTripAndTheTotal() {
+        java.util.List<String> labels = view.summaryRows().stream().map(SummaryCard.Row::label).toList();
+        assertEquals(java.util.List.of("Flight", "Route", "Departs", "Seat", "Total"), labels);
+        assertTrue(view.summaryRows().get(view.summaryRows().size() - 1).total());
     }
 
     @Test
