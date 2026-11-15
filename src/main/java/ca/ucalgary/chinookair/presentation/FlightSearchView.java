@@ -21,7 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
+import javax.swing.JToggleButton;
 
 /**
  * The search screen: origin, destination, date and airline in, a table of flights out. It parses the
@@ -45,8 +45,12 @@ class FlightSearchView extends JPanel implements Screen {
     final JButton selectButton = Theme.primary(new JButton("Select flight"));
     final JButton backButton = Theme.secondary(new JButton("Back"));
     final JButton swapButton = new JButton(Icons.muted("swap", 18));
-    final FlightTableModel tableModel = new FlightTableModel();
-    final HintTable table = new HintTable(tableModel, "Choose the airports and a date, then press Search.");
+    final FlightResultList results = new FlightResultList("Choose the airports and a date, then press Search.");
+    final DayStrip dayStrip = new DayStrip();
+    final JToggleButton[] sortChips = new JToggleButton[FlightResultList.Sort.values().length];
+    private final JLabel caption = Theme.hint(" ");
+    private final JPanel resultsHead = new JPanel(new BorderLayout(0, Space.M));
+    private final JPanel sorting = new JPanel();
     private final JLabel heading = new JLabel("Find flights");
     private final JLabel messageLabel = new JLabel(" ");
     FilterBar searchBar;
@@ -90,10 +94,7 @@ class FlightSearchView extends JPanel implements Screen {
         top.add(card, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setAutoCreateRowSorter(true);
-        table.setFillsViewportHeight(true);
-        table.describe("Flights found");
+        buildResultsHead();
 
         selectButton.setMnemonic('E');
         backButton.setMnemonic('B');
@@ -103,26 +104,47 @@ class FlightSearchView extends JPanel implements Screen {
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.add(messageLabel, BorderLayout.WEST);
         bottom.add(buttons, BorderLayout.EAST);
-        add(new TableArea(table, bottom), BorderLayout.CENTER);
+        JPanel body = new JPanel(new BorderLayout(0, Space.M));
+        body.setOpaque(false);
+        body.add(resultsHead, BorderLayout.NORTH);
+        body.add(new ResultsArea(results, bottom), BorderLayout.CENTER);
+        add(body, BorderLayout.CENTER);
 
         originCombo.setRenderer(new CodeRenderer());
         destinationCombo.setRenderer(new CodeRenderer());
         airlineCombo.setRenderer(new CodeRenderer());
 
         selectButton.setEnabled(false);
-        table.getSelectionModel().addListSelectionListener(e -> selectButton.setEnabled(table.getSelectedRow() >= 0));
+        results.addListSelectionListener(e -> selectButton.setEnabled(results.selectedOffer() != null));
         searchButton.addActionListener(e -> search());
         swapButton.addActionListener(e -> swapAirports());
         dateField.addActionListener(e -> search());
         selectButton.addActionListener(e -> selectFlight());
         // a double click on a flight does what Select flight does
-        table.addMouseListener(new MouseAdapter() {
+        results.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
+                if (e.getClickCount() == 2 && results.selectedOffer() != null) {
                     selectFlight();
                 }
             }
+        });
+        // Enter on a chosen card chooses that flight, instead of searching again
+        results.getInputMap(javax.swing.JComponent.WHEN_FOCUSED).put(javax.swing.KeyStroke.getKeyStroke("ENTER"),
+                "chooseFlight");
+        results.getActionMap().put("chooseFlight", new javax.swing.AbstractAction() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                if (results.selectedOffer() != null) {
+                    selectFlight();
+                }
+            }
+        });
+        dayStrip.onPick(day -> {
+            dateField.setDate(day);
+            search();
         });
         backButton.addActionListener(e -> goBack());
     }
@@ -138,8 +160,9 @@ class FlightSearchView extends JPanel implements Screen {
                     airline == null ? null : airline.code());
             List<FlightOffer> offers = controllers.flightSearchController().search(criteria);
             booking.rememberSearch(criteria.origin(), criteria.destination(), criteria.airlineCode(), criteria.date());
-            tableModel.setOffers(offers);
-            table.setEmptyText("No flights match this search.");
+            results.setOffers(offers);
+            results.setEmptyText("No flights match this search.");
+            showResultsHead(criteria, offers);
             if (offers.isEmpty()) {
                 messageLabel.setForeground(Theme.MUTED);
                 messageLabel.setText(NO_FLIGHTS);
@@ -150,12 +173,53 @@ class FlightSearchView extends JPanel implements Screen {
         }
     }
 
+    /** The line above the cards: the nearby days with their prices, how many flights, and how to order them. */
+    private void buildResultsHead() {
+        sorting.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, Space.S, 0));
+        sorting.setOpaque(false);
+        sorting.add(Theme.hint("Sort by"));
+        javax.swing.ButtonGroup group = new javax.swing.ButtonGroup();
+        FlightResultList.Sort[] sorts = FlightResultList.Sort.values();
+        for (int i = 0; i < sorts.length; i++) {
+            FlightResultList.Sort sort = sorts[i];
+            sortChips[i] = Theme.chip(new JToggleButton(sort.label()));
+            sortChips[i].setSelected(sort == FlightResultList.Sort.EARLIEST);
+            sortChips[i].addActionListener(e -> results.sortBy(sort));
+            group.add(sortChips[i]);
+            sorting.add(sortChips[i]);
+        }
+        JPanel row = new JPanel(new BorderLayout());
+        row.setOpaque(false);
+        row.add(caption, BorderLayout.WEST);
+        row.add(sorting, BorderLayout.EAST);
+        resultsHead.setOpaque(false);
+        resultsHead.add(dayStrip, BorderLayout.NORTH);
+        resultsHead.add(row, BorderLayout.SOUTH);
+        resultsHead.setVisible(false);
+    }
+
+    private void showResultsHead(SearchCriteria criteria, List<FlightOffer> offers) {
+        LocalDate today = controllers.flightSearchController().today();
+        dayStrip.show(criteria.date(), today, day -> day.equals(criteria.date()) ? lowestPrice(offers)
+                : lowestPrice(controllers.flightSearchController().search(new SearchCriteria(criteria.origin(),
+                        criteria.destination(), day, criteria.airlineCode()))));
+        caption.setText(offers.size() + (offers.size() == 1 ? " flight on " : " flights on ")
+                + Format.date(criteria.date()));
+        // there is nothing to put in order when there is one flight or none
+        sorting.setVisible(offers.size() > 1);
+        resultsHead.setVisible(true);
+    }
+
+    private static java.util.Optional<java.math.BigDecimal> lowestPrice(List<FlightOffer> offers) {
+        return offers.stream().map(FlightOffer::fromPrice).min(java.util.Comparator.naturalOrder());
+    }
+
     private void selectFlight() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
+        FlightOffer chosen = results.selectedOffer();
+        if (chosen == null) {
             return;
         }
-        booking.select(tableModel.offerAt(table.convertRowIndexToModel(row)));
+        booking.select(chosen);
         navigator.show(ViewId.SEAT_SELECTION);
     }
 
@@ -213,7 +277,8 @@ class FlightSearchView extends JPanel implements Screen {
         LocalDate today = controllers.flightSearchController().today();
         dateField.setMinDate(today);
         dateField.setText(today.toString());
-        tableModel.setOffers(List.of());
+        results.setOffers(List.of());
+        resultsHead.setVisible(false);
         messageLabel.setText(" ");
         // the flights of the starting route show at once, so a booking needs one click less
         if (startFromLastSearchOrFirstRoute(airports, today)) {

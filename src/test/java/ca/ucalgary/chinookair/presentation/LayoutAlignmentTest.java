@@ -79,7 +79,7 @@ class LayoutAlignmentTest {
         confirmation = new ConfirmationView(c, NAV, booking);
         confirmation.onShow();
         SCREENS.put("confirmation", confirmation);
-        SCREENS.put("my reservations", new MyReservationsView(c, NAV, booking));
+        SCREENS.put("my reservations", shown(new MyReservationsView(c, NAV, booking)));
         profile = new ProfileView(c, NAV);
         SCREENS.put("profile", profile);
 
@@ -249,13 +249,32 @@ class LayoutAlignmentTest {
 
     @Test
     void tablesStartAtTheSameEdgeAsTheHeadingAndAreDrawnToTheirBounds() {
-        for (String name : new String[] {"find flights", "my reservations", "customers", "flights", "routes",
+        for (String name : new String[] {"customers", "flights", "routes",
                 "aircraft", "schedule", "payment records"}) {
             ContentPane pane = laidOut(SCREENS.get(name), WIDTH, HEIGHT);
             javax.swing.JScrollPane first = all(pane, javax.swing.JScrollPane.class).get(0);
             assertEquals(Space.PAGE, left(first, pane), name);
             assertEquals(1, first.getBorder().getBorderInsets(first).left, name + ": the line is at the edge");
         }
+    }
+
+    @Test
+    void theReservationCardsStartAtThePageEdgeAndFillItsWidth() {
+        ContentPane pane = laidOut(SCREENS.get("my reservations"), WIDTH, HEIGHT);
+        List<ReservationCard> cards = all(pane, ReservationCard.class);
+        assertTrue(cards.size() >= 1, "the customer has a booking");
+        assertEquals(Space.PAGE, left(cards.get(0), pane));
+        assertEquals(WIDTH - Space.PAGE, right(cards.get(0), pane));
+    }
+
+    @Test
+    void theFlightCardsStartAtThePageEdgeAndFillItsWidth() {
+        FlightSearchView view = (FlightSearchView) SCREENS.get("find flights");
+        view.onShow();
+        ContentPane pane = laidOut(view, WIDTH, HEIGHT);
+        assertTrue(view.results.offers().size() > 0, "the starting route has flights");
+        assertEquals(Space.PAGE, left(view.results, pane));
+        assertEquals(WIDTH - Space.PAGE, right(view.results, pane));
     }
 
     @Test

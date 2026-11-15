@@ -47,7 +47,7 @@ class ConfirmationView extends JPanel implements Screen {
     private final JLabel number = new JLabel(" ");
     private final JLabel saved = Theme.hint(" ");
     private final JPanel tripHolder = new JPanel(new BorderLayout());
-    private SummaryCard trip = new SummaryCard("Your trip");
+    private ItineraryCard trip;
     private transient Consumer<String> clipboard = ConfirmationView::copyToSystemClipboard;
     private transient Consumer<Path> folderOpener = ConfirmationView::openInFileManager;
     private Path file;
@@ -102,7 +102,6 @@ class ConfirmationView extends JPanel implements Screen {
         copyButton.setMnemonic('C');
 
         tripHolder.setOpaque(false);
-        tripHolder.add(trip, BorderLayout.CENTER);
 
         JPanel savedRow = ButtonRow.left();
         savedRow.setOpaque(false);
@@ -197,21 +196,13 @@ class ConfirmationView extends JPanel implements Screen {
         folderButton.setVisible(file != null && file.getParent() != null);
 
         tripHolder.removeAll();
-        trip = new SummaryCard("Your trip")
-                .addRow("Passenger", reservation.customer().name())
-                .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
-                .addRow("Route", routeOf(flight))
-                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
-                .addRow("Seat", reservation.seatNo())
-                .addTotal("Amount paid", Format.money(result.payment().amount()));
+        trip = new ItineraryCard(flight, reservation.customer().name(), Format.seat(flight, reservation.seatNo()),
+                "Amount paid", Format.money(result.payment().amount()));
         tripHolder.add(trip, BorderLayout.CENTER);
         tripHolder.revalidate();
         tripHolder.repaint();
     }
 
-    private static String routeOf(Flight flight) {
-        return flight.route().origin().code() + " → " + flight.route().destination().code();
-    }
 
     private static void copyToSystemClipboard(String text) {
         if (GraphicsEnvironment.isHeadless()) {
@@ -251,7 +242,7 @@ class ConfirmationView extends JPanel implements Screen {
     }
 
     List<SummaryCard.Row> tripRows() {
-        return trip.rows();
+        return trip == null ? List.of() : trip.rows();
     }
 
     void setClipboard(Consumer<String> clipboard) {

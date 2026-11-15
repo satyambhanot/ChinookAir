@@ -8,19 +8,24 @@ import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import javax.swing.JComponent;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.ListSelectionModel;
 
 /**
- * The reservations of a customer, newest first: the logged-in customer, or the customer an agent chose.
- * A reservation can be cancelled while its flight has not left, and one that waits for payment can be paid.
+ * The reservations of a customer as cards: the logged-in customer, or the customer an agent chose. They
+ * are in three sections (upcoming, past, cancelled) and can be found by typing. A reservation can be
+ * cancelled while its flight has not left, and one that waits for payment can be paid, both from its card.
  */
 class MyReservationsView extends JPanel implements Screen {
 
@@ -32,17 +37,19 @@ class MyReservationsView extends JPanel implements Screen {
     private final transient BookingSession booking;
     private transient Predicate<String> confirmer = this::askYesNo;
 
-    final ReservationTableModel tableModel = new ReservationTableModel();
-    final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
-    final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
-    final JButton payButton = Theme.primary(new JButton("Pay now"));
     final Breadcrumb breadcrumb = new Breadcrumb();
+    final SearchField filterField = new SearchField("Find by confirmation number or flight", 28);
     private final JLabel heading = new JLabel("My reservations");
+    private final JPanel list = new JPanel();
     private final JLabel messageLabel = new JLabel(" ");
+    private final transient List<ReservationCard> cards = new ArrayList<>();
+    private final transient List<String> sectionTitles = new ArrayList<>();
+    private transient List<Reservation> history = List.of();
     private transient Customer owner;
+    private EmptyState emptyState;
 
     MyReservationsView(Controllers controllers, Navigator navigator, BookingSession booking) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, Space.M));
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
@@ -52,54 +59,103 @@ class MyReservationsView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
-        JPanel top = new JPanel(new BorderLayout(0, Space.S));
+        JPanel titles = new JPanel(new BorderLayout(0, Space.S));
+        titles.setOpaque(false);
+        titles.add(breadcrumb, BorderLayout.NORTH);
+        titles.add(heading, BorderLayout.CENTER);
+        JPanel top = new JPanel(new BorderLayout(0, Space.M));
         top.setOpaque(false);
-        top.add(breadcrumb, BorderLayout.NORTH);
-        top.add(heading, BorderLayout.CENTER);
+        top.add(titles, BorderLayout.NORTH);
+        top.add(filterField, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setFillsViewportHeight(true);
-        table.describe("Reservations");
-
-        cancelButton.setMnemonic('C');
-        payButton.setMnemonic('P');
-        ButtonRow buttons = ButtonRow.right();
-        buttons.add(payButton);
-        buttons.add(cancelButton);
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messageLabel, BorderLayout.WEST);
-        bottom.add(buttons, BorderLayout.EAST);
-        add(new TableArea(table, bottom), BorderLayout.CENTER);
-
-        updateButtons();
-        table.getSelectionModel().addListSelectionListener(e -> updateButtons());
-        cancelButton.addActionListener(e -> cancelSelected());
-        payButton.addActionListener(e -> paySelected());
+        list.setOpaque(false);
+        list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+        add(ScrollableForm.around(list), BorderLayout.CENTER);
+        add(messageLabel, BorderLayout.SOUTH);
+        filterField.onChange(text -> render());
     }
 
-    private void updateButtons() {
-        Reservation selected = selected();
-        boolean canPay = selected != null && selected.status() == ReservationStatus.PENDING_PAYMENT;
-        boolean canCancel = selected != null && controllers.reservationController().canCancel(selected);
-        payButton.setEnabled(canPay);
-        cancelButton.setEnabled(canCancel);
-        // a button that cannot be pressed says why, so it never looks broken
-        payButton.setToolTipText(canPay ? null : selected == null ? "Select a reservation first"
-                : "Only a reservation that is awaiting payment can be paid");
-        cancelButton.setToolTipText(canCancel ? null : selected == null ? "Select a reservation first"
-                : "This reservation can no longer be cancelled");
+    // ---- showing
+
+    private void load() {
+        User user = controllers.session().currentUser().orElseThrow();
+        history = controllers.reservationController().history(user, owner.id());
+        render();
     }
 
-    private Reservation selected() {
-        int row = table.getSelectedRow();
-        return row < 0 ? null : tableModel.reservationAt(table.convertRowIndexToModel(row));
+    /** Builds the sections again from what was loaded and what is typed in the search box. */
+    private void render() {
+        list.removeAll();
+        cards.clear();
+        sectionTitles.clear();
+        LocalDate today = controllers.flightSearchController().today();
+        List<Reservation> shown = history.stream()
+                .filter(r -> ReservationGroups.matches(r, filterField.getText())).toList();
+        if (shown.isEmpty()) {
+            showEmpty(history.isEmpty());
+        } else {
+            for (Map.Entry<ReservationGroups.Group, List<Reservation>> section
+                    : ReservationGroups.split(shown, today).entrySet()) {
+                list.add(sectionTitle(section.getKey().title() + " (" + section.getValue().size() + ")"));
+                for (Reservation reservation : section.getValue()) {
+                    ReservationCard card = new ReservationCard(reservation,
+                            controllers.reservationController().canCancel(reservation),
+                            () -> pay(reservation), () -> cancel(reservation));
+                    card.setAlignmentX(LEFT_ALIGNMENT);
+                    card.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, card.getPreferredSize().height));
+                    cards.add(card);
+                    list.add(card);
+                    list.add(Box.createVerticalStrut(Space.S));
+                }
+            }
+        }
+        list.revalidate();
+        list.repaint();
     }
 
-    private void cancelSelected() {
-        Reservation reservation = selected();
+    private void showEmpty(boolean nothingAtAll) {
+        boolean customer = controllers.session().currentUser().map(u -> u.role() == Role.CUSTOMER).orElse(false);
+        if (nothingAtAll) {
+            emptyState = new EmptyState("No reservations yet", "Find a flight and your booking shows up here.");
+            if (customer) {
+                emptyState.setAction("Find flights", () -> navigator.show(ViewId.FLIGHT_SEARCH));
+            }
+        } else {
+            emptyState = new EmptyState("No reservation matches", "Check the confirmation number or the flight.");
+        }
+        list.add(emptyState);
+    }
+
+    private JLabel sectionTitle(String text) {
+        sectionTitles.add(text);
+        JLabel title = new JLabel(text);
+        title.setFont(title.getFont().deriveFont(Font.BOLD, Type.SECTION));
+        title.setForeground(Theme.TEXT);
+        title.setBorder(BorderFactory.createEmptyBorder(Space.S, 0, Space.S, 0));
+        title.setAlignmentX(LEFT_ALIGNMENT);
+        return title;
+    }
+
+    /** A customer is on a tab; an agent came from a customer's row and gets the way back. */
+    private void showPath(User user) {
+        Optional<Customer> chosen = booking.customer();
+        if (user.role() == Role.AGENT && chosen.isPresent()) {
+            heading.setText("Reservations of " + chosen.get().name());
+            breadcrumb.show(List.of(
+                    Breadcrumb.Crumb.link("Customers", () -> navigator.show(ViewId.CUSTOMER_MANAGEMENT)),
+                    Breadcrumb.Crumb.text(chosen.get().name()), Breadcrumb.Crumb.text("Reservations")));
+        } else {
+            heading.setText("My reservations");
+            breadcrumb.show(List.of());
+        }
+    }
+
+    // ---- actions
+
+    private void cancel(Reservation reservation) {
         User user = controllers.session().currentUser().orElse(null);
-        if (reservation == null || user == null) {
+        if (user == null) {
             return;
         }
         String question = "Cancel reservation " + reservation.confirmationNumber() + "?";
@@ -111,17 +167,14 @@ class MyReservationsView extends JPanel implements Screen {
         }
         try {
             controllers.reservationController().cancel(user, reservation.id());
+            messageLabel.setText(" ");
             load();
         } catch (RuntimeException e) {
             showError(ErrorMessages.forException(e));
         }
     }
 
-    private void paySelected() {
-        Reservation reservation = selected();
-        if (reservation == null) {
-            return;
-        }
+    private void pay(Reservation reservation) {
         // a reservation paid from this list has no flight search behind it
         Optional<Customer> chosen = booking.customer();
         booking.clear();
@@ -146,19 +199,6 @@ class MyReservationsView extends JPanel implements Screen {
         throw new IllegalStateException("Choose a customer first");
     }
 
-    private void load() {
-        User user = controllers.session().currentUser().orElseThrow();
-        List<Reservation> history = controllers.reservationController().history(user, owner.id());
-        tableModel.setReservations(history);
-        updateButtons();
-        if (history.isEmpty()) {
-            messageLabel.setForeground(Theme.MUTED);
-            messageLabel.setText("No reservations yet.");
-        } else {
-            messageLabel.setText(" ");
-        }
-    }
-
     private void showError(String text) {
         messageLabel.setForeground(ERROR);
         messageLabel.setText(text);
@@ -166,7 +206,7 @@ class MyReservationsView extends JPanel implements Screen {
 
     @Override
     public JComponent initialFocus() {
-        return table;
+        return filterField;
     }
 
     @Override
@@ -177,27 +217,14 @@ class MyReservationsView extends JPanel implements Screen {
             return;
         }
         showPath(user.get());
-        tableModel.setReservations(List.of());
-        updateButtons();
+        filterField.setText("");
+        history = List.of();
+        render();
         try {
             owner = ownerOf(user.get());
             load();
         } catch (RuntimeException e) {
             showError(ErrorMessages.forException(e));
-        }
-    }
-
-    /** A customer is on a tab; an agent came from a customer's row and gets the way back. */
-    private void showPath(User user) {
-        Optional<Customer> chosen = booking.customer();
-        if (user.role() == Role.AGENT && chosen.isPresent()) {
-            heading.setText("Reservations of " + chosen.get().name());
-            breadcrumb.show(List.of(
-                    Breadcrumb.Crumb.link("Customers", () -> navigator.show(ViewId.CUSTOMER_MANAGEMENT)),
-                    Breadcrumb.Crumb.text(chosen.get().name()), Breadcrumb.Crumb.text("Reservations")));
-        } else {
-            heading.setText("My reservations");
-            breadcrumb.show(List.of());
         }
     }
 
@@ -208,7 +235,28 @@ class MyReservationsView extends JPanel implements Screen {
     }
 
     /** Replaces the Yes/No question, so a test can answer it without a dialog. */
-    void setConfirmer(Predicate<String> answer) {
-        confirmer = answer;
+    void setConfirmer(Predicate<String> newConfirmer) {
+        this.confirmer = newConfirmer;
+    }
+
+    /** The cards in the order they are shown. */
+    List<ReservationCard> cards() {
+        return List.copyOf(cards);
+    }
+
+    /** The card of a reservation, found by its confirmation number. */
+    ReservationCard cardFor(String confirmationNumber) {
+        return cards.stream().filter(c -> c.reservation().confirmationNumber().equals(confirmationNumber))
+                .findFirst().orElseThrow();
+    }
+
+    /** The headings of the sections, like "Upcoming (2)". */
+    List<String> sectionTitles() {
+        return List.copyOf(sectionTitles);
+    }
+
+    /** What the list says when there is nothing to show, or null when it shows cards. */
+    EmptyState emptyState() {
+        return cards.isEmpty() ? emptyState : null;
     }
 }

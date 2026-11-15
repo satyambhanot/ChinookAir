@@ -108,6 +108,18 @@ public final class Theme {
         return button;
     }
 
+    /** A small pill that can be switched on, for choices like how to sort. */
+    static javax.swing.JToggleButton chip(javax.swing.JToggleButton button) {
+        button.putClientProperty("FlatLaf.styleClass", "chip");
+        return button;
+    }
+
+    /** A small button for one of a row of days, with room for a price under the date. */
+    static javax.swing.JToggleButton day(javax.swing.JToggleButton button) {
+        button.putClientProperty("FlatLaf.styleClass", "day");
+        return button;
+    }
+
     /** A button that looks like a link, for small actions like "Register a new account". */
     static JButton link(JButton button) {
         button.putClientProperty("JButton.buttonType", "borderless");

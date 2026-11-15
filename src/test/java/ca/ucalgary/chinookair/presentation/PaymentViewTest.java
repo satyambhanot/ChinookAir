@@ -163,9 +163,23 @@ class PaymentViewTest {
     }
 
     @Test
+    void theSummaryNamesThePassengerAndTheSeatClass() {
+        java.util.Map<String, String> rows = new java.util.LinkedHashMap<>();
+        view.summaryRows().forEach(r -> rows.put(r.label(), r.value()));
+        assertEquals(customer.name(), rows.get("Passenger"));
+        assertTrue(rows.get("Seat").endsWith("(Economy)") || rows.get("Seat").endsWith("(Business)"), rows.get("Seat"));
+    }
+
+    @Test
+    void theCardNumberHasAHintAndAnEyeToCheckIt() {
+        assertEquals("1234 5678 9012 3456", view.cardField.getClientProperty("JTextField.placeholderText"));
+        assertEquals(Boolean.TRUE, view.cardField.getClientProperty("JPasswordField.showRevealButton"));
+    }
+
+    @Test
     void theOrderSummaryListsTheTripAndTheTotal() {
         java.util.List<String> labels = view.summaryRows().stream().map(SummaryCard.Row::label).toList();
-        assertEquals(java.util.List.of("Flight", "Route", "Departs", "Seat", "Total"), labels);
+        assertEquals(java.util.List.of("Passenger", "Flight", "Route", "Departs", "Seat", "Total"), labels);
         assertTrue(view.summaryRows().get(view.summaryRows().size() - 1).total());
     }
 

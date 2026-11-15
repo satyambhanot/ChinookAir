@@ -84,7 +84,7 @@ class ConfirmationViewTest {
         assertEquals(customer.name(), row("Passenger"));
         assertTrue(row("Flight").startsWith(result.reservation().flight().flightNumber()));
         assertEquals("YYC → YVR", row("Route"));
-        assertEquals("1A", row("Seat"));
+        assertEquals("1A (Business)", row("Seat"));
         assertTrue(row("Amount paid").startsWith("$"));
         assertTrue(view.savedText().contains(result.confirmationFile().getFileName().toString()));
         assertTrue(view.subtitleText().contains(customer.name()));

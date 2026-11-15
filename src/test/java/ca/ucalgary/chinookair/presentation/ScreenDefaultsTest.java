@@ -73,7 +73,7 @@ class ScreenDefaultsTest {
         assertSame(flights.filterField, flights.initialFocus());
         assertNull(flights.defaultButton(), "Add, Update and Remove are not an obvious choice");
         MyReservationsView mine = new MyReservationsView(c, NAV, BOOKING);
-        assertSame(mine.table, mine.initialFocus());
+        assertSame(mine.filterField, mine.initialFocus());
     }
 
     @Test
@@ -105,7 +105,7 @@ class ScreenDefaultsTest {
 
     @Test
     void everyTableHasANameForScreenReaders() {
-        assertNotNull(new FlightSearchView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new FlightSearchView(c, NAV, BOOKING).results.getAccessibleContext().getAccessibleName());
         assertNotNull(new CustomerManagementView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
         PaymentRecordsView records = new PaymentRecordsView(c, NAV);
         assertNotNull(records.customerTable.getAccessibleContext().getAccessibleName());
@@ -114,7 +114,6 @@ class ScreenDefaultsTest {
         assertNotNull(new RouteManagementView(c, NAV).table.getAccessibleContext().getAccessibleName());
         assertNotNull(new AircraftManagementView(c, NAV).table.getAccessibleContext().getAccessibleName());
         assertNotNull(new ScheduleView(c, NAV).table.getAccessibleContext().getAccessibleName());
-        assertNotNull(new MyReservationsView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
         assertNotNull(new ModifyReservationView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
     }
 }

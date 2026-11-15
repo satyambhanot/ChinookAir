@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.control.FlightOffer;
 import ca.ucalgary.chinookair.business.control.SearchCriteria;
 import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
@@ -91,7 +92,7 @@ class FlightSearchViewTest {
 
     @Test
     void theFlightsOfTheStartingRouteShowWithoutPressingSearch() {
-        assertTrue(view.tableModel.getRowCount() > 0, "the starting route should have a flight");
+        assertTrue(view.results.offers().size() > 0, "the starting route should have a flight");
         assertEquals("", view.message());
         assertFalse(view.selectButton.isEnabled(), "nothing is chosen yet");
     }
@@ -143,18 +144,20 @@ class FlightSearchViewTest {
     void aSearchOnASeededDayFillsTheTable() {
         choose("YYC", "YVR", "2026-12-02", null);
         view.searchButton.doClick(0);
-        assertTrue(view.tableModel.getRowCount() >= 1);
+        assertTrue(view.results.offers().size() >= 1);
         assertEquals("", view.message());
-        assertEquals("YYC → YVR", view.tableModel.getValueAt(0, 2));
+        FlightOffer first = view.results.offers().get(0);
+        assertEquals("YYC", first.flight().route().origin().code());
+        assertEquals("YVR", first.flight().route().destination().code());
     }
 
     @Test
     void theAirlineFilterShowsOnlyThatAirline() {
         choose("YYC", "YVR", "2026-12-02", "AC");
         view.searchButton.doClick(0);
-        assertTrue(view.tableModel.getRowCount() >= 1);
-        for (int row = 0; row < view.tableModel.getRowCount(); row++) {
-            assertEquals("Air Canada", view.tableModel.getValueAt(row, 1));
+        assertTrue(view.results.offers().size() >= 1);
+        for (FlightOffer offer : view.results.offers()) {
+            assertEquals("Air Canada", offer.flight().airline().name());
         }
     }
 
@@ -162,7 +165,7 @@ class FlightSearchViewTest {
     void aDateWithNoFlightsShowsTheEmptyMessage() {
         choose("YYC", "YVR", "2030-01-01", null);
         view.searchButton.doClick(0);
-        assertEquals(0, view.tableModel.getRowCount());
+        assertEquals(0, view.results.offers().size());
         assertEquals("No flights found. Try another date or airline.", view.message());
     }
 
@@ -170,21 +173,21 @@ class FlightSearchViewTest {
     void theSameOriginAndDestinationIsRefusedAndTheTableIsUnchanged() {
         choose("YYC", "YVR", "2026-12-02", null);
         view.searchButton.doClick(0);
-        int rows = view.tableModel.getRowCount();
+        int rows = view.results.offers().size();
         choose("YYC", "YYC", "2026-12-02", null);
         view.searchButton.doClick(0);
         assertEquals("Origin and destination must be different", view.message());
-        assertEquals(rows, view.tableModel.getRowCount());
+        assertEquals(rows, view.results.offers().size());
     }
 
     @Test
     void aBadDateIsExplainedAndNothingIsSearched() {
-        int startingRows = view.tableModel.getRowCount();
+        int startingRows = view.results.offers().size();
         choose("YYC", "YVR", "2026-13-40", null);
         view.searchButton.doClick(0);
         assertTrue(view.message().startsWith("Date must look like yyyy-MM-dd"));
         // the flights of the starting route are still shown, nothing was searched again
-        assertEquals(startingRows, view.tableModel.getRowCount());
+        assertEquals(startingRows, view.results.offers().size());
     }
 
     @Test
@@ -199,22 +202,21 @@ class FlightSearchViewTest {
         choose("YYC", "YVR", "2026-12-02", null);
         view.searchButton.doClick(0);
         assertFalse(view.selectButton.isEnabled());
-        view.table.setRowSelectionInterval(0, 0);
+        view.results.setSelectedIndex(0);
         assertTrue(view.selectButton.isEnabled());
-        view.table.clearSelection();
+        view.results.clearSelection();
         assertFalse(view.selectButton.isEnabled());
-        view.table.setRowSelectionInterval(0, 0);
+        view.results.setSelectedIndex(0);
         view.selectButton.doClick(0);
         assertEquals(ViewId.SEAT_SELECTION, navigator.last());
-        assertEquals(view.tableModel.offerAt(view.table.convertRowIndexToModel(0)),
-                booking.selectedOffer().orElseThrow());
+        assertEquals(view.results.offers().get(0), booking.selectedOffer().orElseThrow());
     }
 
     @Test
     void doubleClickingAFlightSelectsItLikeTheButton() {
         choose("YYC", "YVR", "2026-12-02", null);
         view.searchButton.doClick(0);
-        view.table.setRowSelectionInterval(0, 0);
+        view.results.setSelectedIndex(0);
         click(1);
         assertEquals(0, navigator.shown.size());
         click(2);
@@ -227,12 +229,12 @@ class FlightSearchViewTest {
         // the starting route has flights, so a search that finds none is what shows the hint
         choose("YEG", "YOW", "2026-12-02", null);
         view.searchButton.doClick(0);
-        assertEquals(0, view.tableModel.getRowCount());
-        assertEquals("No flights match this search.", view.table.emptyText());
+        assertEquals(0, view.results.offers().size());
+        assertEquals("No flights match this search.", view.results.emptyText());
     }
 
     private void click(int count) {
-        view.table.dispatchEvent(new java.awt.event.MouseEvent(view.table, java.awt.event.MouseEvent.MOUSE_CLICKED,
+        view.results.dispatchEvent(new java.awt.event.MouseEvent(view.results, java.awt.event.MouseEvent.MOUSE_CLICKED,
                 0L, 0, 5, 5, count, false));
     }
 
