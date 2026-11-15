@@ -171,7 +171,7 @@ class FlightManagementView extends JPanel implements Screen {
     }
 
     private JScrollPane buildForm() {
-        JPanel form = new WidthFollowingPanel();
+        JPanel form = new JPanel();
         form.setOpaque(false);
         form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
         form.add(pair(numberRow, priceRow));
@@ -181,13 +181,7 @@ class FlightManagementView extends JPanel implements Screen {
         form.add(pair(new FormField("Departure", departureField).mnemonic('D'),
                 new FormField("Arrival", arrivalField).mnemonic('I')));
         // a short window scrolls the form; the buttons below it stay in view
-        JScrollPane scroll = new JScrollPane(form);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scroll.setOpaque(false);
-        scroll.getViewport().setOpaque(false);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        return scroll;
+        return ScrollableForm.around(form);
     }
 
     private static JPanel single(FormField row) {
@@ -449,37 +443,6 @@ class FlightManagementView extends JPanel implements Screen {
                 text = plane.model() + " (" + plane.rows() * plane.seatsPerRow() + " seats)";
             }
             return super.getListCellRendererComponent(list, text, index, selected, focus);
-        }
-    }
-
-    /** A panel in a scroll pane that is as wide as the pane, so only the height ever scrolls. */
-    private static final class WidthFollowingPanel extends JPanel implements javax.swing.Scrollable {
-
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public Dimension getPreferredScrollableViewportSize() {
-            return getPreferredSize();
-        }
-
-        @Override
-        public int getScrollableUnitIncrement(java.awt.Rectangle visible, int orientation, int direction) {
-            return 16;
-        }
-
-        @Override
-        public int getScrollableBlockIncrement(java.awt.Rectangle visible, int orientation, int direction) {
-            return visible.height;
-        }
-
-        @Override
-        public boolean getScrollableTracksViewportWidth() {
-            return true;
-        }
-
-        @Override
-        public boolean getScrollableTracksViewportHeight() {
-            return false;
         }
     }
 }

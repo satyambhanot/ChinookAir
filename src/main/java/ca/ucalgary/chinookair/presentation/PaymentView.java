@@ -101,10 +101,17 @@ class PaymentView extends JPanel implements Screen {
         section.setAlignmentX(LEFT_ALIGNMENT);
         form.add(section);
         form.add(javax.swing.Box.createVerticalStrut(12));
-        for (FormField row : new FormField[] {typeRow, nameRow, cardRow, expiryRow}) {
+        // name and number first, then the type and the expiry date on one line; Tab follows this order
+        for (FormField row : new FormField[] {nameRow, cardRow}) {
             row.setAlignmentX(LEFT_ALIGNMENT);
             form.add(row);
         }
+        JPanel typeAndExpiry = new JPanel(new java.awt.GridLayout(1, 2, 12, 0));
+        typeAndExpiry.setOpaque(false);
+        typeAndExpiry.setAlignmentX(LEFT_ALIGNMENT);
+        typeAndExpiry.add(typeRow);
+        typeAndExpiry.add(expiryRow);
+        form.add(typeAndExpiry);
         messageLabel.setAlignmentX(LEFT_ALIGNMENT);
         form.add(messageLabel);
         form.add(javax.swing.Box.createVerticalStrut(12));
@@ -133,7 +140,7 @@ class PaymentView extends JPanel implements Screen {
         c.gridx = 2;
         c.weightx = 1;
         columns.add(javax.swing.Box.createHorizontalGlue(), c);
-        add(columns, BorderLayout.CENTER);
+        add(ScrollableForm.around(columns), BorderLayout.CENTER);
 
         // Enter in any field presses Pay
         nameField.addActionListener(e -> pay());

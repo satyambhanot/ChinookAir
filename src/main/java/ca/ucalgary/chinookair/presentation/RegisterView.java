@@ -54,7 +54,7 @@ class RegisterView extends JPanel implements Screen {
      * @param onRegistered told the new username and a friendly message once the account exists
      */
     RegisterView(Controllers controllers, Navigator navigator, BiConsumer<String, String> onRegistered) {
-        super(new GridBagLayout());
+        super();
         this.controllers = controllers;
         this.navigator = navigator;
         this.onRegistered = onRegistered;
@@ -102,7 +102,12 @@ class RegisterView extends JPanel implements Screen {
         card.add(Box.createVerticalStrut(8));
         card.add(backButton);
         card.setBorder(BorderFactory.createCompoundBorder(card.getBorder(), BorderFactory.createEmptyBorder()));
-        add(card, new GridBagConstraints());
+        // a short window scrolls the card instead of cutting off the buttons
+        JPanel centred = new JPanel(new GridBagLayout());
+        centred.setOpaque(false);
+        centred.add(card, new GridBagConstraints());
+        setLayout(new java.awt.BorderLayout());
+        add(ScrollableForm.around(centred), java.awt.BorderLayout.CENTER);
 
         registerButton.addActionListener(e -> register());
         // Enter in the last field submits, like the default button

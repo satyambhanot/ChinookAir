@@ -21,12 +21,12 @@ final class BookingSession {
     private String notice;
     private SearchMemory lastSearch;
 
-    /** The airports and airline of the last search, so the next search starts from them. */
-    record SearchMemory(String origin, String destination, String airline) {
+    /** The airports, airline and day of the last search, so the next search starts from them. */
+    record SearchMemory(String origin, String destination, String airline, java.time.LocalDate date) {
     }
 
-    void rememberSearch(String origin, String destination, String airline) {
-        lastSearch = new SearchMemory(origin, destination, airline);
+    void rememberSearch(String origin, String destination, String airline, java.time.LocalDate date) {
+        lastSearch = new SearchMemory(origin, destination, airline, date);
     }
 
     /** The last search; it is kept when a booking is cleared, because the next booking often is similar. */

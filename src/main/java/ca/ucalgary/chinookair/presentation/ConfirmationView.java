@@ -136,7 +136,8 @@ class ConfirmationView extends JPanel implements Screen {
         column.add(savedRow);
         column.add(Box.createVerticalStrut(16));
         column.add(buttons);
-        add(column, BorderLayout.NORTH);
+        // a small window scrolls the page, so the buttons are never cut off
+        add(ScrollableForm.around(column), BorderLayout.CENTER);
 
         dashboardButton.addActionListener(e -> backToDashboard());
         anotherButton.addActionListener(e -> bookAnother());

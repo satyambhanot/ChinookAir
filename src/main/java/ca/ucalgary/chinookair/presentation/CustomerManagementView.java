@@ -87,7 +87,8 @@ class CustomerManagementView extends JPanel implements Screen {
         saveButton.setMnemonic('V');
         reservationsButton.setMnemonic('R');
         modifyButton.setMnemonic('M');
-        JPanel secondary = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        // one under the other, so both labels always fit in the narrow panel
+        JPanel secondary = new JPanel(new java.awt.GridLayout(2, 1, 0, 8));
         secondary.setOpaque(false);
         secondary.add(reservationsButton);
         secondary.add(modifyButton);
@@ -104,7 +105,7 @@ class CustomerManagementView extends JPanel implements Screen {
         details.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
                 BorderFactory.createEmptyBorder(20, 22, 16, 22)));
         details.add(detailsTitle, BorderLayout.NORTH);
-        details.add(form, BorderLayout.CENTER);
+        details.add(ScrollableForm.around(form), BorderLayout.CENTER);
         details.add(actions, BorderLayout.SOUTH);
 
         side.setOpaque(false);
