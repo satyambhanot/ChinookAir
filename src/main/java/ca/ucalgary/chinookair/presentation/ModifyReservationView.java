@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +24,6 @@ import javax.swing.ListSelectionModel;
 class ModifyReservationView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = Theme.DANGER;
-    private static final Color NOTICE = Theme.SUCCESS;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -35,18 +32,22 @@ class ModifyReservationView extends JPanel implements Screen {
     final ReservationTableModel tableModel = new ReservationTableModel();
     final HintTable table = new HintTable(tableModel, "This customer has no reservations to change.");
     final JButton modifyButton = Theme.primary(new JButton("Modify"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton backButton = Theme.secondary(new JButton("Back to customers"));
     private final JLabel heading = new JLabel("Modify a reservation");
-    private final JLabel messageLabel = new JLabel(" ");
+    private final Alert alert = new Alert(600);
 
     ModifyReservationView(Controllers controllers, Navigator navigator, BookingSession booking) {
         super(new BorderLayout(0, 10));
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         Theme.heading(heading);
-        add(heading, BorderLayout.NORTH);
+        JPanel top = new JPanel(new BorderLayout(0, 4));
+        top.setOpaque(false);
+        top.add(heading, BorderLayout.NORTH);
+        top.add(Theme.hint("Pick a reservation, then choose its new flight and seat."), BorderLayout.CENTER);
+        add(top, BorderLayout.NORTH);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
@@ -56,9 +57,10 @@ class ModifyReservationView extends JPanel implements Screen {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         buttons.add(backButton);
         buttons.add(modifyButton);
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messageLabel, BorderLayout.WEST);
-        bottom.add(buttons, BorderLayout.EAST);
+        JPanel bottom = new JPanel(new BorderLayout(0, 8));
+        bottom.setOpaque(false);
+        bottom.add(alert, BorderLayout.NORTH);
+        bottom.add(buttons, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
 
         modifyButton.setEnabled(false);
@@ -77,7 +79,11 @@ class ModifyReservationView extends JPanel implements Screen {
 
     private void updateButton() {
         Reservation chosen = selected();
-        modifyButton.setEnabled(chosen != null && controllers.reservationController().canModify(chosen));
+        boolean can = chosen != null && controllers.reservationController().canModify(chosen);
+        modifyButton.setEnabled(can);
+        // a button that cannot be pressed says why
+        modifyButton.setToolTipText(can ? null : chosen == null ? "Select a reservation first"
+                : "This reservation can no longer be changed");
     }
 
     private void modifySelected() {
@@ -89,11 +95,6 @@ class ModifyReservationView extends JPanel implements Screen {
         navigator.show(ViewId.FLIGHT_SEARCH);
     }
 
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
-    }
-
     @Override
     public void onShow() {
         Optional<User> user = controllers.session().currentUser();
@@ -103,28 +104,29 @@ class ModifyReservationView extends JPanel implements Screen {
             return;
         }
         String notice = booking.takeNotice();
+        alert.clear();
         tableModel.setReservations(List.of());
         updateButton();
         Optional<Customer> customer = booking.customer();
         if (customer.isEmpty()) {
             heading.setText("Modify a reservation");
-            showMessage("Choose a customer first", ERROR);
+            alert.show(Alert.Kind.ERROR, "Choose a customer first");
             return;
         }
         heading.setText("Modify a reservation of " + customer.get().name());
         try {
             tableModel.setReservations(controllers.reservationController().history(user.get(), customer.get().id()));
-            if (notice != null) {
-                showMessage(notice, NOTICE);
-            } else {
-                messageLabel.setText(" ");
-            }
+            alert.show(Alert.Kind.SUCCESS, notice);
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
+    }
+
+    Alert.Kind messageKind() {
+        return alert.kind();
     }
 }

@@ -125,4 +125,26 @@ class ModifyReservationViewTest {
         view.backButton.doClick(0);
         assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
     }
+
+    @Test
+    void theModifyButtonSaysWhyItCannotBePressed() {
+        view.onShow();
+        assertEquals("Select a reservation first", view.modifyButton.getToolTipText());
+    }
+
+    @Test
+    void aNoticeFromTheSeatScreenShowsAsGoodNews() {
+        booking.setNotice("Reservation X now has seat 3C.");
+        view.onShow();
+        assertEquals(Alert.Kind.SUCCESS, view.messageKind());
+        assertEquals("Reservation X now has seat 3C.", view.message());
+    }
+
+    @Test
+    void withoutAChosenCustomerTheScreenAsksForOne() {
+        booking.clear();
+        view.onShow();
+        assertEquals(Alert.Kind.ERROR, view.messageKind());
+        assertEquals("Choose a customer first", view.message());
+    }
 }
