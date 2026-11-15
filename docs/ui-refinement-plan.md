@@ -333,15 +333,17 @@ R1 and R2 are the cheapest and change the most screens at once. R4 is the larges
 - The 54-case test plan is the acceptance run. A person has to run it on a real display; I cannot do that.
 - A short user check after R2 and after R4 with the real jar, because those two change what the app looks like the most.
 
-## 11. Decisions needed
+## 11. Decisions
 
-1. Where login lands. My recommendation: customer on Home (it becomes useful), agent on Customers, admin on Flights, with Home still reachable by the logo.
-2. Remove the agent Home "Reservations" card (dead end). Recommended yes.
-3. Time format: 12 h (`7:00 AM`) or 24 h (`07:00`). Recommended 12 h, which is the Canadian default for consumer apps.
-4. Brand hex values: keep the logo-sampled palette (recommended) or switch to the brief's values.
-5. Results as cards (recommended) or keep the table with better formatting. Cards touch more tests.
-6. Whether any item in section 8 is in scope.
-7. Whether to create GitHub issues for R1 to R8 (still not created for M0 to M8).
+Settled on 2026-11-15 (the recommended option was taken for each):
+
+1. Login lands on Home for customers, on Customers for agents, on Flights for admins. Home stays reachable by the logo.
+2. The agent Home "Reservations" card is removed.
+3. Times are 12 h (`7:00 AM`).
+4. The logo-sampled palette stays; the brief's hex values are not used.
+5. Flight results become cards.
+6. Section 8 (new business logic) is out of scope for now: this round is UI only.
+7. No GitHub issues are created for R1 to R8; the milestones live in this document.
 
 ## 12. Final quality checklist
 
