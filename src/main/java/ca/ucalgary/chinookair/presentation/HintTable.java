@@ -64,6 +64,35 @@ class HintTable extends JTable {
         return base.deriveFont(Type.CAPTION);
     }
 
+    /** A renderer that leaves a cell empty when the cell above holds the same text, so a group is named once. */
+    static TableCellRenderer repeatBlankRenderer() {
+        return new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean selected,
+                    boolean focus, int row, int column) {
+                boolean again = row > 0 && value != null && value.equals(table.getValueAt(row - 1, column));
+                return super.getTableCellRendererComponent(table, again ? "" : value, selected, focus, row, column);
+            }
+        };
+    }
+
+    /** A renderer that writes the text in bold, for a column like the day of a schedule. */
+    static TableCellRenderer boldRenderer() {
+        return new DefaultTableCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Component getTableCellRendererComponent(javax.swing.JTable table, Object value, boolean selected,
+                    boolean focus, int row, int column) {
+                Component cell = super.getTableCellRendererComponent(table, value, selected, focus, row, column);
+                cell.setFont(cell.getFont().deriveFont(Font.BOLD));
+                return cell;
+            }
+        };
+    }
+
     /** The renderer for a time column that also shows the year, for records that are kept for long. */
     static TableCellRenderer timeWithYearRenderer() {
         return new TimeRenderer(true);

@@ -36,7 +36,7 @@ safety net, not a replacement for walking the screen once.
 | T06 | UC-02 Register | customer | Register with password `abc` | 2 | A message under the Password field that it needs at least 8 characters and a digit | `RegisterViewTest` | | |
 | T07 | UC-03 Manage Customer Profile | customer | My profile tab, change the phone, Save changes | 2 | Save changes is off until something differs; then a green `Saved`; leaving and coming back shows the new phone; the username cannot be edited | `ProfileViewTest` | | |
 | T08 | UC-03 Manage Customer Profile | customer | My profile tab, set the email to a bad value such as `a@b`, Save changes | 2 | A red strip about a valid email, nothing saved | `ProfileViewTest` | | |
-| T09 | UC-03 Manage Customer Profile | agent | Customers tab, type part of a name (the list follows the typing), choose the row, change the phone, Save | 3 | A green `Saved <name>`; searching again shows the new phone | `CustomerManagementViewTest` | | |
+| T09 | UC-03 Manage Customer Profile | agent | Customers tab, type part of a name (the list follows the typing), choose the row, change the phone, Save | 3 | The card is headed by the name with the username and the number of reservations; a green `Saved <name>`; searching again shows the new phone | `CustomerManagementViewTest` | | |
 | T10 | UC-03 Manage Customer Profile | agent | Customers tab, New customer, fill the form with a starting password, Save | 3 | The customer is saved and selected; they can log in with the starting password | `CustomerManagementViewTest` | | |
 | T11 | UC-03 Manage Customer Profile | agent | Customers tab, choose a row, set the email to one that another customer has, Save | 3 | `Email already registered`, nothing saved | `CustomerManagementViewTest` | | |
 | T12 | UC-04 Find Available Flights | customer | Find flights tab, From `YYC`, To `YVR`, date tomorrow, Search | 4 | One card per flight, earliest first: times and airports, duration, airline, flight and plane, seats left and the lowest price; above them the chosen day and the three days either side with their lowest prices | `FlightSearchViewTest` | | |
@@ -55,7 +55,7 @@ safety net, not a replacement for walking the screen once.
 | T25 | UC-07 Make Payment | customer | Expiry `01/20` | 5 | A message under Expiry date that the card has expired | `PaymentViewTest` | | |
 | T26 | UC-07 Make Payment | customer | An empty name | 5 | A message about the name under Name on card | `PaymentViewTest` | | |
 | T27 | UC-07 Make Payment | customer | After a paid booking press Done, then the My reservations tab | 3 | One card under Upcoming with the badge `Confirmed`; it offers Cancel reservation and no Pay now | `MyReservationsViewTest`, `PaymentViewTest` | | |
-| T28 | UC-08 View Payment Records | agent | Payment records tab, type the customer's name, choose the row | 2 | "Payments of <name>": the payments newest first, with the masked card and a badge such as `Paid` | `PaymentRecordsViewTest` | | |
+| T28 | UC-08 View Payment Records | agent | Payment records tab, type the customer's name, choose the row | 2 | The customer list is on the left and, on the right, "Payments of <name>" with a line `Paid $… · Refunded $… · N payments`, the payments newest first, with the masked card and a badge such as `Paid` | `PaymentRecordsViewTest` | | |
 | T29 | UC-09 Cancel Reservation | customer | My reservations tab, Cancel reservation on a `Confirmed` card, Cancel reservation in the red dialog | 3 | The dialog names the refund; the card moves under Cancelled with the badge `Cancelled`; the seat is free again on the seat screen | `MyReservationsViewTest`, `ConfirmDialogTest` | | |
 | T30 | UC-09 Cancel Reservation | customer | The same, press Cancel in the dialog (or Escape) | 4 | Nothing changes | `MyReservationsViewTest`, `ConfirmDialogTest` | | |
 | T31 | UC-09 Cancel Reservation | customer | Look at a `Cancelled` card | 1 | It has no Cancel reservation button | `MyReservationsViewTest` | | |
@@ -88,6 +88,9 @@ safety net, not a replacement for walking the screen once.
 | T58 | UC-07 Make Payment | customer | On the payment screen look at the order summary, the card number box and the line under the buttons; press the eye in the card number box | 1 | The summary names the passenger and the seat class; the box has a hint and the eye shows the digits; a line says only the last four digits are kept | `PaymentViewTest` | | |
 | T59 | UC-07 Make Payment | customer | After a paid booking look at the confirmation | 0 | A navy band with both airports, times, cities and the duration, and under it the passenger, flight, seat and the amount paid | `ItineraryCardTest`, `ConfirmationViewTest` | | |
 | T60 | UC-09 Cancel Reservation | customer | My reservations tab with several bookings; type part of a confirmation number; cancel one | 2 | The list is in Upcoming, Past and Cancelled sections; typing narrows it and "No reservation matches" shows when nothing fits; a card offers only what applies (Pay now only while awaiting payment, Cancel only before the flight leaves) | `MyReservationsViewTest`, `ReservationGroupsTest` | | |
+| T61 | UC-14 Manage Flights | admin | Flights tab at the smallest window, choose a flight or press Add flight; set Departure and Arrival with the calendar and the time boxes | 3 | Flight number, price, Departure and Arrival are in view without scrolling; each time has a calendar for the day and a `HH:mm` box; a mistake in either is explained by the same message as before | `FlightManagementViewTest`, `DateTimeFieldTest`, `LayoutAlignmentTest` | | |
+| T62 | UC-13 Update Schedules | agent | Schedule tab, look at the flights of a week | 1 | The day is written once, in bold, on the first flight of the day; the rows show only the time of departure and arrival | `ScheduleViewTest`, `DayColumnsTest` | | |
+| T63 | UC-15 Manage Routes | admin | Routes tab | 1 | The routes are in order of where they start and then where they end, and each starting airport is named once over its routes | `RouteTableModelTest`, `RouteManagementViewTest` | | |
 
 ### Taking a seat from another session (T20)
 
@@ -106,7 +109,7 @@ Then press Continue in the first window.
 Every use case has at least one row: UC-01 T01 to T03, UC-02 T04 to T06, UC-03 T07 to T11,
 UC-04 T12 to T16, UC-05 T17, UC-06 T18 to T21, UC-07 T22 to T27, UC-08 T28, UC-09 T29 to T31,
 UC-10 T32 to T35, UC-11 T36, UC-12 T37, UC-13 T38 and T39, UC-14 T40 to T44, UC-15 T45 and T46,
-UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T60 (roles, keyboard, window sizes, start-up, customer Home, the agent's path, nearby days and sorting, payment details, confirmation, reservation sections).
+UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T63 (roles, keyboard, window sizes, start-up, customer Home, the agent's path, nearby days and sorting, payment details, confirmation, reservation sections, flight times, schedule days, route order).
 
 ## Clicks from Home
 

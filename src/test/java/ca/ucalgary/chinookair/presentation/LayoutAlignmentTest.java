@@ -158,6 +158,10 @@ class LayoutAlignmentTest {
         return left(component, root) + component.getWidth();
     }
 
+    private static int top(Component component, Component root) {
+        return SwingUtilities.convertPoint(component.getParent(), 0, component.getY(), root).y;
+    }
+
     private static int centreY(Component component, Component root) {
         return SwingUtilities.convertPoint(component.getParent(), 0, component.getY(), root).y
                 + component.getHeight() / 2;
@@ -256,6 +260,38 @@ class LayoutAlignmentTest {
             assertEquals(Space.PAGE, left(first, pane), name);
             assertEquals(1, first.getBorder().getBorderInsets(first).left, name + ": the line is at the edge");
         }
+    }
+
+    @Test
+    void theTimesOfAFlightAreInViewInTheSmallestWindow() {
+        FlightManagementView view = (FlightManagementView) SCREENS.get("flights");
+        view.newButton.doClick(0);
+        laidOut(view, 960, 640);
+        javax.swing.JScrollPane form = null;
+        for (JComponent c : all(view, JComponent.class)) {
+            if (c.getBorder() instanceof SurfaceBorder) {
+                form = all(c, javax.swing.JScrollPane.class).get(0);
+                break;
+            }
+        }
+        assertTrue(form != null, "the card shows");
+        JComponent content = (JComponent) form.getViewport().getView();
+        for (Component field : new Component[] {view.departureField, view.arrivalField}) {
+            int bottom = SwingUtilities.convertPoint(field.getParent(), 0, field.getY() + field.getHeight(),
+                    content).y;
+            assertTrue(bottom <= form.getViewport().getHeight(),
+                    "the field ends at " + bottom + " but the card shows " + form.getViewport().getHeight());
+        }
+    }
+
+    @Test
+    void thePaymentsSitBesideTheCustomerListNotUnderIt() {
+        ContentPane pane = laidOut(SCREENS.get("payment records"), WIDTH, HEIGHT);
+        List<javax.swing.JScrollPane> tables = all(pane, javax.swing.JScrollPane.class);
+        assertEquals(Space.PAGE, left(tables.get(0), pane));
+        assertTrue(right(tables.get(0), pane) <= Space.PAGE + 420, "the list is " + tables.get(0).getWidth());
+        assertTrue(left(tables.get(1), pane) > right(tables.get(0), pane), "the payments are on the right");
+        assertEquals(top(tables.get(0), pane), top(tables.get(1), pane), "both lists start at the same height");
     }
 
     @Test

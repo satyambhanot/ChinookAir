@@ -13,7 +13,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -36,10 +35,10 @@ class ScheduleView extends JPanel implements Screen {
     final JButton weekButton = Theme.link(new JButton("Next 7 days"));
     final JButton monthButton = Theme.link(new JButton("Next 30 days"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
-    final HintTable table = new HintTable(tableModel, "No flights in these dates.");
+    final HintTable table = new HintTable(new DayColumns(tableModel), "No flights in these dates.");
     // the administrator also moves flights; the agent does not see these
-    final JTextField newDepartureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
-    final JTextField newArrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final DateTimeField newDepartureField;
+    final DateTimeField newArrivalField;
     final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
     private final JPanel rescheduleControls = new JPanel();
     private final JPanel buttons = new JPanel();
@@ -52,6 +51,8 @@ class ScheduleView extends JPanel implements Screen {
         this.navigator = navigator;
         this.fromField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         this.toField = new DatePickerField(10, () -> controllers.flightSearchController().today());
+        this.newDepartureField = new DateTimeField(() -> controllers.flightSearchController().today());
+        this.newArrivalField = new DateTimeField(() -> controllers.flightSearchController().today());
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Schedule");
         Theme.heading(heading);
@@ -73,6 +74,8 @@ class ScheduleView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.describe("Flight schedule");
+        // the day is written once, on the first flight of the day, in bold
+        table.getColumnModel().getColumn(0).setCellRenderer(HintTable.boldRenderer());
         add(new TableArea(table), BorderLayout.CENTER);
 
         // the administrator moves the chosen flight here; the card shows only for a chosen flight

@@ -57,8 +57,8 @@ class FlightManagementView extends JPanel implements Screen {
     final JComboBox<Route> routeCombo = new JComboBox<>();
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
     final JComboBox<Aircraft> aircraftCombo = new JComboBox<>();
-    final JTextField departureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
-    final JTextField arrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
+    final DateTimeField departureField;
+    final DateTimeField arrivalField;
     final JTextField priceField = new JTextField(10);
     final JButton newButton = Theme.secondary(new JButton("Add flight"));
     final JButton addButton = Theme.primary(new JButton("Add"));
@@ -78,6 +78,8 @@ class FlightManagementView extends JPanel implements Screen {
         this.navigator = navigator;
         this.fromField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         this.toField = new DatePickerField(10, () -> controllers.flightSearchController().today());
+        this.departureField = new DateTimeField(() -> controllers.flightSearchController().today());
+        this.arrivalField = new DateTimeField(() -> controllers.flightSearchController().today());
         build();
     }
 
@@ -158,12 +160,13 @@ class FlightManagementView extends JPanel implements Screen {
         JPanel form = new JPanel();
         form.setOpaque(false);
         form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
+        // the times come right after the number, so they are in view even in the smallest window
         form.add(pair(numberRow, priceRow));
-        form.add(single(new FormField("Route", routeCombo).mnemonic('O')));
-        form.add(single(new FormField("Airline", airlineCombo).mnemonic('L')));
-        form.add(single(aircraftRow));
-        form.add(pair(new FormField("Departure", departureField).mnemonic('D'),
-                new FormField("Arrival", arrivalField).mnemonic('I')));
+        form.add(single(new FormField("Departure", departureField).mnemonic('D').compact()));
+        form.add(single(new FormField("Arrival", arrivalField).mnemonic('I').compact()));
+        form.add(single(new FormField("Route", routeCombo).mnemonic('O').compact()));
+        form.add(single(new FormField("Airline", airlineCombo).mnemonic('L').compact()));
+        form.add(single(aircraftRow.compact()));
         // a short window scrolls the form; the buttons below it stay in view
         return ScrollableForm.around(form);
     }

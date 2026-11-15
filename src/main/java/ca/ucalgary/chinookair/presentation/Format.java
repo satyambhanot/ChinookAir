@@ -80,6 +80,6 @@ final class Format {
 
     /** An amount of money, like "$184.00". */
     static String money(BigDecimal amount) {
-        return "$" + amount.toPlainString();
+        return "$" + amount.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString();
     }
 }

@@ -86,6 +86,30 @@ class PaymentRecordsViewTest {
     }
 
     @Test
+    void theTotalsCountOnlyApprovedPaymentsAsPaid() {
+        search(payer.email());
+        view.customerTable.setRowSelectionInterval(0, 0);
+        String amount = (String) view.paymentModel.getValueAt(0, 2);
+        assertEquals("Paid " + amount + "  \u00b7  Refunded $0.00  \u00b7  2 payments", view.totalsLine());
+    }
+
+    @Test
+    void theTotalsAreClearedWhenNoCustomerIsChosen() {
+        search(payer.email());
+        view.customerTable.setRowSelectionInterval(0, 0);
+        search("zzzzqq");
+        assertEquals("", view.totalsLine());
+        assertEquals("Payments", view.paymentsTitle());
+    }
+
+    @Test
+    void theCustomerListShowsOnlyTheNameAndEmailToFitBesideThePayments() {
+        assertEquals(2, view.customerTable.getColumnCount());
+        assertEquals("Name", view.customerTable.getColumnName(0));
+        assertEquals("Email", view.customerTable.getColumnName(1));
+    }
+
+    @Test
     void aCustomerWithoutPaymentsShowsAMessage() {
         Customer none = controllers.customerController().register("nopay" + next, "password1", "No Pay",
                 "nopay" + next + "@x.ca", null);
