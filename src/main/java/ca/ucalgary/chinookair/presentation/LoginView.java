@@ -2,13 +2,15 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.User;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.util.Arrays;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,17 +25,16 @@ import javax.swing.SwingConstants;
 class LoginView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = Theme.DANGER;
-    private static final Color NOTICE = Theme.SUCCESS;
+    private static final int FIELD_WIDTH = 300;
+    private static final int LOGO_WIDTH = 240;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
-
-    final JTextField usernameField = new JTextField(20);
+    final JTextField usernameField = Theme.placeholder(new JTextField(20), "Your username");
     final JPasswordField passwordField = new JPasswordField(20);
     final JButton loginButton = Theme.primary(new JButton("Log in"));
-    final JButton registerButton = new JButton("Register a new account");
-    private final JLabel messageLabel = new JLabel(" ", SwingConstants.CENTER);
+    final JButton registerButton = Theme.link(new JButton("Create an account"));
+    private final Alert alert = new Alert(FIELD_WIDTH - 40);
 
     LoginView(Controllers controllers, Navigator navigator) {
         super(new GridBagLayout());
@@ -44,54 +45,48 @@ class LoginView extends JPanel implements Screen {
 
     private void build() {
         JPanel card = Theme.card();
-        JLabel title = new JLabel("ChinookAir", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, Type.DISPLAY));
-        title.setForeground(Theme.ACCENT);
-        JLabel subtitle = Theme.hint("Flight reservation system");
+        card.removeAll();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+
+        JLabel logo = new JLabel(new ImageIcon(Brand.scaledToWidth(Brand.fullLogo(), LOGO_WIDTH)));
+        logo.getAccessibleContext().setAccessibleName("ChinookAir");
+        JLabel subtitle = Theme.hint("Log in to book and manage your flights");
         subtitle.setHorizontalAlignment(SwingConstants.CENTER);
 
-        JLabel usernameLabel = new JLabel("Username");
-        usernameLabel.setDisplayedMnemonic('U');
-        usernameLabel.setLabelFor(usernameField);
-        JLabel passwordLabel = new JLabel("Password");
-        passwordLabel.setDisplayedMnemonic('P');
-        passwordLabel.setLabelFor(passwordField);
+        passwordField.putClientProperty("JPasswordField.showRevealButton", Boolean.TRUE);
+        Theme.placeholder(passwordField, "Your password");
+        FormField userRow = new FormField("Username", usernameField).mnemonic('U');
+        FormField passwordRow = new FormField("Password", passwordField).mnemonic('P');
         loginButton.setMnemonic('L');
         registerButton.setMnemonic('R');
-        Theme.link(registerButton);
-        messageLabel.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
+        loginButton.setPreferredSize(new Dimension(FIELD_WIDTH, 40));
+        loginButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(4, 6, 4, 6);
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 2;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        card.add(title, c);
-        c.gridy = 1;
-        c.insets = new Insets(0, 6, 20, 6);
-        card.add(subtitle, c);
-        c.insets = new Insets(4, 6, 4, 6);
-        c.gridwidth = 1;
-        c.gridy = 2;
-        card.add(usernameLabel, c);
-        c.gridx = 1;
-        card.add(usernameField, c);
-        c.gridx = 0;
-        c.gridy = 3;
-        card.add(passwordLabel, c);
-        c.gridx = 1;
-        card.add(passwordField, c);
-        c.gridx = 0;
-        c.gridy = 4;
-        c.gridwidth = 2;
-        card.add(messageLabel, c);
-        c.gridy = 5;
-        card.add(loginButton, c);
-        c.gridy = 6;
-        card.add(registerButton, c);
+        for (JPanel part : new JPanel[] {userRow, passwordRow, alert}) {
+            part.setMaximumSize(new Dimension(Integer.MAX_VALUE, part.getMaximumSize().height));
+        }
+        for (Component part : new Component[] {logo, subtitle, userRow, passwordRow, alert, loginButton,
+                registerButton}) {
+            ((javax.swing.JComponent) part).setAlignmentX(Component.CENTER_ALIGNMENT);
+        }
+        userRow.setPreferredSize(new Dimension(FIELD_WIDTH, userRow.getPreferredSize().height));
+        passwordRow.setPreferredSize(new Dimension(FIELD_WIDTH, passwordRow.getPreferredSize().height));
+        card.add(logo);
+        card.add(Box.createVerticalStrut(4));
+        card.add(subtitle);
+        card.add(Box.createVerticalStrut(20));
+        card.add(userRow);
+        card.add(Box.createVerticalStrut(4));
+        card.add(passwordRow);
+        card.add(Box.createVerticalStrut(4));
+        card.add(alert);
+        card.add(Box.createVerticalStrut(12));
+        card.add(loginButton);
+        card.add(Box.createVerticalStrut(8));
+        card.add(registerButton);
+        card.setBorder(BorderFactory.createCompoundBorder(card.getBorder(), BorderFactory.createEmptyBorder()));
+        add(card, new GridBagConstraints());
 
-        add(card);
         // Enter in either field presses Log in
         usernameField.addActionListener(e -> logIn());
         passwordField.addActionListener(e -> logIn());
@@ -100,7 +95,7 @@ class LoginView extends JPanel implements Screen {
     }
 
     private void logIn() {
-        messageLabel.setText(" ");
+        alert.clear();
         char[] typed = passwordField.getPassword();
         try {
             User user = controllers.loginController().authenticate(usernameField.getText(), new String(typed));
@@ -108,17 +103,18 @@ class LoginView extends JPanel implements Screen {
             clearFields();
             navigator.show(ViewId.dashboardFor(user.role()));
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
-            // a wrong password is never kept on the screen
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
+            // a wrong password is never kept on the screen, and the cursor is where the retry starts
             passwordField.setText("");
+            passwordField.requestFocusInWindow();
         } finally {
             Arrays.fill(typed, ' ');
         }
     }
 
-    /** Shows a friendly message above the Log in button, for example after registering. */
+    /** Shows good news above the Log in button, for example after registering. */
     void showNotice(String text) {
-        showMessage(text, NOTICE);
+        alert.show(Alert.Kind.SUCCESS, text);
     }
 
     /** Puts a username in the field and the cursor in the password field. */
@@ -128,18 +124,17 @@ class LoginView extends JPanel implements Screen {
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
     }
 
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
+    Alert.Kind messageKind() {
+        return alert.kind();
     }
 
     private void clearFields() {
         usernameField.setText("");
         passwordField.setText("");
-        messageLabel.setText(" ");
+        alert.clear();
     }
 
     @Override

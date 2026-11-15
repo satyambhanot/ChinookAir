@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -151,5 +152,28 @@ class LoginViewTest {
         logIn("admin", "wrong");
         assertEquals("Invalid username or password", view.message());
         assertNull(navigator.last());
+    }
+
+    @Test
+    void aFailedLoginShowsAnErrorStripAndKeepsTheUsername() {
+        view.usernameField.setText("customer1");
+        view.passwordField.setText("wrong-password");
+        view.loginButton.doClick(0);
+        assertEquals(Alert.Kind.ERROR, view.messageKind());
+        assertFalse(view.message().isEmpty());
+        assertEquals("customer1", view.usernameField.getText());
+        assertEquals(0, view.passwordField.getPassword().length);
+    }
+
+    @Test
+    void goodNewsAfterRegisteringShowsAsASuccessStrip() {
+        view.showNotice("Account created. You can log in now.");
+        assertEquals(Alert.Kind.SUCCESS, view.messageKind());
+        assertEquals("Account created. You can log in now.", view.message());
+    }
+
+    @Test
+    void thePasswordFieldCanRevealItsText() {
+        assertEquals(Boolean.TRUE, view.passwordField.getClientProperty("JPasswordField.showRevealButton"));
     }
 }
