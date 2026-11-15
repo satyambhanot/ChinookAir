@@ -3,6 +3,7 @@ package ca.ucalgary.chinookair.presentation;
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.control.PromotionListener;
 import ca.ucalgary.chinookair.business.entity.Promotion;
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -30,6 +31,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     private final transient Controllers controllers;
     private final CardLayout cards = new CardLayout();
     private final JPanel content = new JPanel(cards);
+    private final AppBar appBar;
     private final Set<ViewId> added = EnumSet.noneOf(ViewId.class);
     private final Map<ViewId, Component> screens = new EnumMap<>(ViewId.class);
     private ViewId current;
@@ -41,7 +43,11 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         setSize(1000, 700);
         setMinimumSize(new Dimension(800, 600));
         setLocationRelativeTo(null);
-        setContentPane(content);
+        appBar = new AppBar(controllers, this);
+        JPanel root = new JPanel(new BorderLayout());
+        root.add(appBar, BorderLayout.NORTH);
+        root.add(content, BorderLayout.CENTER);
+        setContentPane(root);
         // the window closes itself, and the database is closed first
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
@@ -104,6 +110,8 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
             // a screen may send the user elsewhere in here, for example to the login screen
             ((Screen) screen).onShow();
         }
+        // after onShow, because a screen may have sent the user elsewhere
+        appBar.refresh(current);
     }
 
     /** Puts a built screen in place of the one that stands for it. */
@@ -140,6 +148,10 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     /** The screen that is showing now, for tests. */
     ViewId currentView() {
         return current;
+    }
+
+    AppBar appBar() {
+        return appBar;
     }
 
     Controllers controllers() {
