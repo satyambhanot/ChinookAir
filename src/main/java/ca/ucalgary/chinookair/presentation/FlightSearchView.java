@@ -33,7 +33,7 @@ import javax.swing.ListSelectionModel;
 class FlightSearchView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
+    private static final Color ERROR = Theme.DANGER;
     private static final String NO_FLIGHTS = "No flights found. Try another date or airline.";
 
     private final transient Controllers controllers;

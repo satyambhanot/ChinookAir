@@ -45,7 +45,7 @@ class LoginView extends JPanel implements Screen {
     private void build() {
         JPanel card = Theme.card();
         JLabel title = new JLabel("ChinookAir", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 30f));
+        title.setFont(title.getFont().deriveFont(Font.BOLD, Type.DISPLAY));
         title.setForeground(Theme.ACCENT);
         JLabel subtitle = Theme.hint("Flight reservation system");
         subtitle.setHorizontalAlignment(SwingConstants.CENTER);

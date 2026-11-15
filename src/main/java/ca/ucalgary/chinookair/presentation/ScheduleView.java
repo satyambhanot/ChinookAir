@@ -27,8 +27,8 @@ import javax.swing.ListSelectionModel;
 class ScheduleView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int DEFAULT_DAYS = 7;
 
@@ -140,7 +140,7 @@ class ScheduleView extends JPanel implements Screen {
             LocalDate to = InputParser.date(toField.getText());
             List<Flight> flights = controllers.scheduleController().schedule(user, from, to);
             tableModel.setFlights(flights);
-            showMessage(flights.isEmpty() ? "No flights in this period." : " ", Color.DARK_GRAY);
+            showMessage(flights.isEmpty() ? "No flights in this period." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             // the table keeps what it showed before
             showMessage(ErrorMessages.forException(e), ERROR);

@@ -26,7 +26,7 @@ import javax.swing.ListSelectionModel;
 class MyReservationsView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
+    private static final Color ERROR = Theme.DANGER;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -151,7 +151,7 @@ class MyReservationsView extends JPanel implements Screen {
         tableModel.setReservations(history);
         updateButtons();
         if (history.isEmpty()) {
-            messageLabel.setForeground(Color.DARK_GRAY);
+            messageLabel.setForeground(Theme.MUTED);
             messageLabel.setText("No reservations yet.");
         } else {
             messageLabel.setText(" ");

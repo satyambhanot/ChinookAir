@@ -22,7 +22,7 @@ import javax.swing.ListSelectionModel;
 class PaymentRecordsView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
+    private static final Color ERROR = Theme.DANGER;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -90,7 +90,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         try {
             List<Customer> found = controllers.customerController().search(agent, searchField.getText());
             customerModel.setCustomers(found);
-            showMessage(found.isEmpty() ? "No customers found." : " ", Color.DARK_GRAY);
+            showMessage(found.isEmpty() ? "No customers found." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             showMessage(ErrorMessages.forException(e), ERROR);
         }
@@ -106,7 +106,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         try {
             List<Payment> payments = controllers.paymentController().recordsForCustomer(agent, customer.id());
             paymentModel.setPayments(payments);
-            showMessage(payments.isEmpty() ? customer.name() + " has no payments." : " ", Color.DARK_GRAY);
+            showMessage(payments.isEmpty() ? customer.name() + " has no payments." : " ", Theme.MUTED);
         } catch (RuntimeException e) {
             showMessage(ErrorMessages.forException(e), ERROR);
         }

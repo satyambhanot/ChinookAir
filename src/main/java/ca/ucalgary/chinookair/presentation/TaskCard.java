@@ -26,13 +26,10 @@ class TaskCard extends JButton {
         this.description = description;
         setHorizontalAlignment(SwingConstants.LEFT);
         setVerticalAlignment(SwingConstants.TOP);
-        setFont(getFont().deriveFont(Font.BOLD, 17f));
+        setFont(getFont().deriveFont(Font.BOLD, Type.SECTION));
         setMargin(new Insets(PAD, PAD, PAD, PAD));
         setPreferredSize(new Dimension(300, 112));
-        putClientProperty("FlatLaf.style",
-                "background: #FFFFFF; borderColor: #DDE2E8; hoverBorderColor: #0B63CE; "
-                        + "hoverBackground: #F3F8FE; pressedBackground: #E8F1FC; arc: 14; "
-                        + "focusedBorderColor: #0B63CE; borderWidth: 1");
+        putClientProperty("FlatLaf.styleClass", "card");
     }
 
     /** The line under the name. */
@@ -45,7 +42,7 @@ class TaskCard extends JButton {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2.setFont(getFont().deriveFont(Font.PLAIN, 13f));
+        g2.setFont(getFont().deriveFont(Font.PLAIN, Type.LABEL));
         g2.setColor(Theme.MUTED);
         FontMetrics small = g2.getFontMetrics();
         Insets inset = getInsets();

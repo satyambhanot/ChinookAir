@@ -33,8 +33,8 @@ import javax.swing.JTextField;
 class PaymentView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = new Color(0xB00020);
-    private static final Color NOTICE = new Color(0x1B5E20);
+    private static final Color ERROR = Theme.DANGER;
+    private static final Color NOTICE = Theme.SUCCESS;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
