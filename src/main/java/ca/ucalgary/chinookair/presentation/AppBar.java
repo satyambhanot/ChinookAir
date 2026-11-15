@@ -2,6 +2,7 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Role;
+import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -124,9 +125,10 @@ class AppBar extends JPanel {
         for (int i = 0; i < tabs.size(); i++) {
             tabs.get(i).mark(selected.isPresent() && selected.get().equals(model.tabs().get(i)));
         }
-        nameLabel.setText(user.username());
+        String shown = displayName(user);
+        nameLabel.setText(shown);
         roleLabel.setText(Dashboard.roleName(role));
-        avatar.setInitial(user.username());
+        avatar.setInitial(shown);
         strip.show(StepperModel.flowFor(role, view));
         revalidate();
         repaint();
@@ -201,6 +203,14 @@ class AppBar extends JPanel {
 
     StepStrip steps() {
         return strip;
+    }
+
+    /** A customer is shown by name; the people who work here are shown by their username. */
+    static String displayName(User user) {
+        if (user instanceof Customer && !((Customer) user).name().isBlank()) {
+            return ((Customer) user).name();
+        }
+        return user.username();
     }
 
     String user() {

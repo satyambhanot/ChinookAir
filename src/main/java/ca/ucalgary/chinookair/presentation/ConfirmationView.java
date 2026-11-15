@@ -145,7 +145,7 @@ class ConfirmationView extends JPanel implements Screen {
     private void backToDashboard() {
         booking.clear();
         Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+        navigator.show(user.isPresent() ? ViewId.landingFor(user.get().role()) : ViewId.LOGIN);
     }
 
     private void bookAnother() {

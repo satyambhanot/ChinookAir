@@ -87,6 +87,17 @@ class AppBarTest {
     }
 
     @Test
+    void aCustomerIsShownByNameAndTheStaffByUsername() {
+        logIn("customer1", "customer123");
+        bar.refresh(ViewId.CUSTOMER_DASHBOARD);
+        assertEquals("Casey Customer", bar.user());
+        assertEquals("C", bar.initial());
+        logIn("admin", "admin123");
+        bar.refresh(ViewId.ADMIN_DASHBOARD);
+        assertEquals("admin", bar.user());
+    }
+
+    @Test
     void eachRoleSeesItsOwnTabs() {
         logIn("customer1", "customer123");
         bar.refresh(ViewId.CUSTOMER_DASHBOARD);

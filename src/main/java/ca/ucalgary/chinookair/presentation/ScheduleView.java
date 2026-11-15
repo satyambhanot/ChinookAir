@@ -53,7 +53,7 @@ class ScheduleView extends JPanel implements Screen {
         this.fromField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         this.toField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
-        JLabel heading = new JLabel("Flight schedule");
+        JLabel heading = new JLabel("Schedule");
         Theme.heading(heading);
         showButton.setMnemonic('S');
         filterBar = new FilterBar()

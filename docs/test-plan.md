@@ -16,8 +16,8 @@ scenarios: a seat taken first, a declined card, and a flight that cannot be remo
 6. Follow a row, write `pass` or `fail` and the date in the last two columns. For each `fail`,
    open an issue with the label `bug` and link it in the row, then run the row again after the fix.
 
-**Clicks** counts mouse clicks from the Home screen that opens after the login (or from the tab you are
-on): a tab, a button, a table row (a double click on a flight counts as one), and one for each choice
+**Clicks** counts mouse clicks from the screen that opens after the login (a customer's Home, an agent's
+Customers, the administrator's Flights) or from the tab you are on: a tab, a button, a table row (a double click on a flight counts as one), and one for each choice
 you make in a list. Typing is not counted, and neither are the defaults: the Find flights screen
 already holds the first route that has flights and shows them, so booking that route needs no search.
 
@@ -28,7 +28,7 @@ safety net, not a replacement for walking the screen once.
 
 | ID | UC | Role | Steps from Home | Clicks | Expected result | Automated check | Result | Date |
 |----|----|------|-----------------|--------|-----------------|-----------------|--------|------|
-| T01 | UC-01 Login | any | On the login screen type the username and password, press Enter or Log in | 1 | The Home screen of the role opens with "Hello, <name>"; the navy bar shows the name, the role and the tabs of that role | `LoginViewTest`, `AppBarTest` | | |
+| T01 | UC-01 Login | any | On the login screen type the username and password, press Enter or Log in | 1 | A customer lands on Home with "Hello, <first name>"; an agent lands on Customers; the administrator lands on Flights; the navy bar shows the name (a customer by full name, the staff by username), the role and the tabs of that role | `LoginViewTest`, `AppBarTest` | | |
 | T02 | UC-01 Login | any | Type `customer1` and a wrong password, Log in | 1 | A red strip says `Invalid username or password`, the password field is empty with the cursor in it, the username stays | `LoginViewTest` | | |
 | T03 | UC-01 Login | any | Press Log out in the top right of any screen, then try to go back | 1 | The login screen opens; the screens that need a login are not shown | `AppBarTest`, `MainFrameSmokeTest` | | |
 | T04 | UC-02 Register | customer | On the login screen press Create an account, fill username `newflyer`, password `secret123`, name, email, press Create account | 2 | The login screen opens with the username filled in and a green strip | `RegisterViewTest` | | |
@@ -82,6 +82,8 @@ safety net, not a replacement for walking the screen once.
 | T52 | Keyboard | any | On the login screen press Tab, type, press Enter; after login press Cmd+1, Cmd+2 (Ctrl on Windows and Linux); on the payment screen Tab through the fields | 0 | Enter logs in; the shortcuts open the tabs in order and each tab's tip names its key; Tab on the payment screen goes Name, Number, Type, Expiry; every control shows a visible ring when it has the focus | `ScreenDefaultsTest`, `AppBarTest`, `PaymentViewTest` | | |
 | T53 | Window sizes | any | Drag the window to the smallest size (it stops at 960 x 640) and to a large size; open Register, Payment, Confirmation, Customers and Flights | 0 | Nothing is cut off: a small window gets a scroll bar on the page or the form, and the buttons stay reachable | `MainFrameSmokeTest` | | |
 | T54 | Start-up | any | Delete `~/.chinookair`, start the program | 0 | A small window with the logo and a moving bar shows at once, then the login screen replaces it; the window is never frozen | `SplashWindowTest` | | |
+| T55 | UC-04 Find Available Flights | customer | On Home look at "Your next trip", the Find a flight box and "Recent bookings"; with a paid booking in the future, then with none; press Search flights | 1 | The next trip is the confirmed booking that leaves first (route, day and time, flight, seat, confirmation number); with none it says "No trip booked yet"; "Recent bookings" shows at most three, newest first, each with its status; the boxes start on a route that has flights; Search flights opens the Find flights screen on those choices | `CustomerHomeTest` | | |
+| T56 | UC-10 Modify Reservation | agent | Customers tab, choose a customer, Reservations; look at the path above the title; click Customers in it | 3 | The path reads `Customers › <name> › Reservations`, the title says whose reservations they are, and clicking Customers returns to the list; the same path (ending in Modify reservation) shows on the modify screen | `MyReservationsViewTest`, `ModifyReservationViewTest`, `BreadcrumbTest` | | |
 
 ### Taking a seat from another session (T20)
 
@@ -100,7 +102,7 @@ Then press Continue in the first window.
 Every use case has at least one row: UC-01 T01 to T03, UC-02 T04 to T06, UC-03 T07 to T11,
 UC-04 T12 to T16, UC-05 T17, UC-06 T18 to T21, UC-07 T22 to T27, UC-08 T28, UC-09 T29 to T31,
 UC-10 T32 to T35, UC-11 T36, UC-12 T37, UC-13 T38 and T39, UC-14 T40 to T44, UC-15 T45 and T46,
-UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T54 (roles, keyboard, window sizes, start-up).
+UC-16 T47 and T48, UC-17 T49 and T50. The screens themselves: T51 to T56 (roles, keyboard, window sizes, start-up, customer Home, the agent's path).
 
 ## Clicks from Home
 

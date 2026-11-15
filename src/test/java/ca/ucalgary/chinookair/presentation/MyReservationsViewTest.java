@@ -188,18 +188,21 @@ class MyReservationsViewTest {
     }
 
     @Test
-    void aCustomerHasNoBackButtonBecauseTheTabsTakeThemAnywhere() {
+    void aCustomerHasNoBreadcrumbBecauseTheTabsTakeThemAnywhere() {
         view.onShow();
-        assertFalse(view.backButton.isVisible());
+        assertFalse(view.breadcrumb.isVisible());
+        assertEquals(List.of(), view.breadcrumb.texts());
     }
 
     @Test
-    void anAgentCanGoBackToTheCustomers() {
+    void anAgentSeesTheWayBackToTheCustomers() {
         controllers.session().login(controllers.loginController()
                 .authenticate(DatabaseSeeder.AGENT_USERNAME, DatabaseSeeder.AGENT_PASSWORD));
+        booking.bookFor(customer);
         view.onShow();
-        assertTrue(view.backButton.isVisible());
-        view.backButton.doClick(0);
+        assertTrue(view.breadcrumb.isVisible());
+        assertEquals(List.of("Customers", customer.name(), "Reservations"), view.breadcrumb.texts());
+        view.breadcrumb.links().get(0).doClick(0);
         assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
     }
 

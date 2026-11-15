@@ -37,6 +37,23 @@ public enum ViewId {
         }
     }
 
+    /**
+     * The screen a person lands on after logging in: the customer's Home, the agent's customer list
+     * and the administrator's flights, because those are where each of them starts working.
+     */
+    public static ViewId landingFor(Role role) {
+        switch (role) {
+            case CUSTOMER:
+                return CUSTOMER_DASHBOARD;
+            case AGENT:
+                return CUSTOMER_MANAGEMENT;
+            case ADMIN:
+                return FLIGHT_MANAGEMENT;
+            default:
+                throw new IllegalArgumentException("Unknown role " + role);
+        }
+    }
+
     /** The name the top bar shows: short and in the words a user would use. */
     public String label() {
         switch (this) {
@@ -59,7 +76,7 @@ public enum ViewId {
             case MY_RESERVATIONS:
                 return "Reservations";
             case MODIFY_RESERVATION:
-                return "Change reservation";
+                return "Modify reservation";
             case CUSTOMER_MANAGEMENT:
                 return "Customers";
             case PROFILE:

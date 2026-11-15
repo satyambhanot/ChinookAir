@@ -36,7 +36,8 @@ class MyReservationsView extends JPanel implements Screen {
     final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
     final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
     final JButton payButton = Theme.primary(new JButton("Pay now"));
-    final JButton backButton = Theme.secondary(new JButton("Back to customers"));
+    final Breadcrumb breadcrumb = new Breadcrumb();
+    private final JLabel heading = new JLabel("My reservations");
     private final JLabel messageLabel = new JLabel(" ");
     private transient Customer owner;
 
@@ -50,9 +51,12 @@ class MyReservationsView extends JPanel implements Screen {
 
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
-        JLabel heading = new JLabel("Reservations");
         Theme.heading(heading);
-        add(heading, BorderLayout.NORTH);
+        JPanel top = new JPanel(new BorderLayout(0, Space.S));
+        top.setOpaque(false);
+        top.add(breadcrumb, BorderLayout.NORTH);
+        top.add(heading, BorderLayout.CENTER);
+        add(top, BorderLayout.NORTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
@@ -60,9 +64,7 @@ class MyReservationsView extends JPanel implements Screen {
 
         cancelButton.setMnemonic('C');
         payButton.setMnemonic('P');
-        backButton.setMnemonic('B');
         ButtonRow buttons = ButtonRow.right();
-        buttons.add(backButton);
         buttons.add(payButton);
         buttons.add(cancelButton);
         JPanel bottom = new JPanel(new BorderLayout());
@@ -74,7 +76,6 @@ class MyReservationsView extends JPanel implements Screen {
         table.getSelectionModel().addListSelectionListener(e -> updateButtons());
         cancelButton.addActionListener(e -> cancelSelected());
         payButton.addActionListener(e -> paySelected());
-        backButton.addActionListener(e -> goBack());
     }
 
     private void updateButtons() {
@@ -129,11 +130,6 @@ class MyReservationsView extends JPanel implements Screen {
         navigator.show(ViewId.PAYMENT);
     }
 
-    /** Only an agent came here from somewhere (a customer's row); a customer is on a tab. */
-    private void goBack() {
-        navigator.show(ViewId.CUSTOMER_MANAGEMENT);
-    }
-
     private boolean askYesNo(String question) {
         return ConfirmDialog.ask(this, "Cancel this reservation?", question, "Cancel reservation", true);
     }
@@ -180,7 +176,7 @@ class MyReservationsView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
-        backButton.setVisible(user.get().role() == Role.AGENT);
+        showPath(user.get());
         tableModel.setReservations(List.of());
         updateButtons();
         try {
@@ -188,6 +184,20 @@ class MyReservationsView extends JPanel implements Screen {
             load();
         } catch (RuntimeException e) {
             showError(ErrorMessages.forException(e));
+        }
+    }
+
+    /** A customer is on a tab; an agent came from a customer's row and gets the way back. */
+    private void showPath(User user) {
+        Optional<Customer> chosen = booking.customer();
+        if (user.role() == Role.AGENT && chosen.isPresent()) {
+            heading.setText("Reservations of " + chosen.get().name());
+            breadcrumb.show(List.of(
+                    Breadcrumb.Crumb.link("Customers", () -> navigator.show(ViewId.CUSTOMER_MANAGEMENT)),
+                    Breadcrumb.Crumb.text(chosen.get().name()), Breadcrumb.Crumb.text("Reservations")));
+        } else {
+            heading.setText("My reservations");
+            breadcrumb.show(List.of());
         }
     }
 

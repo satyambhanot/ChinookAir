@@ -2,7 +2,6 @@ package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
@@ -60,28 +59,6 @@ class DashboardTest {
         dashboard.taskButtons().stream().filter(b -> b.getText().equals(label)).findFirst().orElseThrow().doClick(0);
     }
 
-    // ---- the customer
-
-    @Test
-    void theCustomerDashboardHasItsCardsAndAGreeting() {
-        logIn("customer1", "customer123");
-        CustomerDashboard dashboard = new CustomerDashboard(controllers, navigator);
-        dashboard.onShow();
-        assertEquals("Hello, customer1", dashboard.headerText());
-        assertEquals(List.of("Search flights", "My reservations", "My profile"), labels(dashboard));
-        assertTrue(navigator.shown.isEmpty());
-    }
-
-    @Test
-    void theCustomerButtonsOpenTheirScreens() {
-        logIn("customer1", "customer123");
-        CustomerDashboard dashboard = new CustomerDashboard(controllers, navigator);
-        click(dashboard, "Search flights");
-        click(dashboard, "My reservations");
-        click(dashboard, "My profile");
-        assertEquals(List.of(ViewId.FLIGHT_SEARCH, ViewId.MY_RESERVATIONS, ViewId.PROFILE), navigator.shown);
-    }
-
     // ---- the agent
 
     @Test
@@ -90,13 +67,12 @@ class DashboardTest {
         AgentDashboard dashboard = new AgentDashboard(controllers, navigator);
         dashboard.onShow();
         assertEquals("Hello, agent1", dashboard.headerText());
-        assertEquals(List.of("Customers", "Reservations", "Payment records", "Schedule"), labels(dashboard));
+        assertEquals(List.of("Customers", "Payment records", "Schedule"), labels(dashboard));
         click(dashboard, "Customers");
-        click(dashboard, "Reservations");
         click(dashboard, "Payment records");
         click(dashboard, "Schedule");
-        assertEquals(List.of(ViewId.CUSTOMER_MANAGEMENT, ViewId.MY_RESERVATIONS, ViewId.PAYMENT_RECORDS,
-                ViewId.SCHEDULE), navigator.shown);
+        assertEquals(List.of(ViewId.CUSTOMER_MANAGEMENT, ViewId.PAYMENT_RECORDS, ViewId.SCHEDULE),
+                navigator.shown);
     }
 
     // ---- the administrator
@@ -134,8 +110,8 @@ class DashboardTest {
 
     @Test
     void theButtonsHaveMnemonicsThatDoNotClash() {
-        for (Dashboard dashboard : List.of(new CustomerDashboard(controllers, navigator),
-                new AgentDashboard(controllers, navigator), new AdminDashboard(controllers, navigator))) {
+        for (Dashboard dashboard : List.of(new AgentDashboard(controllers, navigator),
+                new AdminDashboard(controllers, navigator))) {
             List<Integer> keys = new ArrayList<>();
             dashboard.taskButtons().forEach(b -> keys.add(b.getMnemonic()));
             assertEquals(keys.size(), keys.stream().distinct().count(), dashboard.getClass().getSimpleName());
@@ -144,8 +120,8 @@ class DashboardTest {
 
     @Test
     void everyCardSaysWhatItIsFor() {
-        for (Dashboard dashboard : List.of(new CustomerDashboard(controllers, navigator),
-                new AgentDashboard(controllers, navigator), new AdminDashboard(controllers, navigator))) {
+        for (Dashboard dashboard : List.of(new AgentDashboard(controllers, navigator),
+                new AdminDashboard(controllers, navigator))) {
             dashboard.taskButtons().forEach(b -> assertFalse(((TaskCard) b).description().isBlank(), b.getText()));
         }
     }
@@ -155,5 +131,12 @@ class DashboardTest {
         assertEquals(ViewId.CUSTOMER_DASHBOARD, ViewId.dashboardFor(Role.CUSTOMER));
         assertEquals(ViewId.AGENT_DASHBOARD, ViewId.dashboardFor(Role.AGENT));
         assertEquals(ViewId.ADMIN_DASHBOARD, ViewId.dashboardFor(Role.ADMIN));
+    }
+
+    @Test
+    void eachRoleLandsWhereItStartsWorking() {
+        assertEquals(ViewId.CUSTOMER_DASHBOARD, ViewId.landingFor(Role.CUSTOMER));
+        assertEquals(ViewId.CUSTOMER_MANAGEMENT, ViewId.landingFor(Role.AGENT));
+        assertEquals(ViewId.FLIGHT_MANAGEMENT, ViewId.landingFor(Role.ADMIN));
     }
 }

@@ -92,12 +92,12 @@ class LoginViewTest {
     }
 
     @Test
-    void theAgentGoesToTheAgentDashboardAndTheAdminToTheAdminDashboard() {
+    void theAgentGoesToTheCustomersAndTheAdminToTheFlights() {
         logIn("agent1", "agent123");
-        assertEquals(ViewId.AGENT_DASHBOARD, navigator.last());
+        assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
         controllers.session().logout();
         logIn("admin", "admin123");
-        assertEquals(ViewId.ADMIN_DASHBOARD, navigator.last());
+        assertEquals(ViewId.FLIGHT_MANAGEMENT, navigator.last());
     }
 
     @Test
@@ -112,7 +112,7 @@ class LoginViewTest {
         view.usernameField.setText("agent1");
         view.passwordField.setText("agent123");
         view.passwordField.postActionEvent();
-        assertEquals(ViewId.AGENT_DASHBOARD, navigator.last());
+        assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
     }
 
     @Test
@@ -120,7 +120,7 @@ class LoginViewTest {
         view.usernameField.setText("agent1");
         view.passwordField.setText("agent123");
         view.usernameField.postActionEvent();
-        assertEquals(ViewId.AGENT_DASHBOARD, navigator.last());
+        assertEquals(ViewId.CUSTOMER_MANAGEMENT, navigator.last());
     }
 
     @Test
