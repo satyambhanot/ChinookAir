@@ -35,9 +35,10 @@ class FlightTableModelTest {
     @Test
     void anEmptyModelHasNoRowsButHasTheColumns() {
         assertEquals(0, model.getRowCount());
-        assertEquals(7, model.getColumnCount());
+        assertEquals(8, model.getColumnCount());
         assertEquals("Flight", model.getColumnName(0));
-        assertEquals("From", model.getColumnName(6));
+        assertEquals("Duration", model.getColumnName(5));
+        assertEquals("From", model.getColumnName(7));
     }
 
     @Test
@@ -48,14 +49,15 @@ class FlightTableModelTest {
         assertEquals("YYC → YVR", model.getValueAt(0, 2));
         assertEquals("2026-12-01 12:00", model.getValueAt(0, 3));
         assertEquals("2026-12-01 13:30", model.getValueAt(0, 4));
-        assertEquals(150, model.getValueAt(0, 5));
-        assertEquals("$200.00", model.getValueAt(0, 6));
+        assertEquals("1h 30m", model.getValueAt(0, 5));
+        assertEquals(150, model.getValueAt(0, 6));
+        assertEquals("$200.00", model.getValueAt(0, 7));
     }
 
     @Test
     void thePriceKeepsItsTwoDecimals() {
         model.setOffers(List.of(offer("AC123", 1, "199.90")));
-        assertEquals("$199.90", model.getValueAt(0, 6));
+        assertEquals("$199.90", model.getValueAt(0, 7));
     }
 
     @Test
@@ -70,6 +72,20 @@ class FlightTableModelTest {
     @Test
     void anUnknownColumnIsRejected() {
         model.setOffers(List.of(offer("AC123", 1, "100.00")));
-        assertThrows(IndexOutOfBoundsException.class, () -> model.getValueAt(0, 7));
+        assertThrows(IndexOutOfBoundsException.class, () -> model.getValueAt(0, 8));
+    }
+
+    @Test
+    void theDurationIsWrittenInHoursAndMinutes() {
+        java.time.LocalDateTime start = java.time.LocalDateTime.of(2026, 12, 1, 12, 0);
+        assertEquals("1h 30m", FlightTableModel.durationText(start, start.plusMinutes(90)));
+        assertEquals("45m", FlightTableModel.durationText(start, start.plusMinutes(45)));
+        assertEquals("2h", FlightTableModel.durationText(start, start.plusHours(2)));
+    }
+
+    @Test
+    void aFlightThroughMidnightHasTheRightDuration() {
+        java.time.LocalDateTime late = java.time.LocalDateTime.of(2026, 12, 1, 23, 30);
+        assertEquals("1h 30m", FlightTableModel.durationText(late, java.time.LocalDateTime.of(2026, 12, 2, 1, 0)));
     }
 }

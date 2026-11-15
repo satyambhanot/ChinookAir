@@ -7,6 +7,12 @@ import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
+import javax.swing.border.LineBorder;
+import java.time.LocalDate;
+import java.awt.Insets;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Dimension;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -23,7 +29,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -34,6 +39,7 @@ class FlightSearchView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
     private static final Color ERROR = Theme.DANGER;
+    private static final int ROUTE_LOOKAHEAD_DAYS = 7;
     private static final String NO_FLIGHTS = "No flights found. Try another date or airline.";
 
     private final transient Controllers controllers;
@@ -42,42 +48,63 @@ class FlightSearchView extends JPanel implements Screen {
 
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
-    final JTextField dateField = Theme.placeholder(new JTextField(10), "yyyy-MM-dd");
+    final DatePickerField dateField;
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
     final JButton searchButton = Theme.primary(new JButton("Search"));
     final JButton selectButton = Theme.primary(new JButton("Select flight"));
     final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton swapButton = new JButton(Icons.muted("swap", 18));
     final FlightTableModel tableModel = new FlightTableModel();
     final HintTable table = new HintTable(tableModel, "Choose the airports and a date, then press Search.");
     private final JLabel heading = new JLabel("Find available flights");
     private final JLabel messageLabel = new JLabel(" ");
 
     FlightSearchView(Controllers controllers, Navigator navigator, BookingSession booking) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
+        this.dateField = new DatePickerField(10, () -> controllers.flightSearchController().today());
         build();
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
 
         Theme.heading(heading);
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        form.add(label("From", 'F', originCombo));
-        form.add(originCombo);
-        form.add(label("To", 'T', destinationCombo));
-        form.add(destinationCombo);
-        form.add(label("Date", 'D', dateField));
-        form.add(dateField);
-        form.add(label("Airline", 'A', airlineCombo));
-        form.add(airlineCombo);
-        form.add(searchButton);
+        originCombo.setPreferredSize(new Dimension(190, originCombo.getPreferredSize().height));
+        destinationCombo.setPreferredSize(new Dimension(190, destinationCombo.getPreferredSize().height));
+        airlineCombo.setPreferredSize(new Dimension(190, airlineCombo.getPreferredSize().height));
+        swapButton.putClientProperty("JButton.buttonType", "toolBarButton");
+        swapButton.setToolTipText("Swap the two airports");
+        swapButton.getAccessibleContext().setAccessibleName("Swap the two airports");
+        swapButton.setMnemonic('W');
+
+        JPanel card = new JPanel(new GridBagLayout());
+        card.setBackground(Theme.SURFACE);
+        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(16, 20, 8, 20)));
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.insets = new Insets(0, 0, 0, 12);
+        c.gridy = 0;
+        card.add(new FormField("From", originCombo).mnemonic('F'), c);
+        c.insets = new Insets(18, 0, 0, 12);
+        card.add(swapButton, c);
+        c.insets = new Insets(0, 0, 0, 12);
+        card.add(new FormField("To", destinationCombo).mnemonic('T'), c);
+        card.add(new FormField("Date", dateField).mnemonic('D'), c);
+        card.add(new FormField("Airline", airlineCombo).mnemonic('A'), c);
+        c.insets = new Insets(18, 0, 0, 0);
+        card.add(searchButton, c);
         searchButton.setMnemonic('S');
-        JPanel top = new JPanel(new BorderLayout());
+        c.weightx = 1;
+        card.add(javax.swing.Box.createHorizontalGlue(), c);
+
+        JPanel top = new JPanel(new BorderLayout(0, 12));
+        top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
-        top.add(form, BorderLayout.CENTER);
+        top.add(card, BorderLayout.CENTER);
         add(top, BorderLayout.NORTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -102,6 +129,7 @@ class FlightSearchView extends JPanel implements Screen {
         selectButton.setEnabled(false);
         table.getSelectionModel().addListSelectionListener(e -> selectButton.setEnabled(table.getSelectedRow() >= 0));
         searchButton.addActionListener(e -> search());
+        swapButton.addActionListener(e -> swapAirports());
         dateField.addActionListener(e -> search());
         selectButton.addActionListener(e -> selectFlight());
         // a double click on a flight does what Select flight does
@@ -116,13 +144,6 @@ class FlightSearchView extends JPanel implements Screen {
         backButton.addActionListener(e -> goBack());
     }
 
-    private static JLabel label(String text, char mnemonic, Component field) {
-        JLabel label = new JLabel(text);
-        label.setDisplayedMnemonic(mnemonic);
-        label.setLabelFor(field);
-        return label;
-    }
-
     private void search() {
         messageLabel.setText(" ");
         try {
@@ -133,10 +154,12 @@ class FlightSearchView extends JPanel implements Screen {
                     destination == null ? null : destination.code(), InputParser.date(dateField.getText()),
                     airline == null ? null : airline.code());
             List<FlightOffer> offers = controllers.flightSearchController().search(criteria);
+            booking.rememberSearch(criteria.origin(), criteria.destination(), criteria.airlineCode());
             tableModel.setOffers(offers);
             table.setEmptyText("No flights match this search.");
             if (offers.isEmpty()) {
-                showMessage(NO_FLIGHTS);
+                messageLabel.setForeground(Theme.MUTED);
+                messageLabel.setText(NO_FLIGHTS);
             }
         } catch (RuntimeException e) {
             // the table keeps what it showed before
@@ -172,6 +195,10 @@ class FlightSearchView extends JPanel implements Screen {
         return messageLabel.getText().trim();
     }
 
+    java.awt.Color messageColor() {
+        return messageLabel.getForeground();
+    }
+
     @Override
     public void onShow() {
         if (controllers.session().currentUser().isEmpty()) {
@@ -183,15 +210,71 @@ class FlightSearchView extends JPanel implements Screen {
             booking.clear();
         }
         heading.setText(booking.modifying().isPresent() ? "Find the new flight" : "Find available flights");
-        fill(originCombo, controllers.flightSearchController().airports(), 0);
-        fill(destinationCombo, controllers.flightSearchController().airports(), 1);
+        List<Airport> airports = controllers.flightSearchController().airports();
+        fill(originCombo, airports, 0);
+        fill(destinationCombo, airports, 1);
         DefaultComboBoxModel<Airline> airlines = new DefaultComboBoxModel<>();
         airlines.addElement(null);
         controllers.flightSearchController().airlines().forEach(airlines::addElement);
         airlineCombo.setModel(airlines);
-        dateField.setText(controllers.flightSearchController().today().toString());
+        LocalDate today = controllers.flightSearchController().today();
+        dateField.setMinDate(today);
+        dateField.setText(today.toString());
+        startFromLastSearchOrFirstRoute(airports, today);
         tableModel.setOffers(List.of());
         messageLabel.setText(" ");
+    }
+
+    /**
+     * Starts the form where the user left it. The first time there is nothing to remember, so it picks the
+     * first route that has a flight in the coming week, so the first search is not an empty one.
+     */
+    private void startFromLastSearchOrFirstRoute(List<Airport> airports, LocalDate today) {
+        Optional<BookingSession.SearchMemory> last = booking.lastSearch();
+        if (last.isPresent()) {
+            selectByCode(originCombo, last.get().origin());
+            selectByCode(destinationCombo, last.get().destination());
+            selectAirline(last.get().airline());
+            return;
+        }
+        for (int day = 0; day < ROUTE_LOOKAHEAD_DAYS; day++) {
+            for (Airport from : airports) {
+                for (Airport to : airports) {
+                    if (!from.equals(to) && !controllers.flightSearchController()
+                            .search(new SearchCriteria(from.code(), to.code(), today.plusDays(day), null)).isEmpty()) {
+                        originCombo.setSelectedItem(from);
+                        destinationCombo.setSelectedItem(to);
+                        dateField.setDate(today.plusDays(day));
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private static void selectByCode(JComboBox<Airport> combo, String code) {
+        for (int i = 0; i < combo.getItemCount(); i++) {
+            if (combo.getItemAt(i).code().equals(code)) {
+                combo.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private void selectAirline(String code) {
+        for (int i = 0; i < airlineCombo.getItemCount(); i++) {
+            Airline airline = airlineCombo.getItemAt(i);
+            if (airline == null ? code == null : airline.code().equals(code)) {
+                airlineCombo.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private void swapAirports() {
+        Object origin = originCombo.getSelectedItem();
+        originCombo.setSelectedItem(destinationCombo.getSelectedItem());
+        destinationCombo.setSelectedItem(origin);
     }
 
     private static void fill(JComboBox<Airport> combo, List<Airport> airports, int selected) {
