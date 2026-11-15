@@ -25,7 +25,7 @@ import javax.swing.border.LineBorder;
 class CustomerManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final int SIDE_WIDTH = 400;
+    private static final int SIDE_WIDTH = 360;
     private static final String EMPTY = "empty";
     private static final String DETAILS = "details";
 
@@ -76,7 +76,6 @@ class CustomerManagementView extends JPanel implements Screen {
 
         // the chosen customer on the right, or a hint to choose one
         EmptyState hint = new EmptyState("Choose a customer", "Pick someone from the list, or add a new customer.");
-        hint.setAction("New customer", this::startNew);
         JPanel emptyHolder = new JPanel(new BorderLayout());
         emptyHolder.setBackground(Theme.SURFACE);
         emptyHolder.setBorder(new LineBorder(Theme.BORDER, 1, true));
