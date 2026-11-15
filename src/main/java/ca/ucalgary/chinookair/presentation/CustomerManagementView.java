@@ -4,47 +4,50 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
-import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
 
 /**
- * The agent's list of customers: search by name or email, add a customer, change a customer's data and
- * open a customer's reservations. The rules are the CustomerController's; the screen only shows its answers.
+ * The agent's customers: the list with a search that follows the typing, and the chosen customer on the
+ * right. From there the agent changes the data, opens the reservations or starts changing a reservation.
+ * New customer opens the same panel empty. The rules are the CustomerController's; the screen only shows
+ * its answers.
  */
 class CustomerManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final int SIDE_WIDTH = 340;
-    private static final Color ERROR = Theme.DANGER;
-    private static final Color NOTICE = Theme.SUCCESS;
+    private static final int SIDE_WIDTH = 400;
+    private static final String EMPTY = "empty";
+    private static final String DETAILS = "details";
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
-    final JTextField searchField = new JTextField(20);
-    final JButton searchButton = Theme.primary(new JButton("Search"));
+    final SearchField searchField = new SearchField("Search by name or email", 24);
     final CustomerTableModel tableModel = new CustomerTableModel();
     final HintTable table = new HintTable(tableModel, "No customers match. Try another name or email.");
     final CustomerForm form = new CustomerForm();
     final JButton newButton = Theme.secondary(new JButton("New customer"));
     final JButton saveButton = Theme.primary(new JButton("Save"));
     final JButton reservationsButton = Theme.secondary(new JButton("Reservations"));
-    final JButton modifyButton = Theme.primary(new JButton("Modify a reservation"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
-    private final JLabel messageLabel = new JLabel(" ");
+    final JButton modifyButton = Theme.secondary(new JButton("Modify a reservation"));
+    private final Alert alert = new Alert(SIDE_WIDTH - 90);
+    private final JLabel detailsTitle = new JLabel("Customer");
+    private final CardLayout cards = new CardLayout();
+    private final JPanel side = new JPanel(cards);
 
     CustomerManagementView(Controllers controllers, Navigator navigator, BookingSession booking) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
@@ -52,52 +55,66 @@ class CustomerManagementView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Customers");
         Theme.heading(heading);
-        JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        JLabel searchLabel = new JLabel("Name or email");
-        searchLabel.setDisplayedMnemonic('M');
-        searchLabel.setLabelFor(searchField);
-        searchRow.add(searchLabel);
-        searchRow.add(searchField);
-        searchRow.add(searchButton);
-        searchButton.setMnemonic('S');
+        newButton.setMnemonic('W');
         JPanel top = new JPanel(new BorderLayout());
-        top.add(heading, BorderLayout.NORTH);
-        top.add(searchRow, BorderLayout.CENTER);
+        top.setOpaque(false);
+        top.add(heading, BorderLayout.WEST);
+        top.add(newButton, BorderLayout.EAST);
         add(top, BorderLayout.NORTH);
 
+        // the list on the left, with the search above it
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JPanel list = new JPanel(new BorderLayout(0, 10));
+        list.setOpaque(false);
+        list.add(searchField, BorderLayout.NORTH);
+        list.add(new JScrollPane(table), BorderLayout.CENTER);
+        add(list, BorderLayout.CENTER);
 
-        newButton.setMnemonic('W');
+        // the chosen customer on the right, or a hint to choose one
+        EmptyState hint = new EmptyState("Choose a customer", "Pick someone from the list, or add a new customer.");
+        hint.setAction("New customer", this::startNew);
+        JPanel emptyHolder = new JPanel(new BorderLayout());
+        emptyHolder.setBackground(Theme.SURFACE);
+        emptyHolder.setBorder(new LineBorder(Theme.BORDER, 1, true));
+        emptyHolder.add(hint, BorderLayout.NORTH);
+
+        detailsTitle.setFont(detailsTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         saveButton.setMnemonic('V');
         reservationsButton.setMnemonic('R');
         modifyButton.setMnemonic('M');
-        backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttons.add(backButton);
-        buttons.add(reservationsButton);
-        buttons.add(modifyButton);
-        buttons.add(newButton);
-        buttons.add(saveButton);
-        // the list on the left, the chosen customer on the right
-        JPanel side = new JPanel(new BorderLayout());
+        JPanel secondary = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        secondary.setOpaque(false);
+        secondary.add(reservationsButton);
+        secondary.add(modifyButton);
+        JPanel save = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        save.setOpaque(false);
+        save.add(saveButton);
+        JPanel actions = new JPanel(new BorderLayout(0, 12));
+        actions.setOpaque(false);
+        actions.add(alert, BorderLayout.NORTH);
+        actions.add(secondary, BorderLayout.CENTER);
+        actions.add(save, BorderLayout.SOUTH);
+        JPanel details = new JPanel(new BorderLayout(0, 12));
+        details.setBackground(Theme.SURFACE);
+        details.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        details.add(detailsTitle, BorderLayout.NORTH);
+        details.add(form, BorderLayout.CENTER);
+        details.add(actions, BorderLayout.SOUTH);
+
         side.setOpaque(false);
-        side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
+        side.setPreferredSize(new Dimension(SIDE_WIDTH, 10));
         side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
-        side.add(form, BorderLayout.NORTH);
+        side.add(emptyHolder, EMPTY);
+        side.add(details, DETAILS);
         add(side, BorderLayout.EAST);
-        JPanel bottom = new JPanel(new BorderLayout(0, 6));
-        bottom.add(messageLabel, BorderLayout.CENTER);
-        bottom.add(buttons, BorderLayout.SOUTH);
-        add(bottom, BorderLayout.SOUTH);
 
         updateButtons();
-        searchButton.addActionListener(e -> search());
-        searchField.addActionListener(e -> search());
+        searchField.onChange(text -> search());
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 rowChosen();
@@ -107,18 +124,21 @@ class CustomerManagementView extends JPanel implements Screen {
         saveButton.addActionListener(e -> save());
         reservationsButton.addActionListener(e -> openReservations());
         modifyButton.addActionListener(e -> openModify());
-        backButton.addActionListener(e -> goBack());
     }
 
     private void updateButtons() {
-        reservationsButton.setEnabled(table.getSelectedRow() >= 0);
-        modifyButton.setEnabled(table.getSelectedRow() >= 0);
-        saveButton.setEnabled(table.getSelectedRow() >= 0 || form.isNewCustomer());
+        boolean chosen = table.getSelectedRow() >= 0;
+        reservationsButton.setEnabled(chosen);
+        modifyButton.setEnabled(chosen);
+        saveButton.setEnabled(chosen || form.isNewCustomer());
+        cards.show(side, chosen || form.isNewCustomer() ? DETAILS : EMPTY);
+        detailsTitle.setText(form.isNewCustomer() ? "New customer" : "Customer");
     }
 
     private void rowChosen() {
         int row = table.getSelectedRow();
         if (row >= 0) {
+            alert.clear();
             form.show(tableModel.customerAt(table.convertRowIndexToModel(row)));
         }
         updateButtons();
@@ -129,7 +149,8 @@ class CustomerManagementView extends JPanel implements Screen {
         return row < 0 ? null : tableModel.customerAt(table.convertRowIndexToModel(row));
     }
 
-    private void search() {
+    /** Looks up the customers that match the search box; it runs after every change of the text. */
+    void search() {
         User agent = controllers.session().currentUser().orElse(null);
         if (agent == null) {
             return;
@@ -139,20 +160,15 @@ class CustomerManagementView extends JPanel implements Screen {
             tableModel.setCustomers(found);
             form.clear();
             updateButtons();
-            if (found.isEmpty()) {
-                showMessage("No customers found.", NOTICE);
-            } else {
-                messageLabel.setText(" ");
-            }
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
     private void startNew() {
         table.clearSelection();
         form.startNew();
-        messageLabel.setText(" ");
+        alert.clear();
         updateButtons();
     }
 
@@ -176,14 +192,17 @@ class CustomerManagementView extends JPanel implements Screen {
                         form.emailField.getText(), form.phoneField.getText());
             }
             // look for the saved customer again, so the table shows what is stored
+            boolean sameText = searchField.getText().equals(saved.email());
             searchField.setText(saved.email());
-            search();
-            showMessage("Saved " + saved.name(), NOTICE);
+            if (sameText) {
+                search();
+            }
             if (tableModel.getRowCount() > 0) {
                 table.setRowSelectionInterval(0, 0);
             }
+            alert.show(Alert.Kind.SUCCESS, "Saved " + saved.name());
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         } finally {
             form.wipePassword();
         }
@@ -209,27 +228,27 @@ class CustomerManagementView extends JPanel implements Screen {
         navigator.show(ViewId.MODIFY_RESERVATION);
     }
 
-    private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
-    }
-
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
-    }
-
     @Override
     public void onShow() {
         if (controllers.session().currentUser().isEmpty()) {
             navigator.show(ViewId.LOGIN);
             return;
         }
+        alert.clear();
         searchField.setText("");
         search();
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
+    }
+
+    Alert.Kind messageKind() {
+        return alert.kind();
+    }
+
+    /** True while the right-hand panel shows a customer (or an empty new one) instead of the hint. */
+    boolean detailsShown() {
+        return form.isShowing() || table.getSelectedRow() >= 0 || form.isNewCustomer();
     }
 }
