@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +17,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -38,14 +36,14 @@ class ScheduleView extends JPanel implements Screen {
     final transient Navigator navigator;
     final JTextField fromField = new JTextField(10);
     final JTextField toField = new JTextField(10);
-    final JButton showButton = new JButton("Show");
-    final JButton backButton = new JButton("Back");
+    final JButton showButton = Theme.secondary(new JButton("Show"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     // the administrator also moves flights; the agent does not see these
     final JTextField newDepartureField = new JTextField(14);
     final JTextField newArrivalField = new JTextField(14);
-    final JButton rescheduleButton = new JButton("Reschedule");
+    final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
     private final JPanel rescheduleControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
     private final JLabel messageLabel = new JLabel(" ");
@@ -56,7 +54,7 @@ class ScheduleView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Flight schedule");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         form.add(label("From (yyyy-MM-dd)", 'F', fromField));
         form.add(fromField);

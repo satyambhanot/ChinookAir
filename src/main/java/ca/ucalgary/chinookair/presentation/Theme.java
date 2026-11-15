@@ -55,6 +55,8 @@ public final class Theme {
         UIManager.put("Table.alternateRowColor", new Color(0xF8FAFC));
         UIManager.put("Table.selectionBackground", ACCENT_SOFT);
         UIManager.put("Table.selectionForeground", TEXT);
+        UIManager.put("Table.cellMargins", new java.awt.Insets(4, 12, 4, 12));
+        UIManager.put("TableHeader.cellMargins", new java.awt.Insets(4, 12, 4, 12));
         UIManager.put("TableHeader.height", 34);
         UIManager.put("TableHeader.background", new Color(0xEEF1F5));
         UIManager.put("TableHeader.bottomSeparatorColor", BORDER);
@@ -75,6 +77,12 @@ public final class Theme {
         label.setFont(label.getFont().deriveFont(13f));
         label.setForeground(MUTED);
         return label;
+    }
+
+    /** A page title for a screen's own heading label, which is already made. */
+    static void heading(JLabel label) {
+        label.setFont(label.getFont().deriveFont(Font.BOLD, 24f));
+        label.setForeground(TEXT);
     }
 
     /** The one main action of a screen: filled with the accent colour. */

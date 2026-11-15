@@ -32,8 +32,8 @@ class RegisterView extends JPanel implements Screen {
     final JTextField nameField = new JTextField(20);
     final JTextField emailField = new JTextField(20);
     final JTextField phoneField = new JTextField(20);
-    final JButton registerButton = new JButton("Create account");
-    final JButton backButton = new JButton("Back to log in");
+    final JButton registerButton = Theme.primary(new JButton("Create account"));
+    final JButton backButton = Theme.secondary(new JButton("Back to log in"));
     private final JLabel messageLabel = new JLabel(" ", SwingConstants.CENTER);
 
     /**

@@ -46,8 +46,8 @@ class SeatSelectionView extends JPanel implements Screen {
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
-    final JButton continueButton = new JButton("Continue to payment");
-    final JButton backButton = new JButton("Back");
+    final JButton continueButton = Theme.primary(new JButton("Continue to payment"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel heading = new JLabel(" ");
     private final JLabel chosenLabel = new JLabel(PICK);
     private final JLabel messageLabel = new JLabel(" ");
@@ -67,7 +67,7 @@ class SeatSelectionView extends JPanel implements Screen {
 
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
 
         add(new JScrollPane(mapPanel), BorderLayout.CENTER);

@@ -7,14 +7,12 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 
 /** For the administrator: the aircraft there are with their seat counts, and a way to add one. */
@@ -30,10 +28,10 @@ class AircraftManagementView extends JPanel implements Screen {
     final JTextField modelField = new JTextField(14);
     final JTextField rowsField = new JTextField(4);
     final JTextField seatsField = new JTextField(4);
-    final JButton addButton = new JButton("Add aircraft");
-    final JButton backButton = new JButton("Back");
+    final JButton addButton = Theme.primary(new JButton("Add aircraft"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final AircraftTableModel tableModel = new AircraftTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No aircraft yet. Add one above.");
     private final JLabel messageLabel = new JLabel(" ");
 
     AircraftManagementView(Controllers controllers, Navigator navigator) {
@@ -42,7 +40,7 @@ class AircraftManagementView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Aircraft");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         form.add(label("Model", 'M', modelField));
         form.add(modelField);

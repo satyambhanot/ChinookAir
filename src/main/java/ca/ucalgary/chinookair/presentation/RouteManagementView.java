@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -21,7 +20,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 /** For the administrator: the routes there are, and a way to add one between two airports. */
 class RouteManagementView extends JPanel implements Screen {
@@ -35,10 +33,10 @@ class RouteManagementView extends JPanel implements Screen {
 
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
-    final JButton addButton = new JButton("Add route");
-    final JButton backButton = new JButton("Back");
+    final JButton addButton = Theme.primary(new JButton("Add route"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final RouteTableModel tableModel = new RouteTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No routes yet. Add one above.");
     private final JLabel messageLabel = new JLabel(" ");
 
     RouteManagementView(Controllers controllers, Navigator navigator) {
@@ -47,7 +45,7 @@ class RouteManagementView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Routes");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         form.add(label("From", 'F', originCombo));
         form.add(originCombo);

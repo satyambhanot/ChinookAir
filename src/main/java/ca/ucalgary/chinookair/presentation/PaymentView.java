@@ -10,7 +10,6 @@ import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -46,8 +45,8 @@ class PaymentView extends JPanel implements Screen {
     final JPasswordField cardField = new JPasswordField(20);
     final JTextField expiryField = new JTextField(6);
     final JTextField amountField = new JTextField(10);
-    final JButton payButton = new JButton("Pay");
-    final JButton backButton = new JButton("Back");
+    final JButton payButton = Theme.primary(new JButton("Pay"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
 
     PaymentView(Controllers controllers, Navigator navigator, BookingSession booking) {
@@ -61,7 +60,7 @@ class PaymentView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         JLabel heading = new JLabel("Payment");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         amountField.setEditable(false);
         typeCombo.setRenderer(new DefaultListCellRenderer() {
             private static final long serialVersionUID = 1L;

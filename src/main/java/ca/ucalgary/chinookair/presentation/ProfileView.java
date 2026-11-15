@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.Optional;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,8 +23,8 @@ class ProfileView extends JPanel implements Screen {
     private final transient Navigator navigator;
 
     final CustomerForm form = new CustomerForm();
-    final JButton saveButton = new JButton("Save");
-    final JButton backButton = new JButton("Back");
+    final JButton saveButton = Theme.primary(new JButton("Save"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
 
     ProfileView(Controllers controllers, Navigator navigator) {
@@ -34,7 +33,7 @@ class ProfileView extends JPanel implements Screen {
         this.navigator = navigator;
         setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         JLabel heading = new JLabel("My profile");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
         JPanel center = new JPanel(new BorderLayout());
         center.add(form, BorderLayout.NORTH);

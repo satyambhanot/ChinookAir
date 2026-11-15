@@ -25,7 +25,7 @@ class ConfirmationView extends JPanel implements Screen {
     private final transient Navigator navigator;
     private final transient BookingSession booking;
 
-    final JButton dashboardButton = new JButton("Back to dashboard");
+    final JButton dashboardButton = Theme.primary(new JButton("Back to dashboard"));
     private final JLabel heading = new JLabel("Booking confirmed");
     private final JTextArea details = new JTextArea(10, 40);
 
@@ -35,7 +35,7 @@ class ConfirmationView extends JPanel implements Screen {
         this.navigator = navigator;
         this.booking = booking;
         setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         details.setEditable(false);
         details.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
         dashboardButton.setMnemonic('D');

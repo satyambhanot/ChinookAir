@@ -159,6 +159,31 @@ class FlightSearchViewTest {
     }
 
     @Test
+    void doubleClickingAFlightSelectsItLikeTheButton() {
+        choose("YYC", "YVR", "2026-12-02", null);
+        view.searchButton.doClick(0);
+        view.table.setRowSelectionInterval(0, 0);
+        click(1);
+        assertEquals(0, navigator.shown.size());
+        click(2);
+        assertEquals(ViewId.SEAT_SELECTION, navigator.last());
+        assertTrue(booking.selectedOffer().isPresent());
+    }
+
+    @Test
+    void anEmptyTableSaysWhatToDo() {
+        assertEquals("Choose the airports and a date, then press Search.", view.table.emptyText());
+        choose("YYC", "YVR", "2026-12-02", null);
+        view.searchButton.doClick(0);
+        assertEquals("No flights match this search.", view.table.emptyText());
+    }
+
+    private void click(int count) {
+        view.table.dispatchEvent(new java.awt.event.MouseEvent(view.table, java.awt.event.MouseEvent.MOUSE_CLICKED,
+                0L, 0, 5, 5, count, false));
+    }
+
+    @Test
     void backGoesToTheDashboardOfTheRole() {
         view.backButton.doClick(0);
         assertEquals(ViewId.CUSTOMER_DASHBOARD, navigator.last());

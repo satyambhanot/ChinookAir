@@ -8,7 +8,6 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -18,7 +17,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -36,10 +34,10 @@ class MyReservationsView extends JPanel implements Screen {
     private transient Predicate<String> confirmer = this::askYesNo;
 
     final ReservationTableModel tableModel = new ReservationTableModel();
-    final JTable table = new JTable(tableModel);
-    final JButton cancelButton = new JButton("Cancel reservation");
-    final JButton payButton = new JButton("Pay now");
-    final JButton backButton = new JButton("Back");
+    final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
+    final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
+    final JButton payButton = Theme.primary(new JButton("Pay now"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
     private transient Customer owner;
 
@@ -54,7 +52,7 @@ class MyReservationsView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Reservations");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

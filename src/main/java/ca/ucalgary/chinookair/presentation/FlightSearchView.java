@@ -10,7 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.BorderFactory;
@@ -22,7 +23,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -44,11 +44,11 @@ class FlightSearchView extends JPanel implements Screen {
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
     final JTextField dateField = new JTextField(10);
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
-    final JButton searchButton = new JButton("Search");
-    final JButton selectButton = new JButton("Select flight");
-    final JButton backButton = new JButton("Back");
+    final JButton searchButton = Theme.primary(new JButton("Search"));
+    final JButton selectButton = Theme.primary(new JButton("Select flight"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     final FlightTableModel tableModel = new FlightTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "Choose the airports and a date, then press Search.");
     private final JLabel heading = new JLabel("Find available flights");
     private final JLabel messageLabel = new JLabel(" ");
 
@@ -63,7 +63,7 @@ class FlightSearchView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
 
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         form.add(label("From", 'F', originCombo));
         form.add(originCombo);
@@ -104,6 +104,15 @@ class FlightSearchView extends JPanel implements Screen {
         searchButton.addActionListener(e -> search());
         dateField.addActionListener(e -> search());
         selectButton.addActionListener(e -> selectFlight());
+        // a double click on a flight does what Select flight does
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && table.getSelectedRow() >= 0) {
+                    selectFlight();
+                }
+            }
+        });
         backButton.addActionListener(e -> goBack());
     }
 
@@ -125,6 +134,7 @@ class FlightSearchView extends JPanel implements Screen {
                     airline == null ? null : airline.code());
             List<FlightOffer> offers = controllers.flightSearchController().search(criteria);
             tableModel.setOffers(offers);
+            table.setEmptyText("No flights match this search.");
             if (offers.isEmpty()) {
                 showMessage(NO_FLIGHTS);
             }

@@ -15,7 +15,7 @@ class PromotionPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    final JButton okButton = new JButton("OK");
+    final JButton okButton = Theme.primary(new JButton("OK"));
     private final JLabel titleLabel;
     private final JTextArea descriptionArea;
 

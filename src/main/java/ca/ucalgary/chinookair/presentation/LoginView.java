@@ -31,7 +31,7 @@ class LoginView extends JPanel implements Screen {
 
     final JTextField usernameField = new JTextField(20);
     final JPasswordField passwordField = new JPasswordField(20);
-    final JButton loginButton = new JButton("Log in");
+    final JButton loginButton = Theme.primary(new JButton("Log in"));
     final JButton registerButton = new JButton("Register a new account");
     private final JLabel messageLabel = new JLabel(" ", SwingConstants.CENTER);
 

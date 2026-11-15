@@ -12,7 +12,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -32,7 +31,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -55,9 +53,9 @@ class FlightManagementView extends JPanel implements Screen {
 
     final JTextField fromField = new JTextField(10);
     final JTextField toField = new JTextField(10);
-    final JButton showButton = new JButton("Show");
+    final JButton showButton = Theme.secondary(new JButton("Show"));
     final ScheduleTableModel tableModel = new ScheduleTableModel();
-    final JTable table = new JTable(tableModel);
+    final HintTable table = new HintTable(tableModel, "No flights in these dates.");
     final JTextField numberField = new JTextField(12);
     final JComboBox<Route> routeCombo = new JComboBox<>();
     final JComboBox<Airline> airlineCombo = new JComboBox<>();
@@ -65,10 +63,10 @@ class FlightManagementView extends JPanel implements Screen {
     final JTextField departureField = new JTextField(14);
     final JTextField arrivalField = new JTextField(14);
     final JTextField priceField = new JTextField(10);
-    final JButton addButton = new JButton("Add");
-    final JButton updateButton = new JButton("Update");
-    final JButton removeButton = new JButton("Remove");
-    final JButton backButton = new JButton("Back");
+    final JButton addButton = Theme.primary(new JButton("Add"));
+    final JButton updateButton = Theme.secondary(new JButton("Update"));
+    final JButton removeButton = Theme.danger(new JButton("Remove"));
+    final JButton backButton = Theme.secondary(new JButton("Back"));
     private final JLabel messageLabel = new JLabel(" ");
 
     FlightManagementView(Controllers controllers, Navigator navigator) {
@@ -81,7 +79,7 @@ class FlightManagementView extends JPanel implements Screen {
     private void build() {
         setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
         JLabel heading = new JLabel("Flights");
-        heading.setFont(heading.getFont().deriveFont(Font.BOLD, 22f));
+        Theme.heading(heading);
         JPanel range = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
         range.add(new JLabel("From (yyyy-MM-dd)"));
         range.add(fromField);
