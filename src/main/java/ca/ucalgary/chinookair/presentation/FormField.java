@@ -29,7 +29,7 @@ class FormField extends JPanel {
         label.setLabelFor(field);
         line.setFont(line.getFont().deriveFont(Type.CAPTION));
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        setBorder(BorderFactory.createEmptyBorder(0, 0, Space.S, 0));
         add(label, BorderLayout.NORTH);
         add(field, BorderLayout.CENTER);
         add(line, BorderLayout.SOUTH);

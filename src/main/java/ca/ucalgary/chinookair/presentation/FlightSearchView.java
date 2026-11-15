@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import javax.swing.border.LineBorder;
 import java.time.LocalDate;
 import java.awt.Insets;
 import java.awt.GridBagLayout;
@@ -70,7 +69,7 @@ class FlightSearchView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
 
         Theme.heading(heading);
         originCombo.setPreferredSize(new Dimension(190, originCombo.getPreferredSize().height));
@@ -83,20 +82,19 @@ class FlightSearchView extends JPanel implements Screen {
 
         JPanel card = new JPanel(new GridBagLayout());
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(16, 20, 8, 20)));
+        SurfaceBorder.apply(card, Space.L, Space.XL, Space.S, Space.XL);
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new Insets(0, 0, 0, 12);
+        c.insets = new Insets(0, 0, 0, Space.M);
         c.gridy = 0;
         card.add(new FormField("From", originCombo).mnemonic('F'), c);
-        c.insets = new Insets(18, 0, 0, 12);
+        c.insets = new Insets(Space.L, 0, 0, Space.M);
         card.add(swapButton, c);
-        c.insets = new Insets(0, 0, 0, 12);
+        c.insets = new Insets(0, 0, 0, Space.M);
         card.add(new FormField("To", destinationCombo).mnemonic('T'), c);
         card.add(new FormField("Date", dateField).mnemonic('D'), c);
         card.add(new FormField("Airline", airlineCombo).mnemonic('A'), c);
-        c.insets = new Insets(18, 0, 0, 0);
+        c.insets = new Insets(Space.L, 0, 0, 0);
         card.add(searchButton, c);
         searchButton.setMnemonic('S');
         c.weightx = 1;

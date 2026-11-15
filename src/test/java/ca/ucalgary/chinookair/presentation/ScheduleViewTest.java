@@ -147,8 +147,8 @@ class ScheduleViewTest {
         assertFalse(view.rescheduleButton.isEnabled());
         view.table.setRowSelectionInterval(0, 0);
         assertTrue(view.rescheduleButton.isEnabled());
-        assertEquals(view.tableModel.getValueAt(0, 2), view.newDepartureField.getText());
-        assertEquals(view.tableModel.getValueAt(0, 3), view.newArrivalField.getText());
+        assertEquals(Format.input((LocalDateTime) view.tableModel.getValueAt(0, 2)), view.newDepartureField.getText());
+        assertEquals(Format.input((LocalDateTime) view.tableModel.getValueAt(0, 3)), view.newArrivalField.getText());
     }
 
     @Test
@@ -163,7 +163,7 @@ class ScheduleViewTest {
         boolean found = false;
         for (int row = 0; row < view.tableModel.getRowCount(); row++) {
             if (view.tableModel.getValueAt(row, 0).equals(number)) {
-                assertEquals("2026-12-19 03:00", view.tableModel.getValueAt(row, 2));
+                assertEquals(InputParser.dateTime("2026-12-19 03:00"), view.tableModel.getValueAt(row, 2));
                 found = true;
             }
         }
@@ -183,8 +183,8 @@ class ScheduleViewTest {
         }
         assertTrue(second > 0);
         view.table.setRowSelectionInterval(first, first);
-        view.newDepartureField.setText((String) view.tableModel.getValueAt(second, 2));
-        view.newArrivalField.setText((String) view.tableModel.getValueAt(second, 3));
+        view.newDepartureField.setText(Format.input((LocalDateTime) view.tableModel.getValueAt(second, 2)));
+        view.newArrivalField.setText(Format.input((LocalDateTime) view.tableModel.getValueAt(second, 3)));
         view.rescheduleButton.doClick(0);
         assertTrue(view.message().contains("Aircraft is already assigned"), view.message());
     }

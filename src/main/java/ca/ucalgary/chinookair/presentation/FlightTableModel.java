@@ -4,7 +4,6 @@ import ca.ucalgary.chinookair.business.control.FlightOffer;
 import ca.ucalgary.chinookair.business.entity.Flight;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -13,7 +12,6 @@ import javax.swing.table.AbstractTableModel;
 class FlightTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String[] COLUMNS =
             {"Flight", "Airline", "Route", "Departs", "Arrives", "Duration", "Seats left", "From"};
 
@@ -48,7 +46,15 @@ class FlightTableModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int column) {
-        return column == 6 ? Integer.class : String.class;
+        switch (column) {
+            case 3:
+            case 4:
+                return LocalDateTime.class;
+            case 6:
+                return Integer.class;
+            default:
+                return String.class;
+        }
     }
 
     @Override
@@ -63,15 +69,15 @@ class FlightTableModel extends AbstractTableModel {
             case 2:
                 return flight.route().origin().code() + " → " + flight.route().destination().code();
             case 3:
-                return flight.departure().format(WHEN);
+                return flight.departure();
             case 4:
-                return flight.arrival().format(WHEN);
+                return flight.arrival();
             case 5:
                 return durationText(flight.departure(), flight.arrival());
             case 6:
                 return offer.seatsLeft();
             case 7:
-                return "$" + offer.fromPrice().toPlainString();
+                return Format.money(offer.fromPrice());
             default:
                 throw new IndexOutOfBoundsException("No column " + column);
         }

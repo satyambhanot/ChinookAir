@@ -29,7 +29,7 @@ class Badge extends JLabel {
         setForeground(kind.text());
         setIcon(new DotIcon());
         setIconTextGap(6);
-        setBorder(BorderFactory.createEmptyBorder(3, 10, 3, 12));
+        setBorder(BorderFactory.createEmptyBorder(3, Space.M, 3, Space.M));
     }
 
     Status.Kind kind() {
@@ -80,7 +80,7 @@ class Badge extends JLabel {
             holder.removeAll();
             holder.setOpaque(true);
             holder.setBackground(selected ? table.getSelectionBackground() : table.getBackground());
-            holder.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+            holder.setBorder(BorderFactory.createEmptyBorder(Space.S, Space.M, Space.S, Space.M));
             if (value instanceof Status) {
                 holder.add(new Badge((Status) value));
             } else if (value != null) {

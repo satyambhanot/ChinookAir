@@ -1,7 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.entity.Payment;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -10,7 +10,6 @@ import javax.swing.table.AbstractTableModel;
 class PaymentTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String[] COLUMNS = {"Date", "Reservation", "Amount", "Method", "Status", "Card"};
 
     private final transient List<Payment> payments = new ArrayList<>();
@@ -42,11 +41,11 @@ class PaymentTableModel extends AbstractTableModel {
         Payment payment = payments.get(row);
         switch (column) {
             case 0:
-                return payment.createdAt().format(WHEN);
+                return payment.createdAt();
             case 1:
                 return "#" + payment.reservationId();
             case 2:
-                return "$" + payment.amount().toPlainString();
+                return Format.money(payment.amount());
             case 3:
                 return payment.type().name();
             case 4:
@@ -61,6 +60,13 @@ class PaymentTableModel extends AbstractTableModel {
     /** The status column holds a {@link Status}, which the table draws as a badge. */
     @Override
     public Class<?> getColumnClass(int column) {
-        return column == 4 ? Status.class : Object.class;
+        switch (column) {
+            case 0:
+                return LocalDateTime.class;
+            case 4:
+                return Status.class;
+            default:
+                return Object.class;
+        }
     }
 }

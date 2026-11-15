@@ -13,7 +13,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -29,7 +28,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -44,7 +42,6 @@ class FlightManagementView extends JPanel implements Screen {
     private static final int DEFAULT_DAYS = 30;
     private static final int CARD_WIDTH = 360;
     private static final int ARRIVES_COLUMN = 3;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -85,7 +82,7 @@ class FlightManagementView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Flights");
         Theme.heading(heading);
         newButton.setMnemonic('W');
@@ -101,12 +98,12 @@ class FlightManagementView extends JPanel implements Screen {
         range.add(new FormField("To", toField).mnemonic('T'));
         JPanel showHolder = new JPanel(new BorderLayout());
         showHolder.setOpaque(false);
-        showHolder.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        showHolder.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         showHolder.add(showButton, BorderLayout.CENTER);
         range.add(showHolder);
         JPanel filter = new JPanel(new BorderLayout());
         filter.setOpaque(false);
-        filter.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        filter.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
         filter.add(filterField, BorderLayout.NORTH);
         JPanel controls = new JPanel(new BorderLayout(12, 0));
         controls.setOpaque(false);
@@ -142,8 +139,7 @@ class FlightManagementView extends JPanel implements Screen {
 
         cardTitle.setFont(cardTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(20, 22, 16, 22)));
+        SurfaceBorder.apply(card, Space.XL, Space.XL, Space.L, Space.XL);
         card.setPreferredSize(new Dimension(CARD_WIDTH, 10));
         card.add(cardTitle, BorderLayout.NORTH);
         card.add(buildForm(), BorderLayout.CENTER);
@@ -244,8 +240,8 @@ class FlightManagementView extends JPanel implements Screen {
             routeCombo.setSelectedItem(find(routeCombo, r -> r.id().equals(flight.route().id())));
             airlineCombo.setSelectedItem(find(airlineCombo, a -> a.code().equals(flight.airline().code())));
             aircraftCombo.setSelectedItem(find(aircraftCombo, a -> a.id().equals(flight.aircraft().id())));
-            departureField.setText(flight.departure().format(WHEN));
-            arrivalField.setText(flight.arrival().format(WHEN));
+            departureField.setText(Format.input(flight.departure()));
+            arrivalField.setText(Format.input(flight.arrival()));
             priceField.setText(flight.basePrice().toPlainString());
             card.setVisible(true);
         }
@@ -283,7 +279,7 @@ class FlightManagementView extends JPanel implements Screen {
             Flight added = controllers.flightManagementController().addFlight(admin, details());
             load();
             alert.show(Alert.Kind.SUCCESS, "Added " + added.flightNumber() + ", departs "
-                    + added.departure().format(WHEN));
+                    + Format.dateTime(added.departure()));
         } catch (RuntimeException e) {
             showError(ErrorMessages.forException(e));
         }

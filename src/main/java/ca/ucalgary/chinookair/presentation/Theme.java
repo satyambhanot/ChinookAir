@@ -28,10 +28,7 @@ public final class Theme {
     static final Color DANGER = Palette.DANGER_TEXT;
     static final Color WARNING = Palette.WARNING_TEXT;
 
-    // spacing, in pixels
-    static final int GAP = 8;
-    static final int PAD = 16;
-    static final int PAGE = 32;
+    /** The rounding of a card's corners, in pixels. Distances between things are in {@link Space}. */
     static final int ARC = 12;
 
     private Theme() {
@@ -71,9 +68,7 @@ public final class Theme {
     static javax.swing.JPanel card() {
         javax.swing.JPanel card = new javax.swing.JPanel(new java.awt.GridBagLayout());
         card.setBackground(SURFACE);
-        card.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                new javax.swing.border.LineBorder(BORDER, 1, true),
-                javax.swing.BorderFactory.createEmptyBorder(PAGE, PAGE + 8, PAGE, PAGE + 8)));
+        SurfaceBorder.apply(card, Space.XXL, Space.XXXL, Space.XXL, Space.XXXL);
         return card;
     }
 

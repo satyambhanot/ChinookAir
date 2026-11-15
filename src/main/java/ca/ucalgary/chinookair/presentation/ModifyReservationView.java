@@ -42,7 +42,7 @@ class ModifyReservationView extends JPanel implements Screen {
         this.controllers = controllers;
         this.navigator = navigator;
         this.booking = booking;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
         JPanel top = new JPanel(new BorderLayout(0, 4));
         top.setOpaque(false);

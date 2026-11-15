@@ -41,7 +41,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Payment records");
         Theme.heading(heading);
         JPanel top = new JPanel(new BorderLayout(0, 10));
@@ -55,6 +55,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         customerTable.describe("Customers");
         paymentTable.setFillsViewportHeight(true);
         paymentTable.describe("Payments");
+        paymentTable.getColumnModel().getColumn(0).setCellRenderer(HintTable.timeWithYearRenderer());
         paymentsHeading.setFont(paymentsHeading.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
 
         // the customers take a quarter of the height, the payments the rest
@@ -69,7 +70,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         tables.add(new JScrollPane(customerTable), at);
         at.gridy = 1;
         at.weighty = 0;
-        at.insets = new Insets(14, 0, 8, 0);
+        at.insets = new Insets(Space.M, 0, Space.S, 0);
         tables.add(paymentsHeading, at);
         at.gridy = 2;
         at.weighty = 3;

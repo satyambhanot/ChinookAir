@@ -41,8 +41,6 @@ class SeatSelectionView extends JPanel implements Screen {
     private static final Color ECONOMY = Theme.ACCENT_SOFT;
     private static final Color TAKEN = Palette.TAKEN;
     private static final Color SELECTED = Theme.ACCENT;
-    private static final java.time.format.DateTimeFormatter WHEN =
-            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String PICK = "Pick a seat";
     private static final int SIDE_WIDTH = 320;
     private static final int SEAT_WIDTH = 56;
@@ -77,7 +75,7 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         Theme.heading(heading);
 
         JPanel legend = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -114,7 +112,7 @@ class SeatSelectionView extends JPanel implements Screen {
         JPanel side = new JPanel(new BorderLayout(0, 12));
         side.setOpaque(false);
         side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
-        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.setBorder(BorderFactory.createEmptyBorder(0, Space.L, 0, 0));
         side.add(summaryHolder, BorderLayout.NORTH);
         JPanel actions = new JPanel(new BorderLayout(0, 8));
         actions.setOpaque(false);
@@ -133,7 +131,7 @@ class SeatSelectionView extends JPanel implements Screen {
         label.setOpaque(true);
         label.setBackground(color);
         label.setForeground(color.equals(SELECTED) ? Color.WHITE : Theme.TEXT);
-        label.setBorder(BorderFactory.createEmptyBorder(3, 8, 3, 8));
+        label.setBorder(BorderFactory.createEmptyBorder(3, Space.S, 3, Space.S));
         return label;
     }
 
@@ -332,9 +330,9 @@ class SeatSelectionView extends JPanel implements Screen {
             Flight flight = offer.flight();
             card.addRow("Flight", flight.flightNumber())
                     .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                    .addRow("Departs", flight.departure().format(WHEN))
+                    .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                     .addRow("Seat", seat.number() + " (" + className(seat) + ")")
-                    .addTotal("Price", "$" + flight.priceFor(seat.seatClass()).toPlainString());
+                    .addTotal("Price", Format.money(flight.priceFor(seat.seatClass())));
         }
         summary = card;
         summaryHolder.add(card, BorderLayout.NORTH);

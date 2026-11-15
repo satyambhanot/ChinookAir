@@ -29,7 +29,7 @@ public class SplashWindow extends JWindow {
         content.setBackground(Theme.SURFACE);
         content.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Theme.BORDER),
-                BorderFactory.createEmptyBorder(28, 36, 24, 36)));
+                BorderFactory.createEmptyBorder(Space.XXL, Space.XXXL, Space.XL, Space.XXXL)));
 
         JLabel logo = new JLabel(new ImageIcon(Brand.scaledToWidth(Brand.fullLogo(), LOGO_WIDTH)));
         logo.setHorizontalAlignment(SwingConstants.CENTER);

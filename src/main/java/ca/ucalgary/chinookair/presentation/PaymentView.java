@@ -15,7 +15,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.swing.JComponent;
@@ -40,7 +39,6 @@ class PaymentView extends JPanel implements Screen {
     private static final long serialVersionUID = 1L;
     private static final Color ERROR = Theme.DANGER;
     private static final Color NOTICE = Theme.SUCCESS;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int FORM_WIDTH = 440;
     private static final int SUMMARY_WIDTH = 320;
 
@@ -72,7 +70,7 @@ class PaymentView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));
         JLabel heading = new JLabel("Payment");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
@@ -94,8 +92,7 @@ class PaymentView extends JPanel implements Screen {
         JPanel form = new JPanel();
         form.setBackground(Theme.SURFACE);
         form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
-        form.setBorder(BorderFactory.createCompoundBorder(new javax.swing.border.LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(24, 24, 20, 24)));
+        SurfaceBorder.apply(form, Space.XL, Space.XL, Space.XL, Space.XL);
         JLabel section = new JLabel("Card details");
         section.setFont(section.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         section.setAlignmentX(LEFT_ALIGNMENT);
@@ -131,7 +128,7 @@ class PaymentView extends JPanel implements Screen {
         c.anchor = GridBagConstraints.NORTHWEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
-        c.insets = new Insets(0, 0, 0, 24);
+        c.insets = new Insets(0, 0, 0, Space.XL);
         form.setPreferredSize(new java.awt.Dimension(FORM_WIDTH, form.getPreferredSize().height));
         columns.add(form, c);
         c.gridx = 1;
@@ -250,12 +247,12 @@ class PaymentView extends JPanel implements Screen {
 
     private void showSummary(Reservation reservation) {
         Flight flight = reservation.flight();
-        String price = "$" + reservation.price().toPlainString();
+        String price = Format.money(reservation.price());
         summaryHolder.removeAll();
         summary = new SummaryCard("Order summary")
                 .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
                 .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                .addRow("Departs", flight.departure().format(WHEN))
+                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                 .addRow("Seat", reservation.seatNo())
                 .addTotal("Total", price);
         summaryHolder.add(summary, BorderLayout.NORTH);

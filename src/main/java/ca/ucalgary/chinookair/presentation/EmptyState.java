@@ -32,19 +32,19 @@ class EmptyState extends JPanel {
     EmptyState(String titleText, String hintText) {
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.PAGE, Space.PAGE, Space.PAGE, Space.PAGE));
 
         JLabel picture = new JLabel(new FadedIcon(Brand.scaledToWidth(Brand.mark(), PICTURE_WIDTH)));
         title = new JLabel(titleText);
         title.setFont(title.getFont().deriveFont(Font.BOLD, Type.SECTION));
         title.setForeground(Theme.TEXT);
-        title.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+        title.setBorder(BorderFactory.createEmptyBorder(0, Space.XS, 0, Space.XS));
         hint = Theme.hint(hintText);
         for (JComponent part : new JComponent[] {picture, title, hint}) {
             part.setAlignmentX(Component.CENTER_ALIGNMENT);
         }
         add(picture);
-        add(Box.createVerticalStrut(Theme.PAD));
+        add(Box.createVerticalStrut(Space.L));
         add(title);
         add(Box.createVerticalStrut(4));
         add(hint);
@@ -62,7 +62,7 @@ class EmptyState extends JPanel {
             action = Theme.primary(new JButton(label));
             action.setAlignmentX(Component.CENTER_ALIGNMENT);
             action.addActionListener(e -> run.run());
-            actionGap = Box.createVerticalStrut(Theme.PAD);
+            actionGap = Box.createVerticalStrut(Space.L);
             add(actionGap);
             add(action);
         }

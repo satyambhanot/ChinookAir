@@ -1,7 +1,14 @@
 # ChinookAir UI refinement plan (round two)
 
-Status: plan only. No application code has been changed for this document.
-Branch: `docs/ui-refinement-plan`, cut from `dev` after the merge of PR 207 (M0 to M8 of `docs/ui-redesign-plan.md`).
+Status: R1 is built; R2 to R8 are still to do. This file started as a plan only (PR 208).
+
+## Progress
+
+| Milestone | State | Notes |
+|---|---|---|
+| R1 Tokens and consistency | Done | `Space`, `Format`, `SurfaceBorder`, `SuccessMark`; dates written for people and real times in the table models; spacing and format rules enforced by tests. Deviations: cards get their shadow through one border (`SurfaceBorder.apply`) instead of `Theme.card`, because a border can paint the rounded body only on a see-through panel; the right-aligned money column moves to R4 and R5, where those tables are rebuilt; the `Dashboard` side padding fix from F3 landed here |
+| R2 to R8 | To do | |
+
 
 This builds on the redesign that is already on `dev`. Nothing here replaces the design system, the brand colours or the layers. The aim is to close the gap between "modern and consistent" and "feels designed".
 

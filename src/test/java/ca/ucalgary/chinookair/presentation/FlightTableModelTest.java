@@ -47,8 +47,8 @@ class FlightTableModelTest {
         assertEquals("AC123", model.getValueAt(0, 0));
         assertEquals("Air Canada", model.getValueAt(0, 1));
         assertEquals("YYC → YVR", model.getValueAt(0, 2));
-        assertEquals("2026-12-01 12:00", model.getValueAt(0, 3));
-        assertEquals("2026-12-01 13:30", model.getValueAt(0, 4));
+        assertEquals(InputParser.dateTime("2026-12-01 12:00"), model.getValueAt(0, 3));
+        assertEquals(InputParser.dateTime("2026-12-01 13:30"), model.getValueAt(0, 4));
         assertEquals("1h 30m", model.getValueAt(0, 5));
         assertEquals(150, model.getValueAt(0, 6));
         assertEquals("$200.00", model.getValueAt(0, 7));

@@ -19,7 +19,6 @@ import javax.swing.SwingConstants;
 class TaskCard extends JButton {
 
     private static final long serialVersionUID = 1L;
-    private static final int PAD = 20;
 
     private final String description;
 
@@ -33,7 +32,7 @@ class TaskCard extends JButton {
         setHorizontalTextPosition(SwingConstants.RIGHT);
         setVerticalTextPosition(SwingConstants.TOP);
         setFont(getFont().deriveFont(Font.BOLD, Type.SECTION));
-        setMargin(new Insets(PAD - 2, PAD, PAD - 2, PAD));
+        setMargin(new Insets(Space.L, Space.XL, Space.L, Space.XL));
         setPreferredSize(new Dimension(300, 96));
         putClientProperty("FlatLaf.styleClass", "card");
     }

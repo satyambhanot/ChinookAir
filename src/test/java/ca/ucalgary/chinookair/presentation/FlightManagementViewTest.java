@@ -179,7 +179,7 @@ class FlightManagementViewTest {
         view.departureField.setText(day(n) + " 09:00");
         view.updateButton.doClick(0);
         assertEquals("Updated " + number, view.message());
-        assertEquals(day(n) + " 09:00", view.tableModel.getValueAt(rowOf(number), 2));
+        assertEquals(InputParser.dateTime(day(n) + " 09:00"), view.tableModel.getValueAt(rowOf(number), 2));
         view.table.setRowSelectionInterval(rowOf(number), rowOf(number));
         assertEquals("250.00", view.priceField.getText());
     }

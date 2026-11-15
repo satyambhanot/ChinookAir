@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -15,7 +14,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,7 +33,6 @@ import javax.swing.Timer;
 class ConfirmationView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int WIDTH = 640;
 
     private final transient Controllers controllers;
@@ -65,17 +62,13 @@ class ConfirmationView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.PAGE, Space.PAGE, Space.PAGE, Space.PAGE));
         JPanel column = new JPanel();
         column.setOpaque(false);
         column.setLayout(new BoxLayout(column, BoxLayout.Y_AXIS));
 
         // the good news first
-        JLabel check = new JLabel(Icons.of("check", 22, Color.WHITE));
-        check.setOpaque(true);
-        check.setBackground(Theme.SUCCESS);
-        check.setHorizontalAlignment(JLabel.CENTER);
-        check.setPreferredSize(new java.awt.Dimension(40, 40));
+        JLabel check = new SuccessMark();
         title.setFont(title.getFont().deriveFont(Font.BOLD, Type.PAGE_HEADING));
         title.setForeground(Theme.TEXT);
         JPanel words = new JPanel();
@@ -102,7 +95,7 @@ class ConfirmationView extends JPanel implements Screen {
         numberCard.setBackground(Theme.SURFACE);
         numberCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, Palette.GOLD_500),
-                BorderFactory.createEmptyBorder(16, 20, 16, 20)));
+                BorderFactory.createEmptyBorder(Space.L, Space.XL, Space.L, Space.XL)));
         numberCard.add(numberWords, BorderLayout.CENTER);
         numberCard.add(copyButton, BorderLayout.EAST);
         copyButton.setIcon(Icons.muted("copy", 16));
@@ -208,9 +201,9 @@ class ConfirmationView extends JPanel implements Screen {
                 .addRow("Passenger", reservation.customer().name())
                 .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
                 .addRow("Route", routeOf(flight))
-                .addRow("Departs", flight.departure().format(WHEN))
+                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                 .addRow("Seat", reservation.seatNo())
-                .addTotal("Amount paid", "$" + result.payment().amount().toPlainString());
+                .addTotal("Amount paid", Format.money(result.payment().amount()));
         tripHolder.add(trip, BorderLayout.CENTER);
         tripHolder.revalidate();
         tripHolder.repaint();

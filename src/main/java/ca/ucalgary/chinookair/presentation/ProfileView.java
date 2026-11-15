@@ -12,7 +12,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.DocumentEvent;
 
@@ -37,7 +36,7 @@ class ProfileView extends JPanel implements Screen {
         super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE, Theme.PAGE));
+        setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));
         JLabel heading = new JLabel("My profile");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
@@ -48,8 +47,7 @@ class ProfileView extends JPanel implements Screen {
         buttons.add(saveButton);
         JPanel card = new JPanel(new BorderLayout(0, 12));
         card.setBackground(Theme.SURFACE);
-        card.setBorder(BorderFactory.createCompoundBorder(new LineBorder(Theme.BORDER, 1, true),
-                BorderFactory.createEmptyBorder(24, 24, 20, 24)));
+        SurfaceBorder.apply(card, Space.XL, Space.XL, Space.XL, Space.XL);
         card.add(form, BorderLayout.NORTH);
         JPanel south = new JPanel(new BorderLayout(0, 12));
         south.setOpaque(false);

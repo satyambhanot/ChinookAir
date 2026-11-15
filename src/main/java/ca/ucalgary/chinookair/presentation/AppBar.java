@@ -67,7 +67,7 @@ class AppBar extends JPanel {
     private JPanel buildBar() {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(Palette.NAVY_900);
-        bar.setBorder(BorderFactory.createEmptyBorder(0, Theme.PAGE - 8, 0, Theme.PAGE));
+        bar.setBorder(BorderFactory.createEmptyBorder(0, Space.XL, 0, Space.PAGE));
         bar.setPreferredSize(new Dimension(10, BAR_HEIGHT));
         bar.setMaximumSize(new Dimension(Integer.MAX_VALUE, BAR_HEIGHT));
 
