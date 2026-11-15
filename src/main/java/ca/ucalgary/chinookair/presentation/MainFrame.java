@@ -42,7 +42,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         this.controllers = controllers;
         setIconImages(Brand.icons());
         setSize(1000, 700);
-        setMinimumSize(new Dimension(800, 600));
+        setMinimumSize(new Dimension(960, 640));
         setLocationRelativeTo(null);
         appBar = new AppBar(controllers, this);
         JPanel root = new JPanel(new BorderLayout());

@@ -1,69 +1,104 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
- * The bar along the top of every screen after the login. It shows where you are (Home and the name
- * of the screen), who is logged in, and the Log out button, so these are one click away everywhere.
- * It is hidden on the login and registration screens, where nobody is logged in yet.
+ * The navy bar along the top of every screen after the login: the logo (a click goes Home), the tabs
+ * of the user's role with the current one underlined, who is logged in, and Log out. Under it a strip
+ * shows the steps of a booking or a change while the user is in one. Everything is hidden on the login
+ * and registration screens, where nobody is logged in yet.
  */
 class AppBar extends JPanel {
 
     private static final long serialVersionUID = 1L;
+    private static final int BAR_HEIGHT = 60;
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
-    private final JButton homeButton = Theme.link(new JButton("Home"));
-    private final JLabel separator = Theme.hint("›");
-    private final JLabel here = new JLabel(" ");
-    private final JLabel who = Theme.hint(" ");
-    private final JButton logOutButton = Theme.secondary(new JButton("Log out"));
+    private final JButton homeButton = new JButton("ChinookAir");
+    private final JPanel tabPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+    private final List<TabButton> tabs = new ArrayList<>();
+    private final Avatar avatar = new Avatar();
+    private final JLabel nameLabel = new JLabel(" ");
+    private final JLabel roleLabel = new JLabel(" ");
+    private final JButton logOutButton = new JButton("Log out");
+    private final StepStrip strip = new StepStrip();
+    private Role tabsFor;
 
     AppBar(Controllers controllers, Navigator navigator) {
-        super(new BorderLayout());
+        super();
         this.controllers = controllers;
         this.navigator = navigator;
-        setBackground(Theme.SURFACE);
-        setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.BORDER),
-                BorderFactory.createEmptyBorder(8, Theme.PAGE, 8, Theme.PAGE)));
-
-        JLabel brand = new JLabel("ChinookAir");
-        brand.setFont(brand.getFont().deriveFont(Font.BOLD, 18f));
-        brand.setForeground(Theme.ACCENT);
-
-        here.setFont(here.getFont().deriveFont(Font.BOLD, 14f));
-        homeButton.setMnemonic('H');
-        homeButton.addActionListener(e -> goHome());
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, Theme.GAP, 0));
-        left.setOpaque(false);
-        left.add(brand);
-        left.add(Box.createVerticalStrut(24));
-        left.add(homeButton);
-        left.add(separator);
-        left.add(here);
-        add(left, BorderLayout.WEST);
-
-        logOutButton.setMnemonic('O');
-        logOutButton.addActionListener(e -> logOut());
-        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, Theme.PAD, 0));
-        right.setOpaque(false);
-        right.add(who);
-        right.add(logOutButton);
-        add(right, BorderLayout.EAST);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(buildBar());
+        add(strip);
         setVisible(false);
     }
 
-    /** Called after every screen change: shows the bar for a logged-in user and fills in the place. */
+    private JPanel buildBar() {
+        JPanel bar = new JPanel(new BorderLayout());
+        bar.setBackground(Palette.NAVY_900);
+        bar.setBorder(BorderFactory.createEmptyBorder(0, Theme.PAGE - 8, 0, Theme.PAGE));
+        bar.setPreferredSize(new Dimension(10, BAR_HEIGHT));
+        bar.setMaximumSize(new Dimension(Integer.MAX_VALUE, BAR_HEIGHT));
+
+        homeButton.setIcon(new LogoTile());
+        homeButton.setIconTextGap(10);
+        homeButton.setFont(homeButton.getFont().deriveFont(Font.BOLD, Type.SECTION + 2));
+        homeButton.setToolTipText("Home");
+        homeButton.getAccessibleContext().setAccessibleName("ChinookAir home");
+        homeButton.putClientProperty("FlatLaf.styleClass", "brand");
+        homeButton.addActionListener(e -> goHome());
+
+        tabPanel.setOpaque(false);
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
+        left.setOpaque(false);
+        left.add(homeButton);
+        left.add(tabPanel);
+        bar.add(left, BorderLayout.WEST);
+
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, Type.LABEL));
+        nameLabel.setForeground(Color.WHITE);
+        roleLabel.setFont(roleLabel.getFont().deriveFont(Type.CAPTION));
+        roleLabel.setForeground(Palette.BORDER);
+        JPanel words = new JPanel();
+        words.setOpaque(false);
+        words.setLayout(new BoxLayout(words, BoxLayout.Y_AXIS));
+        words.add(nameLabel);
+        words.add(roleLabel);
+        logOutButton.putClientProperty("FlatLaf.styleClass", "onNavy");
+        logOutButton.addActionListener(e -> logOut());
+        JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        right.setOpaque(false);
+        right.add(avatar);
+        right.add(words);
+        right.add(logOutButton);
+        bar.add(right, BorderLayout.EAST);
+        return bar;
+    }
+
+    /** Called after every screen change: shows the bar for a logged-in user and marks where they are. */
     void refresh(ViewId view) {
         User user = controllers.session().currentUser().orElse(null);
         boolean loggedIn = user != null && view != ViewId.LOGIN && view != ViewId.REGISTER;
@@ -71,11 +106,33 @@ class AppBar extends JPanel {
         if (!loggedIn) {
             return;
         }
-        boolean onHome = view == ViewId.dashboardFor(user.role());
-        homeButton.setVisible(!onHome);
-        separator.setVisible(!onHome);
-        here.setText(onHome ? "Home" : view.label());
-        who.setText(user.username() + " · " + Dashboard.roleName(user.role()));
+        Role role = user.role();
+        NavModel model = NavModel.forRole(role);
+        if (role != tabsFor) {
+            buildTabs(model);
+            tabsFor = role;
+        }
+        Optional<NavModel.Tab> selected = model.selected(view);
+        for (int i = 0; i < tabs.size(); i++) {
+            tabs.get(i).mark(selected.isPresent() && selected.get().equals(model.tabs().get(i)));
+        }
+        nameLabel.setText(user.username());
+        roleLabel.setText(Dashboard.roleName(role));
+        avatar.setInitial(user.username());
+        strip.show(StepperModel.flowFor(role, view));
+        revalidate();
+        repaint();
+    }
+
+    private void buildTabs(NavModel model) {
+        tabPanel.removeAll();
+        tabs.clear();
+        for (NavModel.Tab tab : model.tabs()) {
+            TabButton button = new TabButton(tab.label());
+            button.addActionListener(e -> navigator.show(tab.opens()));
+            tabs.add(button);
+            tabPanel.add(button);
+        }
     }
 
     private void goHome() {
@@ -97,11 +154,128 @@ class AppBar extends JPanel {
         return logOutButton;
     }
 
-    String place() {
-        return here.getText();
+    List<JButton> tabs() {
+        return List.copyOf(tabs);
+    }
+
+    /** The words of the tab that is marked, or empty when no tab is (on Home, for example). */
+    String selectedTab() {
+        return tabs.stream().filter(TabButton::isSelectedTab).map(JButton::getText).findFirst().orElse("");
+    }
+
+    StepStrip steps() {
+        return strip;
     }
 
     String user() {
-        return who.getText();
+        return nameLabel.getText();
+    }
+
+    String role() {
+        return roleLabel.getText();
+    }
+
+    String initial() {
+        return avatar.initial();
+    }
+
+    /** A tab of the bar: light text on navy, white and underlined in sky blue when it is the current one. */
+    private static final class TabButton extends JButton {
+
+        private static final long serialVersionUID = 1L;
+
+        private boolean selected;
+
+        TabButton(String text) {
+            super(text);
+            setFont(getFont().deriveFont(Font.PLAIN, Type.BODY));
+            putClientProperty("FlatLaf.styleClass", "tab");
+        }
+
+        void mark(boolean selected) {
+            this.selected = selected;
+            putClientProperty("FlatLaf.styleClass", selected ? "tab tabSelected" : "tab");
+            getAccessibleContext().setAccessibleDescription(selected ? "Current page" : "");
+            repaint();
+        }
+
+        boolean isSelectedTab() {
+            return selected;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (selected) {
+                g.setColor(Palette.SKY_500);
+                g.fillRect(10, getHeight() - 4, getWidth() - 20, 3);
+            }
+        }
+    }
+
+    /** The logo mark on a white rounded tile, so the picture is clear on the navy bar. */
+    private static final class LogoTile implements Icon {
+
+        private static final int WIDTH = 64;
+        private static final int HEIGHT = 40;
+        private final java.awt.Image mark = Brand.scaledToWidth(Brand.mark(), 52);
+
+        @Override
+        public void paintIcon(Component c, Graphics g, int x, int y) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setColor(Color.WHITE);
+            g2.fillRoundRect(x, y, WIDTH, HEIGHT, 12, 12);
+            g2.drawImage(mark, x + (WIDTH - mark.getWidth(null)) / 2, y + (HEIGHT - mark.getHeight(null)) / 2, null);
+            g2.dispose();
+        }
+
+        @Override
+        public int getIconWidth() {
+            return WIDTH;
+        }
+
+        @Override
+        public int getIconHeight() {
+            return HEIGHT;
+        }
+    }
+
+    /** A blue circle with the first letter of the username. */
+    private static final class Avatar extends JComponent {
+
+        private static final long serialVersionUID = 1L;
+        private static final int SIZE = 34;
+
+        private String initial = "?";
+
+        void setInitial(String username) {
+            this.initial = username == null || username.isEmpty() ? "?" : username.substring(0, 1).toUpperCase();
+            repaint();
+        }
+
+        String initial() {
+            return initial;
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(SIZE, SIZE);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2.setColor(Palette.BLUE_600);
+            g2.fillOval(0, 0, SIZE, SIZE);
+            g2.setColor(Color.WHITE);
+            g2.setFont(getFont().deriveFont(Font.BOLD, Type.BODY));
+            java.awt.FontMetrics metrics = g2.getFontMetrics();
+            g2.drawString(initial, (SIZE - metrics.stringWidth(initial)) / 2,
+                    (SIZE + metrics.getAscent() - metrics.getDescent()) / 2);
+            g2.dispose();
+        }
     }
 }

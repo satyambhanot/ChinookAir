@@ -59,7 +59,7 @@ class MainFrameSmokeTest {
     void theFrameHasItsTitleAndSizes() {
         assertEquals("ChinookAir", frame.getTitle());
         assertEquals(new Dimension(1000, 700), frame.getSize());
-        assertEquals(new Dimension(800, 600), frame.getMinimumSize());
+        assertEquals(new Dimension(960, 640), frame.getMinimumSize());
     }
 
     @Test

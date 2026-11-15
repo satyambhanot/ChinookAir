@@ -67,6 +67,17 @@ class PaletteTest {
     }
 
     @Test
+    void theNavyBarIsReadable() {
+        atLeast(TEXT, Color.WHITE, Palette.NAVY_900, "selected tab and name");
+        atLeast(TEXT, Palette.BORDER, Palette.NAVY_900, "tab and role text");
+        atLeast(TEXT, Color.WHITE, Palette.BLUE_800, "bar button when hovered");
+        atLeast(TEXT, Palette.BORDER, Palette.BLUE_800, "tab when hovered");
+        atLeast(TEXT, Color.WHITE, Palette.BLUE_900, "bar button when pressed");
+        atLeast(LARGE_OR_LINE, Palette.SKY_500, Palette.NAVY_900, "underline and focus ring on navy");
+        atLeast(LARGE_OR_LINE, Palette.BORDER_STRONG, Palette.NAVY_900, "outline of the Log out button");
+    }
+
+    @Test
     void goldAndSkyAreOnlyUsedBehindDarkText() {
         atLeast(TEXT, Palette.NAVY_900, Palette.GOLD_500, "navy on gold");
         atLeast(TEXT, Palette.NAVY_900, Palette.GOLD_100, "navy on pale gold");
