@@ -111,6 +111,7 @@ class FlightSearchView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
+        table.describe("Flights found");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         selectButton.setMnemonic('E');

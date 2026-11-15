@@ -120,6 +120,7 @@ class FlightManagementView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Flights");
         // a click on a heading sorts by it
         table.setAutoCreateRowSorter(true);
         // the arrival time is in the card, and the table needs the room beside it

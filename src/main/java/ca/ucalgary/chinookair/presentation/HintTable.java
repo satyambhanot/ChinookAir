@@ -91,6 +91,11 @@ class HintTable extends JTable {
         }
     }
 
+    /** The name a screen reader says for this table, like "Flights". */
+    void describe(String name) {
+        getAccessibleContext().setAccessibleName(name);
+    }
+
     /** What to say when the table has no rows. */
     void setEmptyText(String text) {
         this.emptyText = text;

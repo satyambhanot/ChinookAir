@@ -106,4 +106,11 @@ class HintTableTest {
         assertEquals(2, table.getRowCount());
         assertEquals("three", table.getModel().getValueAt(table.convertRowIndexToModel(1), 0));
     }
+
+    @Test
+    void aTableCanBeNamedForAScreenReader() {
+        HintTable table = tableWith("one");
+        table.describe("Flights");
+        assertEquals("Flights", table.getAccessibleContext().getAccessibleName());
+    }
 }

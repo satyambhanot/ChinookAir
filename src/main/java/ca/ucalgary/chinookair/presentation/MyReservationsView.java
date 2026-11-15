@@ -57,6 +57,7 @@ class MyReservationsView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Reservations");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         cancelButton.setMnemonic('C');

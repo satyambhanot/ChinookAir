@@ -82,6 +82,7 @@ class ScheduleView extends JPanel implements Screen {
 
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Flight schedule");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         rescheduleControls.add(new JLabel("New departure"));

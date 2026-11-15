@@ -51,6 +51,7 @@ class ModifyReservationView extends JPanel implements Screen {
         add(top, BorderLayout.NORTH);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Reservations of the customer");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         modifyButton.setMnemonic('M');

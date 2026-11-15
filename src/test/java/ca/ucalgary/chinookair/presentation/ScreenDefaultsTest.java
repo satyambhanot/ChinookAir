@@ -95,4 +95,19 @@ class ScreenDefaultsTest {
         CustomerDashboard dashboard = new CustomerDashboard(c, NAV);
         assertSame(dashboard.taskButtons().get(0), dashboard.initialFocus());
     }
+
+    @Test
+    void everyTableHasANameForScreenReaders() {
+        assertNotNull(new FlightSearchView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new CustomerManagementView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
+        PaymentRecordsView records = new PaymentRecordsView(c, NAV);
+        assertNotNull(records.customerTable.getAccessibleContext().getAccessibleName());
+        assertNotNull(records.paymentTable.getAccessibleContext().getAccessibleName());
+        assertNotNull(new FlightManagementView(c, NAV).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new RouteManagementView(c, NAV).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new AircraftManagementView(c, NAV).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new ScheduleView(c, NAV).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new MyReservationsView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
+        assertNotNull(new ModifyReservationView(c, NAV, BOOKING).table.getAccessibleContext().getAccessibleName());
+    }
 }

@@ -49,6 +49,7 @@ class RouteManagementView extends JPanel implements Screen {
         add(heading, BorderLayout.NORTH);
 
         table.setFillsViewportHeight(true);
+        table.describe("Routes");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JLabel title = new JLabel("Add a route");

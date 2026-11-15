@@ -69,6 +69,7 @@ class CustomerManagementView extends JPanel implements Screen {
         // the list on the left, with the search above it
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
+        table.describe("Customers");
         JPanel list = new JPanel(new BorderLayout(0, 10));
         list.setOpaque(false);
         list.add(searchField, BorderLayout.NORTH);

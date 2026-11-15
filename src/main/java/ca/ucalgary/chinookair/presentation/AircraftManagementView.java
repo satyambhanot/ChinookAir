@@ -53,6 +53,7 @@ class AircraftManagementView extends JPanel implements Screen {
         add(heading, BorderLayout.NORTH);
 
         table.setFillsViewportHeight(true);
+        table.describe("Aircraft");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         JLabel title = new JLabel("Add an aircraft");
