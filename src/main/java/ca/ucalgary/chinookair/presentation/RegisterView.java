@@ -168,6 +168,16 @@ class RegisterView extends JPanel implements Screen {
     }
 
     @Override
+    public JButton defaultButton() {
+        return registerButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return usernameField;
+    }
+
+    @Override
     public void onShow() {
         clearFields();
         usernameField.requestFocusInWindow();

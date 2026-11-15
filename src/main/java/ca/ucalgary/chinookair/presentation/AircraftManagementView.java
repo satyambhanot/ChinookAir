@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -170,6 +171,16 @@ class AircraftManagementView extends JPanel implements Screen {
         modelRow.clearError();
         rowsRow.clearError();
         seatsRow.clearError();
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return addButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return modelField;
     }
 
     @Override

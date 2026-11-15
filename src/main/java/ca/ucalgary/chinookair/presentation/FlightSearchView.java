@@ -20,6 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -197,6 +198,16 @@ class FlightSearchView extends JPanel implements Screen {
 
     java.awt.Color messageColor() {
         return messageLabel.getForeground();
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return searchButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return originCombo;
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -115,6 +116,11 @@ class PaymentRecordsView extends JPanel implements Screen {
         } catch (RuntimeException e) {
             alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return searchField;
     }
 
     @Override

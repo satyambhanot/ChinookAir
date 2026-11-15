@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -165,6 +166,16 @@ class ScheduleView extends JPanel implements Screen {
     Flight selectedFlight() {
         int row = table.getSelectedRow();
         return row < 0 ? null : tableModel.flightAt(table.convertRowIndexToModel(row));
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return showButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return fromField;
     }
 
     @Override

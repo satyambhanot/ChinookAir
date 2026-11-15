@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -93,6 +94,16 @@ class ModifyReservationView extends JPanel implements Screen {
         }
         booking.startModifying(chosen);
         navigator.show(ViewId.FLIGHT_SEARCH);
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return modifyButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return table;
     }
 
     @Override

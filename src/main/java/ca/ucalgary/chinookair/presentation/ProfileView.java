@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -118,6 +119,16 @@ class ProfileView extends JPanel implements Screen {
     private void goBack() {
         Optional<User> user = controllers.session().currentUser();
         navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return saveButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return form.nameField;
     }
 
     @Override

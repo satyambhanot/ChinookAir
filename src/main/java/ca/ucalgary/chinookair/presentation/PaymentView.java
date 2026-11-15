@@ -18,6 +18,7 @@ import java.awt.Insets;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
@@ -207,6 +208,16 @@ class PaymentView extends JPanel implements Screen {
     /** The last message shown, wherever it appears on the screen. */
     String message() {
         return shown.isEmpty() ? messageLabel.getText().trim() : shown;
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return payButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return nameField;
     }
 
     @Override

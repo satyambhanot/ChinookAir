@@ -1,6 +1,8 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -79,6 +81,24 @@ class MainFrameSmokeTest {
         }
         frame.show(ViewId.LOGIN);
         assertEquals(ViewId.LOGIN, frame.currentView());
+    }
+
+    @Test
+    void theWindowUsesTheDefaultButtonOfTheScreenThatShows() {
+        frame.show(ViewId.REGISTER);
+        RegisterView register = (RegisterView) frame.screenFor(ViewId.REGISTER);
+        assertSame(register.registerButton, frame.getRootPane().getDefaultButton());
+        frame.show(ViewId.LOGIN);
+        LoginView login = (LoginView) frame.screenFor(ViewId.LOGIN);
+        assertSame(login.loginButton, frame.getRootPane().getDefaultButton());
+    }
+
+    @Test
+    void aScreenWithoutADefaultButtonClearsTheOldOne() {
+        controllers.session().login(controllers.loginController()
+                .authenticate("agent1", "agent123"));
+        frame.show(ViewId.CUSTOMER_MANAGEMENT);
+        assertNull(frame.getRootPane().getDefaultButton());
     }
 
     // ---- the monthly promotion

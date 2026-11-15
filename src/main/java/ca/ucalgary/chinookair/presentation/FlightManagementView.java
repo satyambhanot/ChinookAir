@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
 import java.util.function.Predicate;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -383,6 +384,11 @@ class FlightManagementView extends JPanel implements Screen {
 
     private static <T> void fill(JComboBox<T> combo, List<T> items) {
         combo.setModel(new DefaultComboBoxModel<>(new Vector<>(items)));
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return filterField;
     }
 
     @Override

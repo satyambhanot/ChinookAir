@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -166,6 +167,11 @@ class MyReservationsView extends JPanel implements Screen {
     private void showError(String text) {
         messageLabel.setForeground(ERROR);
         messageLabel.setText(text);
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return table;
     }
 
     @Override

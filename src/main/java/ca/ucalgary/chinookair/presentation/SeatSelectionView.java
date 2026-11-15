@@ -138,6 +138,11 @@ class SeatSelectionView extends JPanel implements Screen {
     }
 
     @Override
+    public JButton defaultButton() {
+        return continueButton;
+    }
+
+    @Override
     public void onShow() {
         Optional<User> user = controllers.session().currentUser();
         if (user.isEmpty()) {

@@ -8,6 +8,7 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -222,6 +223,11 @@ class CustomerManagementView extends JPanel implements Screen {
         booking.clear();
         booking.bookFor(chosen);
         navigator.show(ViewId.MODIFY_RESERVATION);
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return searchField;
     }
 
     @Override

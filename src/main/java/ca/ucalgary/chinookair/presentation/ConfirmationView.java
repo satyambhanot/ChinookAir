@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -164,6 +165,16 @@ class ConfirmationView extends JPanel implements Screen {
         Timer timer = new Timer(2000, e -> copyButton.setText("Copy"));
         timer.setRepeats(false);
         timer.start();
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return dashboardButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return dashboardButton;
     }
 
     @Override

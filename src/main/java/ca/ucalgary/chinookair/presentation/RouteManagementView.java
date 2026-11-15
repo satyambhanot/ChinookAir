@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
+import javax.swing.JComponent;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -111,6 +112,16 @@ class RouteManagementView extends JPanel implements Screen {
         } catch (RuntimeException e) {
             alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
+    }
+
+    @Override
+    public JButton defaultButton() {
+        return addButton;
+    }
+
+    @Override
+    public JComponent initialFocus() {
+        return originCombo;
     }
 
     @Override
