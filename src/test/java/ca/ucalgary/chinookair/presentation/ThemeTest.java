@@ -32,7 +32,7 @@ class ThemeTest {
 
     @Test
     void everyButtonStyleHasADefinition() {
-        for (String name : new String[] {"primary", "danger", "secondary", "link", "card"}) {
+        for (String name : new String[] {"primary", "danger", "secondary", "link", "card", "day", "today"}) {
             assertNotNull(UIManager.get("[style]Button." + name), name);
         }
         assertNotNull(UIManager.get("[style]ToggleButton.seat"));
