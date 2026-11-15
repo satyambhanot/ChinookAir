@@ -15,7 +15,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,7 +34,6 @@ import javax.swing.Timer;
 class ConfirmationView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int WIDTH = 640;
 
     private final transient Controllers controllers;
@@ -208,9 +206,9 @@ class ConfirmationView extends JPanel implements Screen {
                 .addRow("Passenger", reservation.customer().name())
                 .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
                 .addRow("Route", routeOf(flight))
-                .addRow("Departs", flight.departure().format(WHEN))
+                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                 .addRow("Seat", reservation.seatNo())
-                .addTotal("Amount paid", "$" + result.payment().amount().toPlainString());
+                .addTotal("Amount paid", Format.money(result.payment().amount()));
         tripHolder.add(trip, BorderLayout.CENTER);
         tripHolder.revalidate();
         tripHolder.repaint();

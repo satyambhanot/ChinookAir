@@ -15,7 +15,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import javax.swing.JComponent;
@@ -40,7 +39,6 @@ class PaymentView extends JPanel implements Screen {
     private static final long serialVersionUID = 1L;
     private static final Color ERROR = Theme.DANGER;
     private static final Color NOTICE = Theme.SUCCESS;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int FORM_WIDTH = 440;
     private static final int SUMMARY_WIDTH = 320;
 
@@ -250,12 +248,12 @@ class PaymentView extends JPanel implements Screen {
 
     private void showSummary(Reservation reservation) {
         Flight flight = reservation.flight();
-        String price = "$" + reservation.price().toPlainString();
+        String price = Format.money(reservation.price());
         summaryHolder.removeAll();
         summary = new SummaryCard("Order summary")
                 .addRow("Flight", flight.flightNumber() + " (" + flight.airline().name() + ")")
                 .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                .addRow("Departs", flight.departure().format(WHEN))
+                .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                 .addRow("Seat", reservation.seatNo())
                 .addTotal("Total", price);
         summaryHolder.add(summary, BorderLayout.NORTH);

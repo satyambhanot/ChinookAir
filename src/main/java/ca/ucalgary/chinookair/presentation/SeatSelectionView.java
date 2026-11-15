@@ -41,8 +41,6 @@ class SeatSelectionView extends JPanel implements Screen {
     private static final Color ECONOMY = Theme.ACCENT_SOFT;
     private static final Color TAKEN = Palette.TAKEN;
     private static final Color SELECTED = Theme.ACCENT;
-    private static final java.time.format.DateTimeFormatter WHEN =
-            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final String PICK = "Pick a seat";
     private static final int SIDE_WIDTH = 320;
     private static final int SEAT_WIDTH = 56;
@@ -332,9 +330,9 @@ class SeatSelectionView extends JPanel implements Screen {
             Flight flight = offer.flight();
             card.addRow("Flight", flight.flightNumber())
                     .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                    .addRow("Departs", flight.departure().format(WHEN))
+                    .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
                     .addRow("Seat", seat.number() + " (" + className(seat) + ")")
-                    .addTotal("Price", "$" + flight.priceFor(seat.seatClass()).toPlainString());
+                    .addTotal("Price", Format.money(flight.priceFor(seat.seatClass())));
         }
         summary = card;
         summaryHolder.add(card, BorderLayout.NORTH);

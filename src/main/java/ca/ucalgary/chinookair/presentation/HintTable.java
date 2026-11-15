@@ -5,6 +5,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 import javax.swing.JLabel;
 import javax.swing.RowFilter;
@@ -13,6 +14,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -37,6 +39,8 @@ class HintTable extends JTable {
         setAutoCreateRowSorter(false);
         // a state like "Awaiting payment" is drawn as a badge
         setDefaultRenderer(Status.class, new Badge.CellRenderer());
+        // a time is stored as a time, so it sorts right, and written for people here
+        setDefaultRenderer(LocalDateTime.class, new TimeRenderer(false));
         JTableHeader header = getTableHeader();
         header.setReorderingAllowed(false);
         TableCellRenderer base = header.getDefaultRenderer();
@@ -48,6 +52,32 @@ class HintTable extends JTable {
             }
             return cell;
         });
+    }
+
+    /** The renderer for a time column that also shows the year, for records that are kept for long. */
+    static TableCellRenderer timeWithYearRenderer() {
+        return new TimeRenderer(true);
+    }
+
+    /** Writes a {@link LocalDateTime} with {@link Format}. */
+    private static final class TimeRenderer extends DefaultTableCellRenderer {
+
+        private static final long serialVersionUID = 1L;
+        private final boolean withYear;
+
+        TimeRenderer(boolean withYear) {
+            this.withYear = withYear;
+        }
+
+        @Override
+        protected void setValue(Object value) {
+            if (value instanceof LocalDateTime) {
+                LocalDateTime when = (LocalDateTime) value;
+                setText(withYear ? Format.dateTimeWithYear(when) : Format.dateTime(when));
+            } else {
+                super.setValue(value);
+            }
+        }
     }
 
     /** Every time the rows change, the columns get as wide as their longest text so nothing is cut off. */

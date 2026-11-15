@@ -13,7 +13,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Vector;
@@ -44,7 +43,6 @@ class FlightManagementView extends JPanel implements Screen {
     private static final int DEFAULT_DAYS = 30;
     private static final int CARD_WIDTH = 360;
     private static final int ARRIVES_COLUMN = 3;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
@@ -244,8 +242,8 @@ class FlightManagementView extends JPanel implements Screen {
             routeCombo.setSelectedItem(find(routeCombo, r -> r.id().equals(flight.route().id())));
             airlineCombo.setSelectedItem(find(airlineCombo, a -> a.code().equals(flight.airline().code())));
             aircraftCombo.setSelectedItem(find(aircraftCombo, a -> a.id().equals(flight.aircraft().id())));
-            departureField.setText(flight.departure().format(WHEN));
-            arrivalField.setText(flight.arrival().format(WHEN));
+            departureField.setText(Format.input(flight.departure()));
+            arrivalField.setText(Format.input(flight.arrival()));
             priceField.setText(flight.basePrice().toPlainString());
             card.setVisible(true);
         }
@@ -283,7 +281,7 @@ class FlightManagementView extends JPanel implements Screen {
             Flight added = controllers.flightManagementController().addFlight(admin, details());
             load();
             alert.show(Alert.Kind.SUCCESS, "Added " + added.flightNumber() + ", departs "
-                    + added.departure().format(WHEN));
+                    + Format.dateTime(added.departure()));
         } catch (RuntimeException e) {
             showError(ErrorMessages.forException(e));
         }

@@ -55,6 +55,7 @@ class PaymentRecordsView extends JPanel implements Screen {
         customerTable.describe("Customers");
         paymentTable.setFillsViewportHeight(true);
         paymentTable.describe("Payments");
+        paymentTable.getColumnModel().getColumn(0).setCellRenderer(HintTable.timeWithYearRenderer());
         paymentsHeading.setFont(paymentsHeading.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
 
         // the customers take a quarter of the height, the payments the rest

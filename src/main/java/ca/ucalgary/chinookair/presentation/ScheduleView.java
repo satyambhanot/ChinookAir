@@ -8,7 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.BorderFactory;
@@ -26,7 +25,6 @@ import javax.swing.ListSelectionModel;
 class ScheduleView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final int DEFAULT_DAYS = 7;
     private static final int MONTH_DAYS = 30;
 
@@ -132,8 +130,8 @@ class ScheduleView extends JPanel implements Screen {
         rescheduleButton.setEnabled(flight != null);
         rescheduleControls.setVisible(administrator && flight != null);
         if (flight != null) {
-            newDepartureField.setText(flight.departure().format(WHEN));
-            newArrivalField.setText(flight.arrival().format(WHEN));
+            newDepartureField.setText(Format.input(flight.departure()));
+            newArrivalField.setText(Format.input(flight.arrival()));
         }
     }
 

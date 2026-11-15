@@ -29,8 +29,8 @@ class ScheduleTableModelTest {
         assertEquals(5, model.getColumnCount());
         assertEquals("AC123", model.getValueAt(0, 0));
         assertEquals("YYC → YVR", model.getValueAt(0, 1));
-        assertEquals("2026-12-01 12:00", model.getValueAt(0, 2));
-        assertEquals("2026-12-01 13:30", model.getValueAt(0, 3));
+        assertEquals(InputParser.dateTime("2026-12-01 12:00"), model.getValueAt(0, 2));
+        assertEquals(InputParser.dateTime("2026-12-01 13:30"), model.getValueAt(0, 3));
         assertEquals("Boeing 737", model.getValueAt(0, 4));
         assertEquals("Arrives", model.getColumnName(3));
         assertEquals("AC123", model.flightAt(0).flightNumber());
