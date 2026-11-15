@@ -12,7 +12,7 @@ final class Icons {
 
     /** The file names, without ".svg". */
     static final List<String> NAMES = List.of("search", "calendar", "swap", "check", "alert", "close", "plane",
-            "ticket", "user", "copy", "folder", "chevron-left", "chevron-right");
+            "ticket", "user", "copy", "folder", "chevron-left", "chevron-right", "card", "grid");
 
     private Icons() {
     }

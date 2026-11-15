@@ -11,9 +11,9 @@ class AdminDashboard extends Dashboard {
 
     AdminDashboard(Controllers controllers, Navigator navigator) {
         super(controllers, navigator, Role.ADMIN, "Administrator", List.of(
-                new Task("Flights", "Add, change or remove flights", 'F', ViewId.FLIGHT_MANAGEMENT),
-                new Task("Routes", "Choose which airports are connected", 'R', ViewId.ROUTE_MANAGEMENT),
-                new Task("Aircraft", "Manage the planes and their seats", 'A', ViewId.AIRCRAFT_MANAGEMENT),
-                new Task("Schedule", "See the flights and move a departure", 'S', ViewId.SCHEDULE)));
+                new Task("Flights", "Add, change or remove flights", "plane", 'F', ViewId.FLIGHT_MANAGEMENT),
+                new Task("Routes", "Choose which airports are connected", "swap", 'R', ViewId.ROUTE_MANAGEMENT),
+                new Task("Aircraft", "Manage the planes and their seats", "grid", 'A', ViewId.AIRCRAFT_MANAGEMENT),
+                new Task("Schedule", "See the flights and move a departure", "calendar", 'S', ViewId.SCHEDULE)));
     }
 }

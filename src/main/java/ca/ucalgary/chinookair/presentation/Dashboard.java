@@ -49,7 +49,7 @@ abstract class Dashboard extends JPanel implements Screen {
         JPanel cards = new JPanel(new GridLayout(0, 2, 16, 16));
         cards.setOpaque(false);
         for (Task task : tasks) {
-            TaskCard card = new TaskCard(task.label(), task.description());
+            TaskCard card = new TaskCard(task.label(), task.description(), task.icon());
             card.setMnemonic(task.mnemonic());
             card.addActionListener(e -> navigator.show(task.view()));
             taskButtons.add(card);
@@ -62,8 +62,8 @@ abstract class Dashboard extends JPanel implements Screen {
         add(holder, BorderLayout.CENTER);
     }
 
-    /** One card: its text, what it is for, the key that presses it, and the screen it opens. */
-    record Task(String label, String description, char mnemonic, ViewId view) {
+    /** One card: its text, what it is for, its icon, the key that presses it, and the screen it opens. */
+    record Task(String label, String description, String icon, char mnemonic, ViewId view) {
     }
 
     /** The name of a role in words, as shown in the header. */
