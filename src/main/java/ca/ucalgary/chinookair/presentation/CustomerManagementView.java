@@ -192,11 +192,8 @@ class CustomerManagementView extends JPanel implements Screen {
                         form.emailField.getText(), form.phoneField.getText());
             }
             // look for the saved customer again, so the table shows what is stored
-            boolean sameText = searchField.getText().equals(saved.email());
+            // setText counts as a change even when the text is the same, so the search runs again
             searchField.setText(saved.email());
-            if (sameText) {
-                search();
-            }
             if (tableModel.getRowCount() > 0) {
                 table.setRowSelectionInterval(0, 0);
             }

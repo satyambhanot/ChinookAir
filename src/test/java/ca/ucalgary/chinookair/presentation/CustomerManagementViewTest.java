@@ -58,7 +58,7 @@ class CustomerManagementViewTest {
     }
 
     private void search(String text) {
-        // typing searches by itself; the extra call covers a text that is the same as before
+        // typing searches by itself
         view.searchField.setText(text);
         view.search();
     }
@@ -194,7 +194,7 @@ class CustomerManagementViewTest {
 
     @Test
     void savingWithTheSameSearchTextStillRefreshesTheTable() {
-        // the box already holds the email that the save will put there, so no typing event follows
+        // the box already holds the email that the save will put there
         search(jo.email());
         view.table.setRowSelectionInterval(0, 0);
         view.form.phoneField.setText("403-555-0188");
