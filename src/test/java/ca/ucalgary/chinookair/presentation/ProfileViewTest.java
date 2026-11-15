@@ -103,4 +103,34 @@ class ProfileViewTest {
         view.backButton.doClick(0);
         assertEquals(ViewId.CUSTOMER_DASHBOARD, navigator.last());
     }
+
+    @Test
+    void saveStaysOffUntilSomethingChanges() {
+        view.onShow();
+        assertFalse(view.saveButton.isEnabled());
+        view.form.nameField.setText(view.form.nameField.getText() + "x");
+        assertTrue(view.saveButton.isEnabled());
+        view.form.nameField.setText(view.form.nameField.getText().substring(0,
+                view.form.nameField.getText().length() - 1));
+        assertFalse(view.saveButton.isEnabled(), "putting the old text back is no change");
+    }
+
+    @Test
+    void afterSavingTheButtonIsOffAgainAndASuccessStripShows() {
+        view.onShow();
+        view.form.phoneField.setText("403-555-0199");
+        view.saveButton.doClick(0);
+        assertEquals("Saved", view.message());
+        assertEquals(Alert.Kind.SUCCESS, view.messageKind());
+        assertFalse(view.saveButton.isEnabled());
+    }
+
+    @Test
+    void aProblemShowsInAnErrorStrip() {
+        view.onShow();
+        view.form.emailField.setText("not an email");
+        view.saveButton.doClick(0);
+        assertEquals(Alert.Kind.ERROR, view.messageKind());
+        assertTrue(view.saveButton.isEnabled(), "the form still differs, so the user can try again");
+    }
 }

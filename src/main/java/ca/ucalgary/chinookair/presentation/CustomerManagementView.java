@@ -23,6 +23,7 @@ import javax.swing.ListSelectionModel;
 class CustomerManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
+    private static final int SIDE_WIDTH = 340;
     private static final Color ERROR = Theme.DANGER;
     private static final Color NOTICE = Theme.SUCCESS;
 
@@ -82,8 +83,14 @@ class CustomerManagementView extends JPanel implements Screen {
         buttons.add(modifyButton);
         buttons.add(newButton);
         buttons.add(saveButton);
+        // the list on the left, the chosen customer on the right
+        JPanel side = new JPanel(new BorderLayout());
+        side.setOpaque(false);
+        side.setPreferredSize(new java.awt.Dimension(SIDE_WIDTH, 10));
+        side.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 0));
+        side.add(form, BorderLayout.NORTH);
+        add(side, BorderLayout.EAST);
         JPanel bottom = new JPanel(new BorderLayout(0, 6));
-        bottom.add(form, BorderLayout.NORTH);
         bottom.add(messageLabel, BorderLayout.CENTER);
         bottom.add(buttons, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);

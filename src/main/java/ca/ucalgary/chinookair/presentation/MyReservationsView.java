@@ -50,7 +50,7 @@ class MyReservationsView extends JPanel implements Screen {
     }
 
     private void build() {
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Reservations");
         Theme.heading(heading);
         add(heading, BorderLayout.NORTH);
@@ -80,8 +80,15 @@ class MyReservationsView extends JPanel implements Screen {
 
     private void updateButtons() {
         Reservation selected = selected();
-        payButton.setEnabled(selected != null && selected.status() == ReservationStatus.PENDING_PAYMENT);
-        cancelButton.setEnabled(selected != null && controllers.reservationController().canCancel(selected));
+        boolean canPay = selected != null && selected.status() == ReservationStatus.PENDING_PAYMENT;
+        boolean canCancel = selected != null && controllers.reservationController().canCancel(selected);
+        payButton.setEnabled(canPay);
+        cancelButton.setEnabled(canCancel);
+        // a button that cannot be pressed says why, so it never looks broken
+        payButton.setToolTipText(canPay ? null : selected == null ? "Select a reservation first"
+                : "Only a reservation that is awaiting payment can be paid");
+        cancelButton.setToolTipText(canCancel ? null : selected == null ? "Select a reservation first"
+                : "This reservation can no longer be cancelled");
     }
 
     private Reservation selected() {

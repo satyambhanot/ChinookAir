@@ -3,6 +3,19 @@
 Status: plan only. No application code has been changed for this document.
 Branch it was written on: `ui/redesign` (6 commits already there, see section 1.4).
 
+## Progress
+
+| Milestone | State | Notes |
+|---|---|---|
+| M0 Brand assets | Done | Logo, mark, six icon sizes, transparent background; window and Dock icon |
+| M1 Tokens and fonts | Done | `Palette`, `Type`, `FlatLaf.properties`, Inter; contrast test fails the build below 4.5:1 |
+| M2 Components | Done | Icons, badges, form field, search field, empty state, summary card, alert, date picker |
+| M3 Shell and navigation | Done | Navy bar, role tabs, step strip. Deviation: the step strip sits under the bar and the tabs stay, so a user can leave a booking |
+| M4 Login and customer journey | Done | Login, register, find flights, seats, payment, confirmation, my reservations, profile |
+| M5 to M8 | Not started | Agent screens, admin screens, polish, final audit |
+
+Deviations from this plan while building M4: the live password checklist on registration was left out, because the rules belong to the controller and a copy in the screen could drift; the reservation detail strip was replaced by tooltips that say why Pay and Cancel are disabled; login still lands on Home, and the agent's Reservations card is still there (decisions 1 and 5 in section 12 are open).
+
 ## 0. How this plan was made, and what was and was not checked
 
 | Source | What I did |

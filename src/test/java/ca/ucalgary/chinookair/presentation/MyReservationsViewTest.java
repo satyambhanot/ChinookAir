@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -92,6 +93,19 @@ class MyReservationsViewTest {
         assertEquals("No reservations yet.", view.message());
         assertFalse(view.cancelButton.isEnabled());
         assertFalse(view.payButton.isEnabled());
+    }
+
+    @Test
+    void aButtonThatCannotBePressedSaysWhy() {
+        view.onShow();
+        assertEquals("Select a reservation first", view.payButton.getToolTipText());
+        assertEquals("Select a reservation first", view.cancelButton.getToolTipText());
+
+        book("2A", true);
+        view.onShow();
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.payButton.getToolTipText().contains("awaiting payment"));
+        assertNull(view.cancelButton.getToolTipText(), "a confirmed reservation can be cancelled");
     }
 
     @Test
