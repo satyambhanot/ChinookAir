@@ -5,94 +5,97 @@ import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.Payment;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.List;
-import java.util.Optional;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-/** For an agent: search a customer, choose one, and read their payments, newest first. */
+/**
+ * For an agent: find a customer, choose one, and read their payments, newest first. The search follows
+ * the typing, so there is no button to press.
+ */
 class PaymentRecordsView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
-    private static final Color ERROR = Theme.DANGER;
+    private static final String NO_CUSTOMERS = "No customers match. Try another name or email.";
+    private static final String CHOOSE = "Select a customer to see their payments.";
 
     private final transient Controllers controllers;
     private final transient Navigator navigator;
 
-    final JTextField searchField = new JTextField(20);
-    final JButton searchButton = Theme.primary(new JButton("Search"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
+    final SearchField searchField = new SearchField("Search by name or email", 24);
     final CustomerTableModel customerModel = new CustomerTableModel();
-    final HintTable customerTable = new HintTable(customerModel, "Search for a customer above.");
+    final HintTable customerTable = new HintTable(customerModel, NO_CUSTOMERS);
     final PaymentTableModel paymentModel = new PaymentTableModel();
-    final HintTable paymentTable = new HintTable(paymentModel, "Select a customer to see their payments.");
-    private final JLabel messageLabel = new JLabel(" ");
+    final HintTable paymentTable = new HintTable(paymentModel, CHOOSE);
+    private final JLabel paymentsHeading = new JLabel("Payments");
+    private final Alert alert = new Alert(700);
 
     PaymentRecordsView(Controllers controllers, Navigator navigator) {
-        super(new BorderLayout(0, 10));
+        super(new BorderLayout(0, 12));
         this.controllers = controllers;
         this.navigator = navigator;
-        setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        setBorder(BorderFactory.createEmptyBorder(Theme.PAGE - 8, Theme.PAGE, Theme.PAGE - 8, Theme.PAGE));
         JLabel heading = new JLabel("Payment records");
         Theme.heading(heading);
-        JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        JLabel searchLabel = new JLabel("Name or email");
-        searchLabel.setDisplayedMnemonic('M');
-        searchLabel.setLabelFor(searchField);
-        searchRow.add(searchLabel);
-        searchRow.add(searchField);
-        searchRow.add(searchButton);
-        searchButton.setMnemonic('S');
-        JPanel top = new JPanel(new BorderLayout());
+        JPanel top = new JPanel(new BorderLayout(0, 10));
+        top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
-        top.add(searchRow, BorderLayout.CENTER);
+        top.add(searchField, BorderLayout.CENTER);
+        top.add(alert, BorderLayout.SOUTH);
         add(top, BorderLayout.NORTH);
 
         customerTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         paymentTable.setFillsViewportHeight(true);
-        JPanel tables = new JPanel(new GridLayout(2, 1, 0, 10));
-        tables.add(new JScrollPane(customerTable));
-        tables.add(new JScrollPane(paymentTable));
+        paymentsHeading.setFont(paymentsHeading.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
+
+        // the customers take a quarter of the height, the payments the rest
+        JPanel tables = new JPanel(new GridBagLayout());
+        tables.setOpaque(false);
+        GridBagConstraints at = new GridBagConstraints();
+        at.gridx = 0;
+        at.fill = GridBagConstraints.BOTH;
+        at.weightx = 1;
+        at.gridy = 0;
+        at.weighty = 1;
+        tables.add(new JScrollPane(customerTable), at);
+        at.gridy = 1;
+        at.weighty = 0;
+        at.insets = new Insets(14, 0, 8, 0);
+        tables.add(paymentsHeading, at);
+        at.gridy = 2;
+        at.weighty = 3;
+        at.insets = new Insets(0, 0, 0, 0);
+        tables.add(new JScrollPane(paymentTable), at);
         add(tables, BorderLayout.CENTER);
 
-        backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        buttons.add(backButton);
-        JPanel bottom = new JPanel(new BorderLayout());
-        bottom.add(messageLabel, BorderLayout.WEST);
-        bottom.add(buttons, BorderLayout.EAST);
-        add(bottom, BorderLayout.SOUTH);
-
-        searchButton.addActionListener(e -> search());
-        searchField.addActionListener(e -> search());
+        searchField.onChange(text -> search());
         customerTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 showPayments();
             }
         });
-        backButton.addActionListener(e -> goBack());
     }
 
-    private void search() {
+    /** Looks up the customers that match the search box; it runs after every change of the text. */
+    void search() {
         User agent = controllers.session().currentUser().orElse(null);
         if (agent == null) {
             return;
         }
         paymentModel.setPayments(List.of());
+        paymentsHeading.setText("Payments");
+        paymentTable.setEmptyText(CHOOSE);
         try {
-            List<Customer> found = controllers.customerController().search(agent, searchField.getText());
-            customerModel.setCustomers(found);
-            showMessage(found.isEmpty() ? "No customers found." : " ", Theme.MUTED);
+            customerModel.setCustomers(controllers.customerController().search(agent, searchField.getText()));
+            alert.clear();
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
 
@@ -106,20 +109,12 @@ class PaymentRecordsView extends JPanel implements Screen {
         try {
             List<Payment> payments = controllers.paymentController().recordsForCustomer(agent, customer.id());
             paymentModel.setPayments(payments);
-            showMessage(payments.isEmpty() ? customer.name() + " has no payments." : " ", Theme.MUTED);
+            paymentsHeading.setText("Payments of " + customer.name());
+            paymentTable.setEmptyText(customer.name() + " has no payments.");
+            alert.clear();
         } catch (RuntimeException e) {
-            showMessage(ErrorMessages.forException(e), ERROR);
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
-    }
-
-    private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
-    }
-
-    private void showMessage(String text, Color color) {
-        messageLabel.setForeground(color);
-        messageLabel.setText(text);
     }
 
     @Override
@@ -128,11 +123,16 @@ class PaymentRecordsView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
+        alert.clear();
         searchField.setText("");
         search();
     }
 
     String message() {
-        return messageLabel.getText().trim();
+        return alert.text();
+    }
+
+    String paymentsTitle() {
+        return paymentsHeading.getText();
     }
 }
