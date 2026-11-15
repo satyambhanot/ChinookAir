@@ -14,7 +14,8 @@ Branch it was written on: `ui/redesign` (6 commits already there, see section 1.
 | M4 Login and customer journey | Done | Login, register, find flights, seats, payment, confirmation, my reservations, profile |
 | M5 Agent screens | Done | Customers (live search, detail panel), modify, payment records, schedule (pickers, quick ranges) |
 | M6 Admin screens | Done | Flights (sort, filter, card on demand, red confirm dialog), routes, aircraft (seat total while typing). Reschedule on the schedule screen still uses text fields |
-| M7 to M8 | Not started | Polish (default buttons, tooltips, splash, background work) and the final audit |
+| M7 Polish | Done | Enter and first focus on every screen, numbered tab shortcuts, table names for screen readers, start-up window with the logo (database made in the background), promotion dialog look, Back only where it leads somewhere. Deviations: payment is not moved to a background thread because nothing in it is slow, and rescheduling uses a card instead of a dialog |
+| M8 Final audit | Not started | Every screen at three sizes, run the test-plan cases, fix what is found |
 
 Deviations from this plan while building M4: the live password checklist on registration was left out, because the rules belong to the controller and a copy in the screen could drift; the reservation detail strip was replaced by tooltips that say why Pay and Cancel are disabled; login still lands on Home, and the agent's Reservations card is still there (decisions 1 and 5 in section 12 are open).
 
