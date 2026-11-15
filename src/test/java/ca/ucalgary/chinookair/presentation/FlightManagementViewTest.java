@@ -282,6 +282,14 @@ class FlightManagementViewTest {
         assertEquals("primary", view.addButton.getClientProperty("FlatLaf.styleClass"));
         view.table.setRowSelectionInterval(0, 0);
         assertEquals("primary", view.updateButton.getClientProperty("FlatLaf.styleClass"));
-        assertEquals("Add as new", view.addButton.getText());
+        assertEquals("Duplicate", view.addButton.getText());
+    }
+
+    @Test
+    void theTableLeavesOutTheArrivalTimeBecauseTheCardShowsIt() {
+        assertEquals(4, view.table.getColumnCount());
+        assertEquals(5, view.tableModel.getColumnCount(), "the model still has it");
+        view.table.setRowSelectionInterval(0, 0);
+        assertFalse(view.arrivalField.getText().isEmpty());
     }
 }

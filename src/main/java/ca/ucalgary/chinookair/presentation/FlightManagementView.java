@@ -41,7 +41,8 @@ class FlightManagementView extends JPanel implements Screen {
 
     private static final long serialVersionUID = 1L;
     private static final int DEFAULT_DAYS = 30;
-    private static final int CARD_WIDTH = 380;
+    private static final int CARD_WIDTH = 360;
+    private static final int ARRIVES_COLUMN = 3;
     private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final transient Controllers controllers;
@@ -105,7 +106,7 @@ class FlightManagementView extends JPanel implements Screen {
         JPanel filter = new JPanel(new BorderLayout());
         filter.setOpaque(false);
         filter.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
-        filter.add(filterField, BorderLayout.CENTER);
+        filter.add(filterField, BorderLayout.NORTH);
         JPanel controls = new JPanel(new BorderLayout(12, 0));
         controls.setOpaque(false);
         controls.add(range, BorderLayout.WEST);
@@ -120,6 +121,8 @@ class FlightManagementView extends JPanel implements Screen {
         table.setFillsViewportHeight(true);
         // a click on a heading sorts by it
         table.setAutoCreateRowSorter(true);
+        // the arrival time is in the card, and the table needs the room beside it
+        table.removeColumn(table.getColumnModel().getColumn(ARRIVES_COLUMN));
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         addButton.setMnemonic('A');
@@ -165,18 +168,42 @@ class FlightManagementView extends JPanel implements Screen {
         removeButton.addActionListener(e -> remove());
     }
 
-    private JPanel buildForm() {
-        JPanel form = new JPanel();
+    private JScrollPane buildForm() {
+        JPanel form = new WidthFollowingPanel();
         form.setOpaque(false);
         form.setLayout(new javax.swing.BoxLayout(form, javax.swing.BoxLayout.Y_AXIS));
-        for (FormField row : new FormField[] {numberRow, new FormField("Route", routeCombo).mnemonic('O'),
-                new FormField("Airline", airlineCombo).mnemonic('L'), aircraftRow,
-                new FormField("Departure", departureField).mnemonic('D'),
-                new FormField("Arrival", arrivalField).mnemonic('I'), priceRow}) {
-            row.setAlignmentX(LEFT_ALIGNMENT);
-            form.add(row);
-        }
-        return form;
+        form.add(pair(numberRow, priceRow));
+        form.add(single(new FormField("Route", routeCombo).mnemonic('O')));
+        form.add(single(new FormField("Airline", airlineCombo).mnemonic('L')));
+        form.add(single(aircraftRow));
+        form.add(pair(new FormField("Departure", departureField).mnemonic('D'),
+                new FormField("Arrival", arrivalField).mnemonic('I')));
+        // a short window scrolls the form; the buttons below it stay in view
+        JScrollPane scroll = new JScrollPane(form);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        return scroll;
+    }
+
+    private static JPanel single(FormField row) {
+        JPanel holder = new JPanel(new BorderLayout());
+        holder.setOpaque(false);
+        holder.setAlignmentX(LEFT_ALIGNMENT);
+        holder.add(row, BorderLayout.CENTER);
+        return holder;
+    }
+
+    /** Two short fields side by side, to save height. */
+    private static JPanel pair(FormField left, FormField right) {
+        JPanel holder = new JPanel(new java.awt.GridLayout(1, 2, 12, 0));
+        holder.setOpaque(false);
+        holder.setAlignmentX(LEFT_ALIGNMENT);
+        holder.add(left);
+        holder.add(right);
+        return holder;
     }
 
     /** Opens the card with an empty form, ready for a new flight. */
@@ -204,7 +231,7 @@ class FlightManagementView extends JPanel implements Screen {
         // the main action of the card is Update for a chosen flight and Add for a new one
         addButton.putClientProperty("FlatLaf.styleClass", chosen ? "secondary" : "primary");
         updateButton.putClientProperty("FlatLaf.styleClass", chosen ? "primary" : "secondary");
-        addButton.setText(chosen ? "Add as new" : "Add");
+        addButton.setText(chosen ? "Duplicate" : "Add");
         cardTitle.setText(chosen ? "Flight " + selected().flightNumber() : "New flight");
     }
 
@@ -415,6 +442,37 @@ class FlightManagementView extends JPanel implements Screen {
                 text = plane.model() + " (" + plane.rows() * plane.seatsPerRow() + " seats)";
             }
             return super.getListCellRendererComponent(list, text, index, selected, focus);
+        }
+    }
+
+    /** A panel in a scroll pane that is as wide as the pane, so only the height ever scrolls. */
+    private static final class WidthFollowingPanel extends JPanel implements javax.swing.Scrollable {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Dimension getPreferredScrollableViewportSize() {
+            return getPreferredSize();
+        }
+
+        @Override
+        public int getScrollableUnitIncrement(java.awt.Rectangle visible, int orientation, int direction) {
+            return 16;
+        }
+
+        @Override
+        public int getScrollableBlockIncrement(java.awt.Rectangle visible, int orientation, int direction) {
+            return visible.height;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return true;
+        }
+
+        @Override
+        public boolean getScrollableTracksViewportHeight() {
+            return false;
         }
     }
 }
