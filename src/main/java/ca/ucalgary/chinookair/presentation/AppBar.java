@@ -8,6 +8,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
+import java.awt.GraphicsEnvironment;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -16,6 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.BorderFactory;
+import javax.swing.KeyStroke;
+import javax.swing.InputMap;
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -127,12 +135,40 @@ class AppBar extends JPanel {
     private void buildTabs(NavModel model) {
         tabPanel.removeAll();
         tabs.clear();
+        InputMap keys = getInputMap(WHEN_IN_FOCUSED_WINDOW);
+        keys.clear();
+        getActionMap().clear();
+        int number = 1;
         for (NavModel.Tab tab : model.tabs()) {
             TabButton button = new TabButton(tab.label());
             button.addActionListener(e -> navigator.show(tab.opens()));
+            // the shortcut key and a number: the first tab is 1, the second 2, and so on
+            String name = "tab-" + number;
+            keys.put(shortcut(number), name);
+            getActionMap().put(name, new AbstractAction() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    button.doClick(0);
+                }
+            });
+            button.setToolTipText(tab.label() + " (" + shortcutText() + number + ")");
             tabs.add(button);
             tabPanel.add(button);
+            number++;
         }
+    }
+
+    /** The key for tab number 1 to 9: Command on a Mac, Control elsewhere, with the digit. */
+    static KeyStroke shortcut(int number) {
+        int mask = GraphicsEnvironment.isHeadless() ? InputEvent.CTRL_DOWN_MASK
+                : Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+        return KeyStroke.getKeyStroke(KeyEvent.VK_0 + number, mask);
+    }
+
+    private static String shortcutText() {
+        return System.getProperty("os.name", "").toLowerCase().startsWith("mac") ? "\u2318" : "Ctrl+";
     }
 
     private void goHome() {
