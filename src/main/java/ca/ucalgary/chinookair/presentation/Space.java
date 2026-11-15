@@ -19,10 +19,12 @@ final class Space {
     static final int PAGE = XXL;
 
     /**
-     * The height of a field's label, used to line a button up with the fields beside it. A stop-gap
-     * until the filter bars are rebuilt with one shared layout.
+     * The space a text field or a drop-down keeps free around its drawn edge for the focus ring. A
+     * label that starts this far in lines up with the edge you can see.
      */
-    static final int LABEL_HEIGHT = 22;
+    static int fieldEdge() {
+        return javax.swing.UIManager.getInt("Component.focusWidth");
+    }
 
     private Space() {
     }

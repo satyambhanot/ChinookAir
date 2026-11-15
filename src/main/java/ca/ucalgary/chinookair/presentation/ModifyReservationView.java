@@ -6,7 +6,6 @@ import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.List;
 import java.util.Optional;
 import javax.swing.JComponent;
@@ -14,7 +13,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -52,18 +50,17 @@ class ModifyReservationView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.describe("Reservations of the customer");
-        add(new JScrollPane(table), BorderLayout.CENTER);
 
         modifyButton.setMnemonic('M');
         backButton.setMnemonic('B');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.add(backButton);
         buttons.add(modifyButton);
         JPanel bottom = new JPanel(new BorderLayout(0, 8));
         bottom.setOpaque(false);
         bottom.add(alert, BorderLayout.NORTH);
         bottom.add(buttons, BorderLayout.SOUTH);
-        add(bottom, BorderLayout.SOUTH);
+        add(new TableArea(table, bottom), BorderLayout.CENTER);
 
         modifyButton.setEnabled(false);
         table.getSelectionModel().addListSelectionListener(e -> updateButton());

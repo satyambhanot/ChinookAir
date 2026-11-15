@@ -2,7 +2,6 @@ package ca.ucalgary.chinookair.presentation;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,7 +42,7 @@ final class ConfirmDialog extends JDialog {
         text.add(heading, BorderLayout.NORTH);
         text.add(words, BorderLayout.CENTER);
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(cancelButton);
         buttons.add(confirmButton);

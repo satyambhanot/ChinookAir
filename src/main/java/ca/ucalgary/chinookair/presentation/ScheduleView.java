@@ -5,7 +5,6 @@ import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,7 +13,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -33,6 +31,7 @@ class ScheduleView extends JPanel implements Screen {
     final DatePickerField fromField;
     final DatePickerField toField;
     final JButton showButton = Theme.secondary(new JButton("Show"));
+    FilterBar filterBar;
     final JButton todayButton = Theme.link(new JButton("Today"));
     final JButton weekButton = Theme.link(new JButton("Next 7 days"));
     final JButton monthButton = Theme.link(new JButton("Next 30 days"));
@@ -56,23 +55,15 @@ class ScheduleView extends JPanel implements Screen {
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Flight schedule");
         Theme.heading(heading);
-        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        form.setOpaque(false);
-        form.add(new FormField("From", fromField).mnemonic('F'));
-        form.add(new FormField("To", toField).mnemonic('T'));
         showButton.setMnemonic('S');
-        JPanel showHolder = new JPanel(new BorderLayout());
-        showHolder.setOpaque(false);
-        showHolder.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
-        showHolder.add(showButton, BorderLayout.CENTER);
-        form.add(showHolder);
-        JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        quick.setOpaque(false);
-        quick.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, Space.S, 0, 0));
-        quick.add(todayButton);
-        quick.add(weekButton);
-        quick.add(monthButton);
-        form.add(quick);
+        filterBar = new FilterBar()
+                .field("From", fromField, 'F')
+                .field("To", toField, 'T')
+                .action(showButton)
+                .action(todayButton)
+                .action(weekButton)
+                .action(monthButton);
+        JPanel form = filterBar;
         JPanel top = new JPanel(new BorderLayout(0, 10));
         top.setOpaque(false);
         top.add(heading, BorderLayout.NORTH);
@@ -82,21 +73,16 @@ class ScheduleView extends JPanel implements Screen {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setFillsViewportHeight(true);
         table.describe("Flight schedule");
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        add(new TableArea(table), BorderLayout.CENTER);
 
         // the administrator moves the chosen flight here; the card shows only for a chosen flight
         JLabel moveTitle = new JLabel("Move the chosen flight");
         moveTitle.setFont(moveTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
-        JPanel moveRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
-        moveRow.setOpaque(false);
-        moveRow.add(new FormField("New departure", newDepartureField).mnemonic('D'));
-        moveRow.add(new FormField("New arrival", newArrivalField).mnemonic('A'));
-        JPanel moveButton = new JPanel(new BorderLayout());
-        moveButton.setOpaque(false);
-        moveButton.setBorder(BorderFactory.createEmptyBorder(Space.LABEL_HEIGHT, 0, 0, 0));
-        moveButton.add(rescheduleButton, BorderLayout.CENTER);
-        moveRow.add(moveButton);
         rescheduleButton.setMnemonic('R');
+        JPanel moveRow = new FilterBar()
+                .field("New departure", newDepartureField, 'D')
+                .field("New arrival", newArrivalField, 'A')
+                .action(rescheduleButton);
         rescheduleControls.setLayout(new BorderLayout(0, 8));
         rescheduleControls.setBackground(Theme.SURFACE);
         SurfaceBorder.apply(rescheduleControls, Space.M, Space.L, Space.S, Space.L);

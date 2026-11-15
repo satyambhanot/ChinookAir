@@ -104,7 +104,7 @@ class SeatSelectionView extends JPanel implements Screen {
         backButton.setMnemonic('B');
         continueButton.setMnemonic('C');
         continueButton.setEnabled(false);
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(backButton);
         buttons.add(continueButton);
@@ -330,7 +330,7 @@ class SeatSelectionView extends JPanel implements Screen {
             Flight flight = offer.flight();
             card.addRow("Flight", flight.flightNumber())
                     .addRow("Route", flight.route().origin().code() + " \u2192 " + flight.route().destination().code())
-                    .addRow("Departs", Format.dateTimeWithYear(flight.departure()))
+                    .addRow("Departs", Format.dateTime(flight.departure()))
                     .addRow("Seat", seat.number() + " (" + className(seat) + ")")
                     .addTotal("Price", Format.money(flight.priceFor(seat.seatClass())));
         }

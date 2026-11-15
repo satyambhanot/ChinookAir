@@ -42,7 +42,7 @@ class ProfileView extends JPanel implements Screen {
         add(heading, BorderLayout.NORTH);
 
         saveButton.setMnemonic('V');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
         buttons.add(saveButton);
         JPanel card = new JPanel(new BorderLayout(0, 12));

@@ -56,4 +56,14 @@ class ThemeTest {
         assertTrue(title.getFont().isBold());
         assertEquals(Type.LABEL, Theme.hint("hint").getFont().getSize2D());
     }
+
+    @Test
+    void tablesAndOtherScrollPanesAreDrawnToTheirBoundsWithAPlainLine() {
+        // a table gets its own border when it is put in a pane, so both are set
+        for (String key : new String[] {"ScrollPane.border", "Table.scrollPaneBorder"}) {
+            java.awt.Insets in = UIManager.getBorder(key).getBorderInsets(new javax.swing.JScrollPane());
+            assertEquals(1, in.left, key);
+            assertEquals(1, in.top, key);
+        }
+    }
 }

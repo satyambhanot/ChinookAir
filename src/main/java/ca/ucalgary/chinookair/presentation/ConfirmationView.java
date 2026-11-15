@@ -7,7 +7,6 @@ import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
@@ -76,10 +75,10 @@ class ConfirmationView extends JPanel implements Screen {
         words.setLayout(new BoxLayout(words, BoxLayout.Y_AXIS));
         words.add(title);
         words.add(subtitle);
-        JPanel banner = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        JPanel banner = new JPanel(new BorderLayout(Space.M, 0));
         banner.setOpaque(false);
-        banner.add(check);
-        banner.add(words);
+        banner.add(check, BorderLayout.WEST);
+        banner.add(words, BorderLayout.CENTER);
 
         // the number to keep, on a card with one gold edge
         JLabel caption = Theme.hint("Confirmation number");
@@ -91,11 +90,12 @@ class ConfirmationView extends JPanel implements Screen {
         numberWords.setLayout(new BoxLayout(numberWords, BoxLayout.Y_AXIS));
         numberWords.add(caption);
         numberWords.add(number);
+        // the gold edge is 5 px wide, 4 more than a card's line, so the words inside start where a card's do
         JPanel numberCard = new JPanel(new BorderLayout(16, 0));
         numberCard.setBackground(Theme.SURFACE);
         numberCard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 5, 0, 0, Palette.GOLD_500),
-                BorderFactory.createEmptyBorder(Space.L, Space.XL, Space.L, Space.XL)));
+                BorderFactory.createEmptyBorder(Space.L, Space.XL - 4, Space.L, Space.XL)));
         numberCard.add(numberWords, BorderLayout.CENTER);
         numberCard.add(copyButton, BorderLayout.EAST);
         copyButton.setIcon(Icons.muted("copy", 16));
@@ -104,14 +104,14 @@ class ConfirmationView extends JPanel implements Screen {
         tripHolder.setOpaque(false);
         tripHolder.add(trip, BorderLayout.CENTER);
 
-        JPanel savedRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        JPanel savedRow = ButtonRow.left();
         savedRow.setOpaque(false);
         savedRow.add(saved);
         savedRow.add(folderButton);
 
         anotherButton.setMnemonic('B');
         dashboardButton.setMnemonic('D');
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        ButtonRow buttons = ButtonRow.left();
         buttons.setOpaque(false);
         buttons.add(dashboardButton);
         buttons.add(anotherButton);

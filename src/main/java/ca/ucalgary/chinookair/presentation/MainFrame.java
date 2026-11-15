@@ -130,7 +130,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
 
     /** Puts a built screen in place of the one that stands for it. */
     void register(ViewId view, JComponent screen) {
-        content.add(screen, view.name());
+        content.add(new ContentPane(screen), view.name());
         screens.put(view, screen);
         added.add(view);
     }
