@@ -60,6 +60,32 @@ final class SeatGridModel {
         return seat != null && seat.available();
     }
 
+    /**
+     * The seats are split by an aisle after this many columns, or -1 when the rows are too short for an
+     * aisle (three seats or fewer). Six seats per row have the aisle after C, four after B.
+     */
+    int aisleAfter() {
+        return columnCount() >= 4 ? columnCount() / 2 : -1;
+    }
+
+    /**
+     * The next seat that can be picked when moving from a cell in a direction (row and column steps of
+     * -1, 0 or 1), or null when there is none that way. Taken seats are skipped, so the arrow keys never stop
+     * on a seat that cannot be chosen.
+     */
+    int[] nextEnabled(int row, int column, int rowStep, int columnStep) {
+        int r = row + rowStep;
+        int c = column + columnStep;
+        while (r >= 0 && r < rowCount() && c >= 0 && c < columnCount()) {
+            if (isEnabled(r, c)) {
+                return new int[] {r, c};
+            }
+            r += rowStep;
+            c += columnStep;
+        }
+        return null;
+    }
+
     /** The letter that heads a column. */
     static char letter(int column) {
         return (char) ('A' + column);

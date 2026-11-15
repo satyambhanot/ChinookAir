@@ -38,6 +38,7 @@ class EmptyState extends JPanel {
         title = new JLabel(titleText);
         title.setFont(title.getFont().deriveFont(Font.BOLD, Type.SECTION));
         title.setForeground(Theme.TEXT);
+        title.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
         hint = Theme.hint(hintText);
         for (JComponent part : new JComponent[] {picture, title, hint}) {
             part.setAlignmentX(Component.CENTER_ALIGNMENT);

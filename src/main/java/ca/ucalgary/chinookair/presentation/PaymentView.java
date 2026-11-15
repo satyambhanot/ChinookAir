@@ -128,7 +128,6 @@ class PaymentView extends JPanel implements Screen {
         columns.add(form, c);
         c.gridx = 1;
         c.insets = new Insets(0, 0, 0, 0);
-        summaryHolder.setPreferredSize(new java.awt.Dimension(SUMMARY_WIDTH, 10));
         columns.add(summaryHolder, c);
         c.gridx = 2;
         c.weightx = 1;
@@ -242,6 +241,7 @@ class PaymentView extends JPanel implements Screen {
                 .addRow("Seat", reservation.seatNo())
                 .addTotal("Total", price);
         summaryHolder.add(summary, BorderLayout.NORTH);
+        summaryHolder.setPreferredSize(new java.awt.Dimension(SUMMARY_WIDTH, summary.getPreferredSize().height));
         summaryHolder.revalidate();
         summaryHolder.repaint();
         payButton.setText("Pay " + price);

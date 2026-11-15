@@ -92,6 +92,38 @@ class SeatSelectionViewTest {
     }
 
     @Test
+    void theCardOnTheRightFollowsTheChosenSeat() {
+        assertEquals("None yet", view.summaryRows().get(0).value());
+        view.seatButtonFor("3C").doClick(0);
+        java.util.Map<String, String> rows = new java.util.LinkedHashMap<>();
+        view.summaryRows().forEach(r -> rows.put(r.label(), r.value()));
+        assertEquals(offer.flight().flightNumber(), rows.get("Flight"));
+        assertEquals("3C (Economy)", rows.get("Seat"));
+        assertEquals("$" + offer.fromPrice().toPlainString(), rows.get("Price"));
+        view.seatButtonFor("1A").doClick(0);
+        assertEquals("1A (Business)", view.summaryRows().stream().filter(r -> r.label().equals("Seat"))
+                .findFirst().orElseThrow().value());
+    }
+
+    @Test
+    void aTakenSeatShowsACrossAndIsNamedTakenForAScreenReader() {
+        view.seatButtonFor("1A").doClick(0);
+        Customer other = controllers.customerController()
+                .register("taker" + next, "password1", "Taker", "taker" + next + "@example.com", "4035550101");
+        long theirs = controllers.bookingController().startReservation(other, other, offer.flight().id()).id();
+        controllers.bookingController().selectSeat(theirs, "1A");
+        view.continueButton.doClick(0);
+        assertEquals("\u00D7", view.seatButtonFor("1A").getText());
+        assertTrue(view.seatButtonFor("1A").getAccessibleContext().getAccessibleName().contains("taken"));
+        assertEquals("3C", view.seatButtonFor("3C").getText());
+    }
+
+    @Test
+    void theMapHasAnAisleInTheMiddleOfEachRow() {
+        assertEquals(3, view.grid().aisleAfter());
+    }
+
+    @Test
     void continueGivesTheReservationTheSeatAndOpensPayment() {
         view.seatButtonFor("3C").doClick(0);
         view.continueButton.doClick(0);

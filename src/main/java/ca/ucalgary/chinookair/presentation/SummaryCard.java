@@ -55,6 +55,8 @@ class SummaryCard extends JPanel {
         rows.add(row);
         JLabel name = new JLabel(row.label());
         JLabel value = new JLabel(row.value(), SwingConstants.RIGHT);
+        // a few pixels of room, so the last letter is never cut off
+        value.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
         name.setForeground(row.total() ? Theme.TEXT : Theme.MUTED);
         value.setForeground(Theme.TEXT);
         if (row.total()) {
