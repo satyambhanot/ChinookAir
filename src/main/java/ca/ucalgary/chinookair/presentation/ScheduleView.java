@@ -44,8 +44,9 @@ class ScheduleView extends JPanel implements Screen {
     final JTextField newDepartureField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
     final JTextField newArrivalField = Theme.placeholder(new JTextField(14), "yyyy-MM-dd HH:mm");
     final JButton rescheduleButton = Theme.primary(new JButton("Reschedule"));
-    private final JPanel rescheduleControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-    private final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+    private final JPanel rescheduleControls = new JPanel();
+    private final JPanel buttons = new JPanel();
+    private boolean administrator;
     private final Alert alert = new Alert(700);
 
     ScheduleView(Controllers controllers, Navigator navigator) {
@@ -85,14 +86,30 @@ class ScheduleView extends JPanel implements Screen {
         table.describe("Flight schedule");
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        rescheduleControls.add(new JLabel("New departure"));
-        rescheduleControls.add(newDepartureField);
-        rescheduleControls.add(new JLabel("New arrival"));
-        rescheduleControls.add(newArrivalField);
-        rescheduleControls.add(rescheduleButton);
+        // the administrator moves the chosen flight here; the card shows only for a chosen flight
+        JLabel moveTitle = new JLabel("Move the chosen flight");
+        moveTitle.setFont(moveTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
+        JPanel moveRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+        moveRow.setOpaque(false);
+        moveRow.add(new FormField("New departure", newDepartureField).mnemonic('D'));
+        moveRow.add(new FormField("New arrival", newArrivalField).mnemonic('A'));
+        JPanel moveButton = new JPanel(new BorderLayout());
+        moveButton.setOpaque(false);
+        moveButton.setBorder(BorderFactory.createEmptyBorder(22, 0, 0, 0));
+        moveButton.add(rescheduleButton, BorderLayout.CENTER);
+        moveRow.add(moveButton);
         rescheduleButton.setMnemonic('R');
+        rescheduleControls.setLayout(new BorderLayout(0, 8));
+        rescheduleControls.setBackground(Theme.SURFACE);
+        rescheduleControls.setBorder(BorderFactory.createCompoundBorder(
+                new javax.swing.border.LineBorder(Theme.BORDER, 1, true),
+                BorderFactory.createEmptyBorder(14, 18, 6, 18)));
+        rescheduleControls.add(moveTitle, BorderLayout.NORTH);
+        rescheduleControls.add(moveRow, BorderLayout.CENTER);
         rescheduleControls.setVisible(false);
-        buttons.add(rescheduleControls);
+        buttons.setLayout(new BorderLayout());
+        buttons.setOpaque(false);
+        buttons.add(rescheduleControls, BorderLayout.CENTER);
         JPanel bottom = new JPanel(new BorderLayout(0, 8));
         bottom.setOpaque(false);
         bottom.add(alert, BorderLayout.NORTH);
@@ -113,6 +130,7 @@ class ScheduleView extends JPanel implements Screen {
     private void flightChosen() {
         Flight flight = selectedFlight();
         rescheduleButton.setEnabled(flight != null);
+        rescheduleControls.setVisible(administrator && flight != null);
         if (flight != null) {
             newDepartureField.setText(flight.departure().format(WHEN));
             newArrivalField.setText(flight.arrival().format(WHEN));
@@ -185,8 +203,8 @@ class ScheduleView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
-        boolean admin = controllers.session().currentUser().get().role() == Role.ADMIN;
-        rescheduleControls.setVisible(admin);
+        administrator = controllers.session().currentUser().get().role() == Role.ADMIN;
+        rescheduleControls.setVisible(false);
         alert.clear();
         newDepartureField.setText("");
         newArrivalField.setText("");
@@ -198,5 +216,10 @@ class ScheduleView extends JPanel implements Screen {
 
     String message() {
         return alert.text();
+    }
+
+    /** True while the card for moving a flight shows: an administrator with a flight chosen. */
+    boolean rescheduleShown() {
+        return rescheduleControls.isVisible();
     }
 }

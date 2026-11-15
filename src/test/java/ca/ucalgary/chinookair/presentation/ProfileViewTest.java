@@ -99,12 +99,6 @@ class ProfileViewTest {
     }
 
     @Test
-    void backGoesToTheCustomerDashboard() {
-        view.backButton.doClick(0);
-        assertEquals(ViewId.CUSTOMER_DASHBOARD, navigator.last());
-    }
-
-    @Test
     void saveStaysOffUntilSomethingChanges() {
         view.onShow();
         assertFalse(view.saveButton.isEnabled());

@@ -129,10 +129,16 @@ class ScheduleViewTest {
     }
 
     @Test
-    void theRescheduleControlsAreOnlyForTheAdministrator() {
-        assertFalse(view.rescheduleButton.getParent().isVisible());
+    void theRescheduleCardIsOnlyForAnAdministratorWithAFlightChosen() {
+        // an agent never sees it, even with a flight chosen
+        view.table.setRowSelectionInterval(0, 0);
+        assertFalse(view.rescheduleShown());
         asAdmin();
-        assertTrue(view.rescheduleButton.getParent().isVisible());
+        assertFalse(view.rescheduleShown(), "no flight chosen yet");
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.rescheduleShown());
+        view.table.clearSelection();
+        assertFalse(view.rescheduleShown());
     }
 
     @Test

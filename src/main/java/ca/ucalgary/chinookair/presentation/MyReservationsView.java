@@ -4,6 +4,7 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Customer;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
+import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -37,7 +38,7 @@ class MyReservationsView extends JPanel implements Screen {
     final HintTable table = new HintTable(tableModel, "No reservations yet. Search for a flight to book one.");
     final JButton cancelButton = Theme.danger(new JButton("Cancel reservation"));
     final JButton payButton = Theme.primary(new JButton("Pay now"));
-    final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton backButton = Theme.secondary(new JButton("Back to customers"));
     private final JLabel messageLabel = new JLabel(" ");
     private transient Customer owner;
 
@@ -131,9 +132,9 @@ class MyReservationsView extends JPanel implements Screen {
         navigator.show(ViewId.PAYMENT);
     }
 
+    /** Only an agent came here from somewhere (a customer's row); a customer is on a tab. */
     private void goBack() {
-        Optional<User> user = controllers.session().currentUser();
-        navigator.show(user.isPresent() ? ViewId.dashboardFor(user.get().role()) : ViewId.LOGIN);
+        navigator.show(ViewId.CUSTOMER_MANAGEMENT);
     }
 
     private boolean askYesNo(String question) {
@@ -182,6 +183,7 @@ class MyReservationsView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
+        backButton.setVisible(user.get().role() == Role.AGENT);
         tableModel.setReservations(List.of());
         updateButtons();
         try {
