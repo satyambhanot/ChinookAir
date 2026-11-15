@@ -31,6 +31,20 @@
             <version>3.5.4</version>
         </dependency>
 
+        <!-- The Inter font, so text looks the same on macOS, Windows and Linux -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-fonts-inter</artifactId>
+            <version>4.1</version>
+        </dependency>
+
+        <!-- Sharp icons from SVG files, coloured by the theme -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
