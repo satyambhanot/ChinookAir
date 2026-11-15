@@ -1,5 +1,6 @@
 package ca.ucalgary.chinookair.presentation;
 
+import ca.ucalgary.chinookair.business.entity.PaymentStatus;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -79,8 +80,8 @@ class PaymentRecordsViewTest {
         assertEquals(1, view.customerModel.getRowCount());
         view.customerTable.setRowSelectionInterval(0, 0);
         assertEquals(2, view.paymentModel.getRowCount());
-        assertEquals("APPROVED", view.paymentModel.getValueAt(0, 4));
-        assertEquals("DECLINED", view.paymentModel.getValueAt(1, 4));
+        assertEquals(Status.of(PaymentStatus.APPROVED), view.paymentModel.getValueAt(0, 4));
+        assertEquals(Status.of(PaymentStatus.DECLINED), view.paymentModel.getValueAt(1, 4));
         assertEquals("**** **** **** 1111", view.paymentModel.getValueAt(0, 5));
     }
 

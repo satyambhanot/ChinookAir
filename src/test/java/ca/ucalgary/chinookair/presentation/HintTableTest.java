@@ -41,6 +41,12 @@ class HintTableTest {
     }
 
     @Test
+    void aStatusColumnIsDrawnAsABadge() {
+        HintTable table = new HintTable(model(), "");
+        assertTrue(table.getDefaultRenderer(Status.class) instanceof Badge.CellRenderer);
+    }
+
+    @Test
     void headersAreOnTheLeftExceptOverNumbers() {
         HintTable table = new HintTable(model(), "");
         // Swing reuses one label for every header cell, so each is checked right after it is asked for

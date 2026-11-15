@@ -59,11 +59,17 @@ class ReservationTableModel extends AbstractTableModel {
                 // no seat yet while the reservation is only created
                 return reservation.seatNo() == null ? "" : reservation.seatNo();
             case 5:
-                return reservation.status().name();
+                return Status.of(reservation.status());
             case 6:
                 return reservation.price() == null ? "" : "$" + reservation.price().toPlainString();
             default:
                 throw new IndexOutOfBoundsException("No column " + column);
         }
+    }
+
+    /** The status column holds a {@link Status}, which the table draws as a badge. */
+    @Override
+    public Class<?> getColumnClass(int column) {
+        return column == 5 ? Status.class : Object.class;
     }
 }

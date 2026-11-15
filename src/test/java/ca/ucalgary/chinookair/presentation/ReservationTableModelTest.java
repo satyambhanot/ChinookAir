@@ -46,7 +46,7 @@ class ReservationTableModelTest {
         assertEquals("YYC → YVR", model.getValueAt(0, 2));
         assertEquals("2026-12-01 12:00", model.getValueAt(0, 3));
         assertEquals("1A", model.getValueAt(0, 4));
-        assertEquals("CONFIRMED", model.getValueAt(0, 5));
+        assertEquals(Status.of(ReservationStatus.CONFIRMED), model.getValueAt(0, 5));
         assertEquals("$300.00", model.getValueAt(0, 6));
     }
 

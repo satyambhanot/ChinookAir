@@ -50,11 +50,17 @@ class PaymentTableModel extends AbstractTableModel {
             case 3:
                 return payment.type().name();
             case 4:
-                return payment.status().name();
+                return Status.of(payment.status());
             case 5:
                 return payment.maskedCard();
             default:
                 throw new IndexOutOfBoundsException("No column " + column);
         }
+    }
+
+    /** The status column holds a {@link Status}, which the table draws as a badge. */
+    @Override
+    public Class<?> getColumnClass(int column) {
+        return column == 4 ? Status.class : Object.class;
     }
 }

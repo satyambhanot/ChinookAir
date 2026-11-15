@@ -28,7 +28,7 @@ class PaymentTableModelTest {
         assertEquals("#12", model.getValueAt(0, 1));
         assertEquals("$300.00", model.getValueAt(0, 2));
         assertEquals("CREDIT", model.getValueAt(0, 3));
-        assertEquals("APPROVED", model.getValueAt(0, 4));
+        assertEquals(Status.of(PaymentStatus.APPROVED), model.getValueAt(0, 4));
         assertEquals("**** **** **** 1111", model.getValueAt(0, 5));
         assertEquals("Amount", model.getColumnName(2));
     }
@@ -37,8 +37,8 @@ class PaymentTableModelTest {
     void rowsKeepTheOrderTheyWereGiven() {
         PaymentTableModel model = new PaymentTableModel();
         model.setPayments(List.of(payment("300.00", PaymentStatus.APPROVED), payment("50.00", PaymentStatus.DECLINED)));
-        assertEquals("APPROVED", model.getValueAt(0, 4));
-        assertEquals("DECLINED", model.getValueAt(1, 4));
+        assertEquals(Status.of(PaymentStatus.APPROVED), model.getValueAt(0, 4));
+        assertEquals(Status.of(PaymentStatus.DECLINED), model.getValueAt(1, 4));
     }
 
     @Test

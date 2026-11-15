@@ -32,6 +32,8 @@ class HintTable extends JTable {
         this.emptyText = emptyText;
         setFillsViewportHeight(true);
         setAutoCreateRowSorter(false);
+        // a state like "Awaiting payment" is drawn as a badge
+        setDefaultRenderer(Status.class, new Badge.CellRenderer());
         JTableHeader header = getTableHeader();
         header.setReorderingAllowed(false);
         TableCellRenderer base = header.getDefaultRenderer();
