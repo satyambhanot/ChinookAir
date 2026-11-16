@@ -44,7 +44,7 @@ class CustomerHome extends JPanel implements Screen {
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
     final DatePickerField dateField;
-    final JButton searchButton = Theme.primary(new JButton("Search flights"));
+    final JButton searchButton = Theme.primary(new JButton("Search"));
     final JButton allButton = Theme.link(new JButton("See all reservations"));
     private final Alert alert = new Alert(480);
     private final JPanel tripBody = new JPanel();
