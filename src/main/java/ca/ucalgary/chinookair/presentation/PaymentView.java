@@ -70,6 +70,8 @@ class PaymentView extends JPanel implements Screen {
     }
 
     private void build() {
+        InputFilters.only(cardField, "0-9 -", 23);
+        InputFilters.only(expiryField, "0-9/", 5);
         // the number is hidden as it is typed; the eye shows it again to check it
         cardField.putClientProperty("JPasswordField.showRevealButton", Boolean.TRUE);
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.PAGE, Space.PAGE));

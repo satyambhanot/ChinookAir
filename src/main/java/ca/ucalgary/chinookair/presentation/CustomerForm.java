@@ -20,8 +20,14 @@ class CustomerForm extends JPanel {
     final JPasswordField passwordField = new JPasswordField(20);
     final JTextField nameField = new JTextField(20);
     final JTextField emailField = new JTextField(20);
-    final JTextField phoneField = new JTextField(20);
+    final JTextField phoneField = phoneBox(new JTextField(20));
     private final FormField passwordRow = new FormField("Starting password", passwordField);
+
+    /** A phone box takes digits, spaces and the characters a number is written with. */
+    static JTextField phoneBox(JTextField field) {
+        InputFilters.only(field, "0-9 +()-", 20);
+        return field;
+    }
 
     CustomerForm() {
         super(new GridBagLayout());

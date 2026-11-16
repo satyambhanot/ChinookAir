@@ -152,7 +152,7 @@ class FlightManagementViewTest {
         fill(number, "tomorrow", day(n) + " 12:00", "199.99");
         view.addButton.doClick(0);
         assertTrue(view.message().startsWith("Date and time must look like"), view.message());
-        fill(number, day(n) + " 10:00", day(n) + " 12:00", "abc");
+        fill(number, day(n) + " 10:00", day(n) + " 12:00", "");
         view.addButton.doClick(0);
         assertTrue(view.message().startsWith("Base price must be a number"), view.message());
     }
@@ -291,5 +291,21 @@ class FlightManagementViewTest {
         assertEquals(5, view.tableModel.getColumnCount(), "the model still has it");
         view.table.setRowSelectionInterval(0, 0);
         assertFalse(view.arrivalField.getText().isEmpty());
+    }
+
+    @Test
+    void thePriceBoxTakesDigitsAndOneDotOnly() {
+        view.priceField.setText("");
+        view.priceField.setText("19x9.5");
+        assertEquals("", view.priceField.getText(), "a letter makes the whole entry refused");
+        view.priceField.setText("199.5");
+        view.priceField.setText("-3");
+        assertEquals("199.5", view.priceField.getText());
+    }
+
+    @Test
+    void theTimeBoxTakesDigitsAndAColonOnly() {
+        view.departureField.setText("2026-12-10 10x:3o0");
+        assertEquals("10:30", view.departureField.time.getText());
     }
 }

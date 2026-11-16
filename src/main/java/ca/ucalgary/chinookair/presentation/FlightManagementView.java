@@ -66,7 +66,8 @@ class FlightManagementView extends JPanel implements Screen {
     final JButton removeButton = Theme.danger(new JButton("Remove"));
     private final FormField numberRow = new FormField("Flight number", numberField).mnemonic('N');
     private final FormField aircraftRow = new FormField("Aircraft", aircraftCombo).mnemonic('C');
-    private final FormField priceRow = new FormField("Base price", priceField).mnemonic('P');
+    private final FormField priceRow = new FormField("Base price", priceField).mnemonic('P')
+            .checkOnLeave(text -> InputParser.problem(() -> InputParser.money(text, "Base price")));
     private final Alert alert = new Alert(CARD_WIDTH - 90);
     private final JLabel cardTitle = new JLabel("Flight details");
     private final JPanel card = new JPanel(new BorderLayout(0, 12));
@@ -84,6 +85,7 @@ class FlightManagementView extends JPanel implements Screen {
     }
 
     private void build() {
+        InputFilters.decimal(priceField, 10);
         setBorder(BorderFactory.createEmptyBorder(Space.XL, Space.PAGE, Space.XL, Space.PAGE));
         JLabel heading = new JLabel("Flights");
         Theme.heading(heading);

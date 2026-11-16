@@ -29,6 +29,7 @@ final class DateTimeField extends JPanel {
         add(date);
         add(Box.createHorizontalStrut(Space.S));
         add(time);
+        InputFilters.only(time, "0-9:", TIME_COLUMNS);
         date.getAccessibleContext().setAccessibleName("Day");
         time.getAccessibleContext().setAccessibleName("Time, hours and minutes");
     }
