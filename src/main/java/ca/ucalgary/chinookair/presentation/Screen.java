@@ -13,6 +13,14 @@ interface Screen {
         return null;
     }
 
+    /**
+     * The least height, in pixels, this screen is useful in. In a window lower than that the page scrolls
+     * instead of squeezing the screen. Most screens shrink and scroll their own lists, so they say 0.
+     */
+    default int minimumHeight() {
+        return 0;
+    }
+
     /** What has the keyboard focus when the screen opens, or null to leave it where it is. */
     default JComponent initialFocus() {
         return null;

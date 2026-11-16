@@ -86,7 +86,7 @@ class FlightSearchView extends JPanel implements Screen {
                 .field("Date", dateField, 'D')
                 .field("Airline", airlineCombo, 'A')
                 .action(searchButton);
-        card.add(searchBar, BorderLayout.WEST);
+        card.add(searchBar, BorderLayout.CENTER);
 
         JPanel top = new JPanel(new BorderLayout(0, 12));
         top.setOpaque(false);
@@ -249,6 +249,11 @@ class FlightSearchView extends JPanel implements Screen {
     @Override
     public JButton defaultButton() {
         return searchButton;
+    }
+
+    @Override
+    public int minimumHeight() {
+        return getMinimumSize().height;
     }
 
     @Override

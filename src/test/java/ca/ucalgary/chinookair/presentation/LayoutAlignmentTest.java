@@ -1,21 +1,14 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ca.ucalgary.chinookair.AppContext;
 import ca.ucalgary.chinookair.business.control.Controllers;
-import ca.ucalgary.chinookair.business.control.FlightOffer;
-import ca.ucalgary.chinookair.business.control.SearchCriteria;
-import ca.ucalgary.chinookair.data.DatabaseSeeder;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
 import java.nio.file.Path;
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,8 +28,6 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class LayoutAlignmentTest {
 
-    private static final Clock CLOCK =
-            Clock.fixed(LocalDateTime.of(2026, 12, 1, 9, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
     private static final int WIDTH = 1100;
     private static final int HEIGHT = 640;
 
@@ -44,7 +35,7 @@ class LayoutAlignmentTest {
     static Path folder;
 
     private static Controllers c;
-    private static final RecordingNavigator NAV = new RecordingNavigator();
+    private static EveryScreen EVERY;
     private static final Map<String, JComponent> SCREENS = new LinkedHashMap<>();
     private static PaymentView payment;
     private static ProfileView profile;
@@ -52,61 +43,17 @@ class LayoutAlignmentTest {
 
     @BeforeAll
     static void buildEveryScreen() {
-        Theme.install();
-        c = AppContext.create("jdbc:sqlite::memory:", CLOCK, folder);
-        BookingSession booking = new BookingSession();
-
-        c.session().login(c.loginController()
-                .authenticate(DatabaseSeeder.CUSTOMER_USERNAME, DatabaseSeeder.CUSTOMER_PASSWORD));
-        SCREENS.put("customer home", shown(new CustomerHome(c, NAV, booking)));
-        FlightSearchView search = new FlightSearchView(c, NAV, booking);
-        SCREENS.put("find flights", search);
-        FlightOffer offer = c.flightSearchController()
-                .search(new SearchCriteria("YYC", "YVR", LocalDate.of(2026, 12, 2), null)).get(0);
-        booking.select(offer);
-        SeatSelectionView seats = new SeatSelectionView(c, NAV, booking);
-        seats.onShow();
-        SCREENS.put("choose seat", seats);
-        seats.seatButtonFor("3C").doClick(0);
-        seats.continueButton.doClick(0);
-        payment = new PaymentView(c, NAV, booking);
-        payment.onShow();
-        SCREENS.put("payment", payment);
-        payment.nameField.setText("Casey Customer");
-        payment.cardField.setText("4111 1111 1111 1111");
-        payment.expiryField.setText("12/30");
-        payment.payButton.doClick(0);
-        confirmation = new ConfirmationView(c, NAV, booking);
-        confirmation.onShow();
-        SCREENS.put("confirmation", confirmation);
-        SCREENS.put("my reservations", shown(new MyReservationsView(c, NAV, booking)));
-        profile = new ProfileView(c, NAV);
-        SCREENS.put("profile", profile);
-
-        c.session().login(c.loginController()
-                .authenticate(DatabaseSeeder.AGENT_USERNAME, DatabaseSeeder.AGENT_PASSWORD));
-        SCREENS.put("agent home", shown(new AgentDashboard(c, NAV)));
-        SCREENS.put("customers", new CustomerManagementView(c, NAV, booking));
-        SCREENS.put("payment records", new PaymentRecordsView(c, NAV));
-        SCREENS.put("schedule", new ScheduleView(c, NAV));
-
-        c.session().login(c.loginController()
-                .authenticate(DatabaseSeeder.ADMIN_USERNAME, DatabaseSeeder.ADMIN_PASSWORD));
-        SCREENS.put("admin home", shown(new AdminDashboard(c, NAV)));
-        SCREENS.put("flights", new FlightManagementView(c, NAV));
-        SCREENS.put("routes", new RouteManagementView(c, NAV));
-        SCREENS.put("aircraft", new AircraftManagementView(c, NAV));
-    }
-
-    /** Opens a screen the way the window does, while the right person is logged in. */
-    private static <T extends JComponent & Screen> T shown(T screen) {
-        screen.onShow();
-        return screen;
+        EVERY = EveryScreen.build(folder);
+        c = EVERY.controllers;
+        SCREENS.putAll(EVERY.screens);
+        payment = EVERY.payment;
+        profile = EVERY.profile;
+        confirmation = EVERY.confirmation;
     }
 
     @AfterAll
     static void shutDown() {
-        c.shutdown().run();
+        EVERY.shutDown();
     }
 
     // ---- helpers
@@ -371,5 +318,81 @@ class LayoutAlignmentTest {
         assertEquals(960, SCREENS.get("find flights").getWidth());
         assertEquals(0, SCREENS.get("find flights").getX());
         assertEquals(640, pane.getHeight());
+    }
+
+    // ---- the smallest window: a laptop screen of 1366 x 768 pixels drawn at 150 %
+
+    /** 910 pixels of window, less the scroll bar that a low window shows and the edge of the window. */
+    private static final int SMALL_WIDTH = 866;
+    private static final int SMALL_HEIGHT = 400;
+
+    /** The screens that keep their shape: the others are checked when they hold something to show. */
+    @Test
+    void noControlSticksOutOrLosesItsWordsInTheSmallestWindow() {
+        List<String> outside = new ArrayList<>();
+        for (Map.Entry<String, JComponent> entry : SCREENS.entrySet()) {
+            ContentPane pane = laidOut(entry.getValue(), SMALL_WIDTH, SMALL_HEIGHT);
+            for (Component control : all(pane, Component.class)) {
+                if (!(control instanceof javax.swing.AbstractButton || control instanceof javax.swing.JComboBox
+                        || control instanceof javax.swing.text.JTextComponent)) {
+                    continue;
+                }
+                if (inScrollPane(control, pane)) {
+                    continue;
+                }
+                int edge = right(control, pane);
+                if (edge > SMALL_WIDTH || left(control, pane) < 0) {
+                    outside.add(entry.getKey() + ": " + control.getClass().getSimpleName() + " ends at " + edge);
+                }
+                if (control instanceof javax.swing.JComboBox && control.getWidth() < 120) {
+                    outside.add(entry.getKey() + ": a list box is only " + control.getWidth() + " wide");
+                }
+                if (control instanceof javax.swing.AbstractButton
+                        && !((javax.swing.AbstractButton) control).getText().isEmpty()
+                        && control.getWidth() < control.getPreferredSize().width) {
+                    outside.add(entry.getKey() + ": the button '" + ((javax.swing.AbstractButton) control).getText()
+                            + "' is " + control.getWidth() + " wide and wants " + control.getPreferredSize().width);
+                }
+            }
+        }
+        assertTrue(outside.isEmpty(), "sticking out: " + outside);
+    }
+
+    private static boolean inScrollPane(Component control, Component root) {
+        for (Component at = control.getParent(); at != null && at != root; at = at.getParent()) {
+            if (at instanceof javax.swing.JScrollPane || at instanceof javax.swing.JViewport) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Test
+    void theFlightResultsKeepAWholeCardInTheLowestWindow() {
+        FlightSearchView view = (FlightSearchView) SCREENS.get("find flights");
+        // what is left of a 485 pixel window under the top bar and the step strip
+        javax.swing.JScrollPane page = ContentPane.scrolling(new ContentPane(view));
+        page.setSize(SMALL_WIDTH, 354);
+        layout(page);
+        ResultsArea area = all((Container) page.getViewport().getView(), ResultsArea.class).get(0);
+        assertTrue(area.scrollPane().getHeight() >= FlightResultList.CELL_HEIGHT,
+                "the list is " + area.scrollPane().getHeight() + " px high");
+    }
+
+    @Test
+    void aScreenThatFitsFillsTheWindowAndALowWindowScrollsThePageInstead() {
+        JComponent plain = new javax.swing.JPanel();
+        javax.swing.JScrollPane roomy = ContentPane.scrolling(new ContentPane(plain));
+        roomy.setSize(900, 700);
+        layout(roomy);
+        assertEquals(700, roomy.getViewport().getView().getHeight());
+        assertFalse(roomy.getVerticalScrollBar().isVisible());
+
+        FlightSearchView view = (FlightSearchView) SCREENS.get("find flights");
+        javax.swing.JScrollPane low = ContentPane.scrolling(new ContentPane(view));
+        low.setSize(900, 200);
+        layout(low);
+        assertTrue(low.getViewport().getView().getHeight() > 200, "the page is taller than the window");
+        assertTrue(low.getVerticalScrollBar().isVisible(), "so it scrolls");
     }
 }
