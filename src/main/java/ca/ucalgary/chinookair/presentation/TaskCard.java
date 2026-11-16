@@ -35,6 +35,8 @@ class TaskCard extends JButton {
         setMargin(new Insets(Space.L, Space.XL, Space.L, Space.XL));
         setPreferredSize(new Dimension(300, 96));
         putClientProperty("FlatLaf.styleClass", "card");
+        // the line under the name is painted, so a screen reader would not find it otherwise
+        getAccessibleContext().setAccessibleDescription(description);
     }
 
     /** The line under the name. */

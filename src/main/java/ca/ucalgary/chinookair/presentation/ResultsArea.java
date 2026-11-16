@@ -88,7 +88,8 @@ final class ResultsArea extends JPanel {
 
         @Override
         public Dimension minimumLayoutSize(Container parent) {
-            return new Dimension(0, 0);
+            // one whole card and the buttons: below that the page scrolls
+            return new Dimension(0, MIN_CELLS * list.getFixedCellHeight() + footerHeight());
         }
 
         @Override

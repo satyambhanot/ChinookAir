@@ -7,6 +7,8 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EnumMap;
@@ -41,8 +43,9 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         super("ChinookAir");
         this.controllers = controllers;
         setIconImages(Brand.icons());
-        setSize(1000, 700);
-        setMinimumSize(new Dimension(960, 640));
+        Dimension room = roomOnScreen();
+        setMinimumSize(smallestWindow(room));
+        setSize(startingWindow(room));
         setLocationRelativeTo(null);
         appBar = new AppBar(controllers, this);
         JPanel root = new JPanel(new BorderLayout());
@@ -65,6 +68,34 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         controllers.promotionController().addListener(this);
         buildScreens();
         show(ViewId.LOGIN);
+    }
+
+    /** The window size the screens are designed for, and the least they still work in. */
+    private static final Dimension USUAL = new Dimension(1000, 700);
+    private static final Dimension SMALLEST = new Dimension(960, 640);
+    /** Below this a screen would have to hide things, so the window is never made smaller. */
+    private static final Dimension FLOOR = new Dimension(760, 440);
+
+    /** The part of the screen a window can use, in the units the program draws in (a scaled screen is smaller). */
+    private static Dimension roomOnScreen() {
+        if (GraphicsEnvironment.isHeadless()) {
+            return USUAL;
+        }
+        Rectangle usable = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+        return new Dimension(usable.width, usable.height);
+    }
+
+    /** 960 x 640, or less on a small or scaled screen, so the window always fits on it. */
+    static Dimension smallestWindow(Dimension room) {
+        return new Dimension(Math.max(FLOOR.width, Math.min(SMALLEST.width, room.width)),
+                Math.max(FLOOR.height, Math.min(SMALLEST.height, room.height)));
+    }
+
+    /** The usual window, or the whole usable screen when that is smaller. */
+    static Dimension startingWindow(Dimension room) {
+        Dimension smallest = smallestWindow(room);
+        return new Dimension(Math.max(smallest.width, Math.min(USUAL.width, room.width)),
+                Math.max(smallest.height, Math.min(USUAL.height, room.height)));
     }
 
     /** The screens that exist so far; the others show a "coming soon" page until their issue is done. */
@@ -130,7 +161,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
 
     /** Puts a built screen in place of the one that stands for it. */
     void register(ViewId view, JComponent screen) {
-        content.add(new ContentPane(screen), view.name());
+        content.add(ContentPane.scrolling(new ContentPane(screen)), view.name());
         screens.put(view, screen);
         added.add(view);
     }

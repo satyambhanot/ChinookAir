@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -19,6 +20,8 @@ import javax.swing.JPanel;
 final class FilterBar extends JPanel {
 
     private static final long serialVersionUID = 1L;
+
+    private static final int SHRINKS_TO = 120;
 
     private final List<JComponent> controls = new ArrayList<>();
     private final Component filler = Box.createHorizontalGlue();
@@ -66,11 +69,27 @@ final class FilterBar extends JPanel {
             at.weightx = 1;
             filled = true;
         }
+        letItShrink(control, fill);
         add(control, at);
         controls.add(control);
         column++;
         placeFiller();
         return this;
+    }
+
+    /**
+     * In a narrow window a list box gets narrower, but not so narrow that its words are cut, before a button
+     * is pushed out of sight. A button and a date box keep their width, because their words must stay whole;
+     * only a search box that fills the rest of the line may shrink to nothing.
+     */
+    private static void letItShrink(JComponent control, boolean fill) {
+        // a button already keeps its whole width, and its preferred width is not settled before it is shown
+        if (fill || control instanceof javax.swing.AbstractButton) {
+            return;
+        }
+        Dimension wanted = control.getPreferredSize();
+        int least = control instanceof javax.swing.JComboBox ? Math.min(wanted.width, SHRINKS_TO) : wanted.width;
+        control.setMinimumSize(new Dimension(least, wanted.height));
     }
 
     /** Spare width goes to an empty cell at the end, so the controls stay at the left, not centred. */

@@ -46,7 +46,7 @@ class DatePickerField extends JTextField {
         putClientProperty("JTextField.placeholderText", FORMAT);
         JButton button = new JButton(Icons.muted("calendar", 16));
         button.putClientProperty("JButton.buttonType", "toolBarButton");
-        button.setToolTipText("Choose a date");
+        button.setToolTipText("Choose a date (Alt + Down in the box)");
         button.getAccessibleContext().setAccessibleName("Choose a date");
         button.setFocusable(false);
         button.addActionListener(e -> openCalendar());
