@@ -11,8 +11,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 /**
- * The ChinookAir logo files, read from the program's resources once. The files are made from the
- * original picture by scripts/BrandAssets.java.
+ * The ChinookAir logo files, read from the program's resources once. The files are cut from the
+ * original picture and kept in the resources folder.
  */
 public final class Brand {
 

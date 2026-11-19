@@ -31,7 +31,7 @@ Passwords are stored as PBKDF2 hashes, never as text.
 ## Screens
 
 The colours come from the ChinookAir logo, the font is Inter, and each role gets its own tabs in the
-top bar. The design is described in [docs/ui-redesign-plan.md](docs/ui-redesign-plan.md).
+top bar.
 
 | | |
 |---|---|
@@ -65,7 +65,10 @@ docs/                        design document and UML diagrams
 Screens call controllers, controllers use entities and DAOs.
 Nothing in `presentation` should touch the database directly.
 
-## Working on it
+## Tests and style checks
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before your first PR - it covers
-branches, commit messages and the style rules Checkstyle checks.
+```
+mvn verify
+```
+
+runs Checkstyle (120 columns, no unused imports, braces on every block) and the unit tests.
