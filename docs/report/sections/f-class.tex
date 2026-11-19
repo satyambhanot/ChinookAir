@@ -120,7 +120,7 @@ dependencies of the data layer.
 \endhead
 \ctl{LoginController} & UserDao\\
 \ctl{CustomerController} & CustomerDao, UserDao\\
-\ctl{FlightSearchController} & FlightDao, SeatDao\\
+\ctl{FlightSearchController} & FlightDao, SeatDao, AirportDao, AirlineDao\\
 \ctl{BookingController} & FlightDao, SeatDao, ReservationDao\\
 \ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter)\\
 \ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao\\
@@ -129,6 +129,58 @@ dependencies of the data layer.
 \ctl{AircraftController} & AircraftDao\\
 \ctl{ScheduleController} & FlightDao\\
 \ctl{PromotionController} & PromotionDao, AppStateDao\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\paragraph{Classes added while coding.} Writing the code added small classes that
+no first-cut or refined diagram had. The first three groups are drawn in the
+boxes \emph{Added while coding} of the refined diagrams; the presentation helpers
+only appear in this table. None of them changes a class or an operation of the
+design above. The operations that were added to existing classes are
+\texttt{airports}, \texttt{airlines} and \texttt{today} on FlightSearchController
+(the search screen lists airports and airlines through the controller, not a DAO),
+\texttt{canCancel} and \texttt{canModify} on ReservationController (so a screen
+does not repeat the rule), \texttt{isArchived} on FlightDao and
+\texttt{replaceSeats} on SeatDao.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{5.7cm}@{}}
+\toprule
+\textbf{Package} & \textbf{Class} & \textbf{Why it exists}\\
+\midrule
+\endhead
+\ctl{business.control} & \ctl{AccessDeniedException} & thrown when the role of the user may not do a task; the screen shows one plain sentence\\
+\ctl{business.control} & \ctl{AuthenticationException} & thrown when a user name or password is wrong\\
+\ctl{business.control} & \ctl{AircraftConflicts} & shared check of FlightManagementController and ScheduleController that an aircraft is free at a time (package-private)\\
+\ctl{business.control} & \ctl{ConfirmationNumberGenerator} & interface that makes confirmation numbers, so tests can use fixed ones\\
+\ctl{business.control} & \ctl{RandomConfirmationNumberGenerator} & its real implementation: CA and six random letters or digits\\
+\ctl{business.control} & \ctl{Controllers} & one object with every controller and the session, handed to the screens by AppContext\\
+\ctl{business.control} & \ctl{SearchCriteria} & what the search screen typed: origin, destination, date, airline\\
+\ctl{business.control} & \ctl{FlightOffer} & one line of the search result: a flight, seats left, lowest price\\
+\ctl{business.control} & \ctl{FlightDetails} & what the flight form typed, for add and update of a flight\\
+\ctl{business.control} & \ctl{PaymentResult} & what came out of a payment: payment, reservation, confirmation file, message\\
+\ctl{business.entity} & \ctl{AbstractReservationState} & base of the five state classes, so a state only writes what it allows\\
+\ctl{business.entity} & \ctl{PricingPolicy} & the one place that turns a base price and a seat class into a price\\
+\ctl{business.entity} & \ctl{SeatLayout} & works out the seats of an aircraft from its rows and seats per row\\
+\ctl{business.entity} & \ctl{PaymentDetails} & the card details of a payment; only the masked number is kept\\
+\ctl{business.entity} & \ctl{AuthorizationResult} & approved or declined, with the reason; the answer of a PaymentMethod\\
+\ctl{business.entity} & \ctl{SeatUnavailableException} & thrown when another reservation holds the seat\\
+\ctl{business.entity} & \ctl{StorageException} & base of the data-layer errors, so the screens do not import the data package\\
+\ctl{data} & \ctl{DataAccessException} & a database error with a message; extends StorageException\\
+\ctl{data} & \ctl{ConfirmationWriteException} & the confirmation file could not be written\\
+\ctl{data} & \ctl{DatabaseInitializer} & creates the tables from schema.sql (package-private)\\
+\ctl{data} & \ctl{JdbcSupport} & small helpers for queries, updates and transactions (package-private)\\
+\ctl{data} & \ctl{DbDates} & writes and reads dates as ISO text (package-private)\\
+\ctl{presentation} & \ctl{Navigator, \allowbreak ViewId, \allowbreak Screen} & how a screen asks for another one, the list of screens, and the hook that runs when a screen is shown\\
+\ctl{presentation} & \ctl{Dashboard} & base of the three dashboards\\
+\ctl{presentation} & \ctl{BookingSession} & what is picked while booking or modifying: flight, customer, reservation, payment\\
+\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Dialogs} & turn typed text into values, exceptions into plain sentences, and show messages\\
+\ctl{presentation} & \ctl{SeatGridModel} & the seat map as rows and columns, without Swing\\
+\ctl{presentation} & \ctl{FlightTableModel, \allowbreak ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
+\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak ComingSoonView} & parts used by several screens, and the stand-in for a screen that is not built\\
 \bottomrule
 \end{longtable}
 \endgroup
