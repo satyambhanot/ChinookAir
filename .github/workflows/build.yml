@@ -4,9 +4,9 @@ name: build
 # so nobody merges something that doesn't compile.
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
   pull_request:
-    branches: [main, dev]
+    branches: [main]
 
 jobs:
   build:
