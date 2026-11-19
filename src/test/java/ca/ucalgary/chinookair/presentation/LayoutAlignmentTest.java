@@ -24,7 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Lays every screen out in a window of the usual size, without showing it, and measures it: the
  * pieces that should line up must line up, to the pixel. These are the checks behind the alignment
- * list in docs/ui-refinement-plan.md.
+ * of every screen.
  */
 class LayoutAlignmentTest {
 

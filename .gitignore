@@ -29,4 +29,3 @@ docs/report/*.fdb_latexmk
 docs/report/*.synctex.gz
 docs/report/*.xdv
 docs/report/main.pdf
-docs/report/underline-test.pdf
