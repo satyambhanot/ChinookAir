@@ -1,0 +1,43 @@
+% Shared setup for the report and the underline test.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage[normalem]{ulem}   % \uline = single underline, \uuline = double underline
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{pdflscape}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+% Section C marks candidate classes with a single underline and candidate
+% operations with a double underline. Use these two macros in the scenarios.
+\newcommand{\cls}[1]{\uline{#1}}
+\newcommand{\op}[1]{\uuline{#1}}
+
+% Diagrams are exported to docs/diagrams/export/.
+\graphicspath{{../diagrams/export/}}
+% \diagram{file-without-extension}{caption}
+\newcommand{\diagram}[2]{%
+  \begin{figure}[H]\centering
+    \includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{#1}
+    \caption{#2}
+  \end{figure}}
+
+% A class name in a table: small monospace, may break between words.
+\newcommand{\ctl}[1]{\texttt{\footnotesize #1}}
+
+% A large diagram on its own landscape page, with narrow margins so that the
+% text of the diagram stays as large as the page allows.
+\newcommand{\diagramland}[3]{%
+  \clearpage
+  \newgeometry{margin=1.2cm,bottom=2.2cm}%
+  \begin{landscape}
+    \begin{figure}[p]\centering
+      \includegraphics[width=\linewidth,height=0.92\textwidth,keepaspectratio]{#1}
+      \caption{#2}\label{#3}
+    \end{figure}
+  \end{landscape}
+  \clearpage
+  \restoregeometry}

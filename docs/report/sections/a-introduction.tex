@@ -1,0 +1,143 @@
+\section{System Introduction and Functional Processes}
+
+\subsection*{Purpose}
+
+ChinookAir is a standalone flight reservation system. Customers find flights
+and reserve seats, flight agents manage customers and reservations on their
+behalf, and administrators keep flights, routes, aircraft and schedules up to
+date. It is a desktop application with a graphical interface and stores its
+data in a local SQLite database.
+
+\subsection*{Roles}
+
+\begin{description}
+\item[Customer] searches for flights, reserves a seat, pays, cancels and views
+  their reservations.
+\item[Flight Agent] manages customer profiles, reserves, modifies and cancels
+  on a customer's behalf, and views payment records and schedules.
+\item[Administrator] adds, updates and removes flights, manages routes and
+  aircraft, and updates schedules.
+\end{description}
+
+Every user logs in and sees only the screens for their role.
+
+\subsection*{Scope}
+
+The system covers the functional requirements FR-1 to FR-14 and the
+non-functional requirements listed above. It is a single-user desktop
+application, not a web or client-server system, and payments are simulated:
+no real payment is processed. A reservation has one passenger, the customer
+who owns it.
+
+\subsection*{Architecture}
+
+The system has three layers. The presentation layer holds the screens and input
+handling. The business logic layer holds one control class per use case and the
+domain classes. The data layer holds the SQLite database and file access.
+Screens call controllers, and controllers reach the database only through data
+access interfaces.
+
+\subsection*{Major processes}
+
+\subsubsection*{Search and select a flight (UC-04, UC-05)}
+
+\begin{description}
+\item[Actor] Customer or Flight Agent.
+\item[Trigger] The user chooses to search for flights from their dashboard.
+\item[Steps] The user enters an origin, a destination and a date, and may pick
+  an airline. The system checks the input and lists the flights on that route
+  and day that have not yet departed, each with its departure and arrival
+  time, its price and the number of seats still free. If nothing matches, the
+  user is told so and can change the search. The user opens a flight to see its
+  details and selects it.
+\item[Outcome] A flight is selected and the user can reserve a seat on it.
+\end{description}
+
+\subsubsection*{Book a flight (UC-06)}
+
+\begin{description}
+\item[Actor] Customer, or a Flight Agent acting for a customer.
+\item[Trigger] The user chooses Book Flight for a selected flight.
+\item[Steps] The system creates a reservation for the customer with a
+  confirmation number and shows the seats still free (UC-06 includes Select
+  Seat). The user picks a seat. Business seats are the first two rows and cost
+  1.5 times the economy price. The system checks that the seat is still free,
+  works out the price and moves the reservation to pending payment. If someone
+  else took the seat in the meantime, the user is asked to pick another. The
+  user then continues to payment.
+\item[Outcome] A reservation with a seat and a price is waiting for payment.
+  If the user stops here it stays pending and can be paid or cancelled later.
+\end{description}
+
+\subsubsection*{Make a payment (UC-07)}
+
+\begin{description}
+\item[Actor] Customer or Flight Agent.
+\item[Trigger] A reservation is waiting for payment and the user chooses to
+  pay, straight after choosing a seat or later from the reservation list.
+\item[Steps] The user picks credit or debit and enters the cardholder name,
+  card number and expiry date. The system checks the details and simulates the
+  payment: a card ending in 0000 is declined, and so is a debit payment over
+  5000.00. Only the last four card digits are kept. When the payment is
+  approved the reservation becomes confirmed, and a confirmation is shown on
+  screen and saved as a text file. When it is declined the user sees why and
+  can try another card.
+\item[Outcome] A confirmed reservation with a payment record, or a reservation
+  that is still waiting for payment.
+\end{description}
+
+\subsection*{Activity diagrams}
+
+Each activity diagram has two swimlanes, User and System. Decisions are
+diamonds with a guard on every outgoing flow.
+
+\subsubsection*{Login (UC-01)}
+
+The diagram below shows the login process. When the application
+opens, the system checks whether this is the first launch of the month and
+shows the promotion once. The user then enters a username and a password. The
+system rejects empty fields and a wrong username or password with the same
+message, and the user tries again. A successful login shows the dashboard for
+the role of the user: Customer, Flight Agent or Administrator.
+
+\diagram{20-activity-login}{Activity diagram: Login (UC-01)}
+
+\subsubsection*{Browse and select a flight (UC-04, UC-05)}
+
+The diagram below shows how a user finds and selects a flight. The system
+checks that the origin differs from the destination and that the date is not in
+the past, and otherwise shows a message and asks again. It then finds the
+flights that have not yet departed. If there are none, the user changes the
+criteria. Otherwise the user selects a flight from the list, sees its details,
+and continues to seat selection if seats are left. If the flight is full, the
+user is returned to the list.
+
+\diagram{21-activity-browse-flight}{Activity diagram: browse and select a flight (UC-04, UC-05)}
+
+\subsubsection*{Book a flight (UC-06)}
+
+The diagram below shows how a seat is reserved. The system shows the seat map
+and the user selects a seat. If the seat was taken in the meantime, the system
+says so and shows the map again. Otherwise the system creates the reservation
+and marks it pending payment, and the payment process runs (the symbol with the
+fork inside the node refers to the payment diagram). If the payment is
+declined, the user either retries or abandons, and abandoning cancels the
+reservation and releases the seat. If it is approved, the reservation is
+confirmed, and the confirmation is shown on screen and saved as a text file at
+the same time, between the fork and the join.
+
+\diagram{22-activity-book-flight}{Activity diagram: book a flight (UC-06)}
+
+\subsubsection*{Make a payment (UC-07)}
+
+The diagram below shows the simulated payment. The user chooses credit or debit
+and enters the cardholder name, card number and expiry date. The system checks
+the input (16 digits, an expiry date that is not in the past, a name that is not
+empty) and shows the errors until it is valid. It then simulates the payment: a
+card ending in 0000 is declined, and so is a debit payment over 5000.00. An
+approved payment is recorded and the reservation is confirmed. A declined
+payment is recorded too, the reason is shown, and the user either retries or
+abandons, which cancels the reservation and releases the seat. Only the last
+four card digits are stored.
+
+\diagram{23-activity-payment}{Activity diagram: make a payment (UC-07)}

@@ -1,0 +1,56 @@
+\section*{System Requirements}
+\addcontentsline{toc}{section}{System Requirements}
+
+\subsection*{Functional requirements}
+
+The functional requirements come from sections 2, 2.1 and 3 of the project
+guideline. The two marked \emph{ours} are additions the guideline allows in
+section 3. Every later artefact (use cases, scenarios, tests) refers to these
+IDs, so they are never renumbered.
+
+\begin{longtable}{@{}p{1.3cm}>{\raggedright\arraybackslash}p{8.6cm}p{2.3cm}p{1.8cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Requirement} & \textbf{Guideline} & \textbf{Source}\\
+\midrule
+\endhead
+FR-1 & Search for flights by origin, destination, date and airline. & 3.1 & guideline\\
+FR-2 & Display available seats, flight times and prices. & 3.1 & guideline\\
+FR-3 & Create new reservations. & 2, 3.2 & guideline\\
+FR-4 & Cancel or modify existing reservations. Customers cancel, flight agents modify. & 2, 2.1, 3.2 & guideline\\
+FR-5 & Generate a reservation confirmation, shown on screen and saved as a \texttt{.txt} file. & 3.2 & guideline\\
+FR-6 & Create customer profiles, and view and edit customer details. & 2, 3.3 & guideline\\
+FR-7 & Add flights, update flight details and remove outdated flights. Administrator only. & 2, 3.4 & guideline\\
+FR-8 & Manage routes and aircraft, and update schedules. & 2.1 & guideline\\
+FR-9 & Record simulated payment information and keep payment records. & 2, 3.5 & guideline\\
+FR-10 & View reservation history and flight schedules. & 2, 2.1 & guideline\\
+FR-11 & Store flight and reservation data in a local SQLite database. & 3.6 & guideline\\
+FR-12 & Show a monthly promotion, picked at random the first time the application opens in a month and shown once that month. & 3.7 & guideline\\
+FR-13 & Log in with one of three roles (customer, flight agent, administrator); the available features depend on the role. & 2.1 & ours\\
+FR-14 & Select a seat when making a reservation. & 3.1 & ours\\
+\bottomrule
+\end{longtable}
+
+\subsection*{Non-functional requirements}
+
+Section 4 of the guideline names usability, portability, maintainability and
+scalability. The assessment criteria add reusability and reliability, and we
+add security. Each quality has a measurable criterion, the part of the design
+that meets it, and the issue that proves it.
+
+\begingroup
+\raggedright
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.7cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{2.2cm}@{}}
+\toprule
+\textbf{Quality} & \textbf{Measurable criterion} & \textbf{How the design meets it} & \textbf{Evidence}\\
+\midrule
+\endhead
+Usability & Every use case is reachable in at most 4 clicks from the role's dashboard. A bad input shows one plain sentence that names the field and the problem, never a stack trace. Enter submits the default button and Tab follows reading order. & One dashboard per role with one button per task. Shared helpers parse input and phrase errors, so every form behaves the same. & P8-02, P8-03, P9-02\\
+Portability & \texttt{java -jar ChinookAir.jar -{}-selftest} prints \texttt{SELFTEST OK} and exits with 0 on macOS, Windows and Linux (Java 17). The database is created on first run, with no installer. & Standalone Swing application, embedded SQLite, one jar that holds every dependency. & P6-02, P9-04\\
+Maintainability & 0 Checkstyle violations on every build. The layers depend only downward, and ArchUnit tests fail the build if they do not. Every pull request ticks the same checklist. & Presentation, business (control and entity) and data packages. Class names match the class diagram. & P0-05, P6-09, P9-04\\
+Scalability & Replacing SQLite changes only the data package: presentation and business classes have no \texttt{java.sql} or \texttt{Sqlite*} dependency. Controllers contain no Swing code. & DAO interfaces with package-private SQLite classes behind a factory. Controllers take their DAOs through the constructor. & P4-01, P6-03, P6-09\\
+Reusability & Every entity and controller runs without Swing and without a display. The controller tests and the end-to-end test pass on a machine with no screen. Entities need no database. & Entities know nothing about the other layers. Controllers receive their DAOs and a clock instead of creating them. & P5-04, P7-04, P9-01\\
+Reliability & A seat cannot be reserved twice: a second active reservation for the same flight and seat is rejected by the database, and a test proves it. A declined payment never leaves a confirmed reservation. & A partial unique index is the last line of defence. The reservation DAO and the \texttt{BookingController} turn it into a clear message. & P6-01, P6-06, P7-04, P7-06\\
+Security & Passwords are stored only as PBKDF2 hashes with a random salt. Only the last 4 card digits are stored, and a card number is never logged. & A password hasher in the utility package. The payment details class keeps only the masked card. & P5-01, P5-05\\
+\bottomrule
+\end{longtable}
+\endgroup

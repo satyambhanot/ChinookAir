@@ -1,0 +1,68 @@
+\section{Sequence Diagrams}
+
+Each sequence diagram has the user first, then the boundary, control, data and
+entity classes from left to right. Messages are numbered and use the operation
+names of the class diagram. Activation bars show when an object is active and
+dashed arrows are returns. The fragments \texttt{alt} and \texttt{loop} show
+alternatives and repetition.
+
+\subsection*{Find available flights (UC-04), control class FlightSearchController}
+
+The customer enters the criteria in FlightSearchView, which calls
+\texttt{search(criteria)} on FlightSearchController. The controller validates
+the criteria itself. If they are invalid it returns an error and the view shows
+it. Otherwise it asks FlightDao for the flights of that day and, for each
+flight, asks Flight whether it has departed and SeatDao how many seats are
+free. The controller returns the offers, and the view shows a message when
+there are none and the table of flights when there are some.
+
+\diagramland{30-sequence-find-flights}{Sequence diagram: find available flights (UC-04)}{fig:seqfind}
+
+\subsection*{Book a flight (UC-06), control class BookingController}
+
+The customer chooses Book Flight and SeatSelectionView calls
+\texttt{startReservation(customerId, flightId)} on BookingController. The
+controller creates a Reservation, whose state is \texttt{CREATED}, and saves it
+through ReservationDao. The view then asks for \texttt{availableSeats(flightId)}
+and shows the seat map. When the customer picks a seat, the view calls
+\texttt{selectSeat(reservationId, seatNo)}. The controller loads the
+reservation, calls \texttt{assignSeat(seatNo, price)}, which moves it to
+\texttt{PENDING\_PAYMENT}, and updates it. If another customer took the seat
+first, ReservationDao raises \texttt{SeatUnavailableException} and the view
+shows a message and a fresh seat map. Otherwise the view shows the price and
+the Make Payment process takes over, which is shown by the reference frame.
+
+\diagramland{31-sequence-book-flight}{Sequence diagram: book a flight (UC-06)}{fig:seqbook}
+
+\subsection*{Make a payment (UC-07), control class PaymentController}
+
+The customer enters the card details in PaymentView, which calls
+\texttt{pay(reservationId, type, details)} on PaymentController. The controller
+loads the reservation, validates the details and asks the payment method for
+the chosen type to \texttt{authorize(details, amount)}. The method is a
+strategy: credit and debit payments are two classes behind one interface, picked
+by \texttt{PaymentMethods.forType(type)}. The controller creates a Payment,
+which starts as \texttt{PENDING}. If the payment is approved, the Payment becomes
+\texttt{APPROVED} and is saved, the Reservation becomes \texttt{CONFIRMED} and is
+updated, and ConfirmationWriter writes the confirmation. If it is declined, the
+Payment becomes \texttt{DECLINED} and is saved, and the Reservation stays
+\texttt{PENDING\_PAYMENT}. Both branches end by returning the result to the view.
+
+\diagramland{32-sequence-payment}{Sequence diagram: make a payment (UC-07)}{fig:seqpay}
+
+\subsection*{Manage flights (UC-14), control class FlightManagementController}
+
+The administrator submits a new flight in FlightManagementView, which calls
+\texttt{addFlight(details)} on FlightManagementController. The controller first
+checks the role with \texttt{Authorizer.require}. If the actor is not an
+administrator it returns an \texttt{AccessDeniedException} and the view shows
+the error. Otherwise it looks up the route, the airline and the aircraft,
+checks that the flight number is new and loads the flights of the aircraft, and
+validates the details. Invalid details are returned as an error. Valid details
+are saved through FlightDao, and the seats of the aircraft are created through
+SeatDao. In the second half, the administrator removes a flight. The controller
+asks ReservationDao for the number of active reservations. If there are any,
+the removal is blocked with an error. If there are none, the controller deletes
+the flight or, when old reservations refer to it, archives it.
+
+\diagramland{33-sequence-manage-flights}{Sequence diagram: manage flights (UC-14)}{fig:seqflights}

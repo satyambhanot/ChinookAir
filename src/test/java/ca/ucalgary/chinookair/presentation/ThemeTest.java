@@ -1,0 +1,77 @@
+package ca.ucalgary.chinookair.presentation;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.UIManager;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+class ThemeTest {
+
+    @BeforeAll
+    static void install() {
+        Theme.install();
+    }
+
+    @Test
+    void theFontIsInterAtBodySize() {
+        assertEquals("Inter", UIManager.getFont("defaultFont").getFamily());
+        assertEquals(Type.BODY, UIManager.getFont("defaultFont").getSize2D());
+    }
+
+    @Test
+    void theThemeFileIsLoaded() {
+        assertEquals(40, UIManager.getInt("Table.rowHeight"));
+        assertEquals(Palette.BLUE_600, UIManager.getColor("Component.focusColor"));
+        assertEquals(Palette.PAGE, UIManager.getColor("Panel.background"));
+    }
+
+    @Test
+    void everyButtonStyleHasADefinition() {
+        String[] names = {"primary", "danger", "secondary", "link", "card", "day", "today", "dangerFilled"};
+        for (String name : names) {
+            assertNotNull(UIManager.get("[style]Button." + name), name);
+        }
+        assertNotNull(UIManager.get("[style]ToggleButton.seat"));
+    }
+
+    @Test
+    void theButtonHelpersNameTheirStyle() {
+        assertEquals("primary", Theme.primary(new JButton()).getClientProperty("FlatLaf.styleClass"));
+        assertEquals("danger", Theme.danger(new JButton()).getClientProperty("FlatLaf.styleClass"));
+        assertEquals("secondary", Theme.secondary(new JButton()).getClientProperty("FlatLaf.styleClass"));
+        assertEquals("link", Theme.link(new JButton()).getClientProperty("FlatLaf.styleClass"));
+        assertEquals("dangerFilled",
+                Theme.dangerFilled(new JButton()).getClientProperty("FlatLaf.styleClass"));
+    }
+
+    @Test
+    void headingsUseTheTypeScale() {
+        JLabel title = Theme.title("Find flights");
+        assertEquals(Type.PAGE_HEADING, title.getFont().getSize2D());
+        assertTrue(title.getFont().isBold());
+        assertEquals(Type.LABEL, Theme.hint("hint").getFont().getSize2D());
+    }
+
+    @Test
+    void tablesAndOtherScrollPanesAreDrawnToTheirBoundsWithAPlainLine() {
+        // a table gets its own border when it is put in a pane, so both are set
+        for (String key : new String[] {"ScrollPane.border", "Table.scrollPaneBorder"}) {
+            java.awt.Insets in = UIManager.getBorder(key).getBorderInsets(new javax.swing.JScrollPane());
+            assertEquals(1, in.left, key);
+            assertEquals(1, in.top, key);
+        }
+    }
+
+    @Test
+    void aLinkHasNoSidePaddingSoItLinesUpWithTheTextAroundIt() {
+        javax.swing.JButton link = Theme.link(new JButton("Open folder"));
+        link.updateUI();
+        assertEquals(0, link.getMargin().left);
+        assertEquals(0, link.getMargin().right);
+    }
+}

@@ -1,0 +1,59 @@
+\section{State-Transition Diagrams}
+
+Each state diagram has one initial node (the black dot) and a final node
+(the dot in a circle). Every transition is labelled with an event, and with a
+guard in square brackets where a state has more than one way out.
+
+\subsection*{The state of the whole system}
+
+The diagram below shows the life cycle of the application. It starts
+in \texttt{Starting}, where it opens the database. If that fails it goes to
+\texttt{Error}, shows a message and ends. Otherwise it checks the month in
+\texttt{CheckingPromotion}. In a new month it shows the promotion in
+\texttt{ShowingPromotion}, and in the same month it goes straight to
+\texttt{LoggedOut}. From \texttt{LoggedOut} the user submits a login and the
+system is \texttt{Authenticating}. Invalid credentials return to
+\texttt{LoggedOut}. Valid credentials lead to the composite state
+\texttt{LoggedIn}, into the session state for the role of the user. The
+transitions \texttt{logout} and \texttt{exit} belong to \texttt{LoggedIn}, so they
+apply to all three session states. \texttt{exit} is also possible from
+\texttt{LoggedOut}. The application ends in \texttt{Closing}, which closes the
+database, and then in the final state.
+
+\diagram{40-state-system}{State diagram: the whole system}
+
+\subsection*{The state of a payment}
+
+The diagram below shows one Payment record. Its four states are the values of
+the payment status in the class diagram. A new Payment is created in
+\texttt{PENDING}. When the simulated authorization accepts it, the Payment calls
+\texttt{approve()} and becomes \texttt{APPROVED}. When the authorization rejects
+it, the Payment calls \texttt{decline(reason)} and becomes \texttt{DECLINED}. An
+approved Payment can later be refunded, which happens when its reservation is
+cancelled or changed to a different price, and then becomes \texttt{REFUNDED}.
+Nothing leaves \texttt{DECLINED} or \texttt{REFUNDED}: the arrows to the final
+node need no event. If a customer tries again after a declined payment, the
+system creates a new Payment, so a record never goes back to \texttt{PENDING}.
+This matches the payment activity diagram and the sequence diagram of the
+payment.
+
+\diagram{41-state-payment}{State diagram: a payment}
+
+\subsection*{The state of a reservation}
+
+The diagram below shows one Reservation. Its states are named like the values
+of the reservation status in the class diagram, and the sequence diagrams use
+the same names. A reservation is created in \texttt{CREATED}. When a seat is
+assigned it becomes \texttt{PENDING\_PAYMENT}, and when the payment is approved
+it becomes \texttt{CONFIRMED}. A confirmed reservation becomes
+\texttt{COMPLETED} once its flight has departed. A flight agent can change the
+flight of a confirmed reservation. If the price is unchanged the reservation
+stays \texttt{CONFIRMED}. If the price differs, the old payment is refunded and
+the reservation goes back to \texttt{PENDING\_PAYMENT} to be paid again. A
+reservation that is \texttt{CREATED}, \texttt{PENDING\_PAYMENT} or
+\texttt{CONFIRMED} can be cancelled, which frees the seat and refunds the
+approved payments. \texttt{CANCELLED} and \texttt{COMPLETED} end the life of
+the reservation. The class diagram later realises this diagram with one class
+per state.
+
+\diagram{42-state-reservation}{State diagram: a reservation}

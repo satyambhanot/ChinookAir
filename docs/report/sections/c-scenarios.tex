@@ -1,0 +1,373 @@
+\section{Use-Case Scenarios}
+
+Each scenario marks candidate classes with a \cls{single underline} and
+candidate operations with a \op{double underline}. The two lists are
+collected in the candidate tables of this section.
+
+\subsection*{UC-06 Book Flight}
+
+\begin{description}
+\item[Actor] \cls{Customer}.
+\item[Preconditions] The \cls{Customer} has an account and at least one
+  \cls{Flight} with a free \cls{Seat} exists.
+\item[Trigger] The \cls{Customer} wants to reserve a \cls{Seat} on a
+  \cls{Flight}.
+\end{description}
+
+\paragraph{Main success scenario}
+
+\begin{enumerate}
+\item The \cls{Customer} \op{starts} the application.
+\item The system \op{shows} the monthly \cls{Promotion} if this is the first
+  time the application is opened this month.
+\item The \cls{Customer} \op{logs in} with a username and a password.
+\item The \cls{Customer} \op{enters} the origin \cls{Airport}, the destination
+  \cls{Airport} and the date, and may choose an \cls{Airline}.
+\item The system \op{lists} the \cls{Flight}s on that \cls{Route} with their
+  departure times, prices and number of free \cls{Seat}s.
+\item The \cls{Customer} \op{selects} a \cls{Flight}.
+\item The system \op{shows} the seat map of the \cls{Aircraft} with the free
+  \cls{Seat}s marked.
+\item The \cls{Customer} \op{selects} a \cls{Seat}.
+\item The system \op{creates} a \cls{Reservation} for the \cls{Customer}, with
+  a confirmation number and the price of the \cls{Seat}, and marks it pending
+  payment.
+\item The \cls{Customer} \op{enters} the \cls{Payment} details: card type,
+  cardholder name, card number and expiry date.
+\item The system \op{simulates} the \cls{Payment} and \op{approves} it.
+\item The system \op{confirms} the \cls{Reservation}.
+\item The system \op{generates} the \cls{Confirmation}, \op{shows} it on screen
+  and \op{saves} it as a text file.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[3a. The username or password is wrong.] The system \op{shows} an error and
+  asks again. The scenario continues at step 3.
+\item[3b. The \cls{Customer} has no account.] The \cls{Customer}
+  \op{registers} with a username, a password, a name, an email and a phone
+  number, and the system saves the profile (UC-02). The scenario continues at
+  step 3.
+\item[5a. No \cls{Flight} matches.] The system \op{tells} the \cls{Customer}
+  that no \cls{Flight} was found. The scenario continues at step 4.
+\item[9a. The \cls{Seat} was taken in the meantime.] The system \op{rejects}
+  the \cls{Reservation}, \op{shows} a message and \op{shows} the seat map
+  again. The scenario continues at step 8.
+\item[10a. The card details are invalid.] The system \op{shows} a message that
+  names the field and what is wrong. The scenario continues at step 10.
+\item[11a. The \cls{Payment} is declined.] The system \op{shows} the reason and
+  keeps the \cls{Reservation} pending payment. The \cls{Customer} either
+  \op{retries}, and the scenario continues at step 10, or \op{abandons}. If the
+  \cls{Customer} abandons, the system \op{cancels} the \cls{Reservation} and
+  \op{releases} the \cls{Seat}, and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the \cls{Reservation} is confirmed, the \cls{Seat} is no longer free
+for anyone else, the \cls{Payment} is recorded as approved with only the last
+four card digits, and the \cls{Confirmation} file is saved. On every other
+ending no \cls{Reservation} holds a \cls{Seat}.
+
+\subsection*{UC-14 Manage Flights}
+
+\begin{description}
+\item[Actor] \cls{Administrator}.
+\item[Preconditions] The \cls{Administrator} has an account, and at least one
+  \cls{Airline}, \cls{Route} and \cls{Aircraft} exist.
+\item[Trigger] The \cls{Administrator} wants to change the \cls{Flight}s that
+  customers can reserve.
+\end{description}
+
+\paragraph{Main success scenario}
+
+\begin{enumerate}
+\item The \cls{Administrator} \op{logs in} with a username and a password.
+\item The \cls{Administrator} \op{chooses} Manage Flights.
+\item The \cls{Administrator} \op{chooses} Add Flight.
+\item The \cls{Administrator} \op{picks} a \cls{Route}, an \cls{Airline} and an
+  \cls{Aircraft}.
+\item The \cls{Administrator} \op{enters} the flight number, the departure time,
+  the arrival time and the base price.
+\item The system \op{validates} the details: the flight number is new, the
+  arrival is after the departure, the departure is in the future, and the
+  \cls{Aircraft} is not on another \cls{Flight} at that time.
+\item The system \op{creates} the \cls{Flight} and \op{creates} its \cls{Seat}s
+  from the seat layout of the \cls{Aircraft}.
+\item The \cls{Administrator} \op{updates} the schedule of an existing
+  \cls{Flight} by entering a new departure time and a new arrival time.
+\item The system \op{saves} the new schedule.
+\item The \cls{Administrator} \op{removes} an outdated \cls{Flight}.
+\item The system \op{deletes} the \cls{Flight} if it has no \cls{Reservation},
+  and otherwise \op{archives} it so that old \cls{Reservation}s stay in the
+  history.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[4a. The \cls{Route} does not exist.] The \cls{Administrator} \op{adds} the
+  \cls{Route} first. The scenario continues at step 4.
+\item[4b. The \cls{Aircraft} does not exist.] The \cls{Administrator}
+  \op{adds} the \cls{Aircraft} first. The scenario continues at step 4.
+\item[6a. The flight number already exists or the times are not valid.] The
+  system \op{shows} a message that names the problem. The scenario continues at
+  step 5.
+\item[6b. The \cls{Aircraft} is already on another \cls{Flight} at that time.]
+  The system \op{shows} a message. The \cls{Administrator} picks another
+  \cls{Aircraft} or other times, and the scenario continues at step 4.
+\item[9a. The new times clash.] Another \cls{Flight} already uses the same
+  \cls{Aircraft} at that time. The system \op{rejects} the change and
+  \op{shows} a message. The scenario continues at step 8.
+\item[11a. The \cls{Flight} still has active \cls{Reservation}s.] The system
+  \op{blocks} the removal and \op{shows} a message. The \cls{Flight} stays
+  unchanged and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the new \cls{Flight} and its \cls{Seat}s exist and customers can find
+the \cls{Flight}, the changed schedule is saved, and the removed \cls{Flight}
+no longer appears in searches or schedules. On every other ending nothing has
+changed.
+
+\subsection*{UC-10 Modify Reservation}
+
+\begin{description}
+\item[Actor] \cls{Flight Agent}.
+\item[Preconditions] The \cls{Flight Agent} has an account. The
+  \cls{Customer} has a confirmed \cls{Reservation} on a \cls{Flight} that has
+  not yet departed.
+\item[Trigger] A \cls{Customer} asks the \cls{Flight Agent} to move a
+  \cls{Reservation} to another \cls{Flight} or \cls{Seat}.
+\end{description}
+
+\paragraph{Main success scenario}
+
+The new price is different from the old one in this scenario.
+
+\begin{enumerate}
+\item The \cls{Flight Agent} \op{logs in} with a username and a password.
+\item The \cls{Flight Agent} \op{searches} for the \cls{Customer} by name or
+  email.
+\item The system \op{shows} the matching \cls{Customer}s.
+\item The \cls{Flight Agent} \op{opens} the profile of the \cls{Customer} and
+  \op{corrects} a detail.
+\item The system \op{saves} the profile.
+\item The \cls{Flight Agent} \op{opens} the reservation history of the
+  \cls{Customer}.
+\item The system \op{lists} the \cls{Reservation}s, newest first.
+\item The \cls{Flight Agent} \op{selects} a \cls{Reservation} and
+  \op{chooses} Modify.
+\item The \cls{Flight Agent} \op{searches} for another \cls{Flight} by origin,
+  destination and date.
+\item The system \op{lists} the \cls{Flight}s with their free \cls{Seat}s.
+\item The \cls{Flight Agent} \op{picks} the new \cls{Flight} and a free
+  \cls{Seat}.
+\item The system \op{updates} the \cls{Reservation} to the new \cls{Flight} and
+  \cls{Seat} and \op{calculates} the new price.
+\item The system \op{refunds} the old \cls{Payment} and \op{marks} the
+  \cls{Reservation} as pending payment.
+\item The \cls{Flight Agent} \op{opens} the payment records of the
+  \cls{Customer}.
+\item The system \op{lists} the \cls{Payment}s, with the old \cls{Payment}
+  shown as refunded.
+\item The \cls{Flight Agent} \op{enters} the details of the new \cls{Payment}
+  for the new price.
+\item The system \op{simulates} the new \cls{Payment} and \op{approves} it.
+\item The system \op{confirms} the \cls{Reservation}.
+\item The system \op{regenerates} the \cls{Confirmation}.
+\end{enumerate}
+
+\paragraph{Extensions}
+
+\begin{description}
+\item[3a. No \cls{Customer} matches.] The system \op{tells} the
+  \cls{Flight Agent} that nobody was found. The scenario continues at step 2.
+\item[8a. The \cls{Reservation} cannot be changed.] It is already cancelled or
+  its \cls{Flight} has departed. The system \op{refuses} the change and
+  \op{shows} a message. The scenario ends.
+\item[10a. The new \cls{Flight} is full.] The system \op{shows} a message. The
+  scenario continues at step 9.
+\item[12a. The \cls{Seat} was taken in the meantime.] The system \op{rejects}
+  the change and leaves the \cls{Reservation} as it was. It \op{shows} the
+  free \cls{Seat}s again. The scenario continues at step 11.
+\item[13a. The new price is the same as the old price.] The system keeps the
+  \cls{Reservation} confirmed and does not \op{refund} the \cls{Payment}. The
+  scenario continues at step 19.
+\item[17a. The new \cls{Payment} is declined.] The system \op{shows} the reason
+  and keeps the \cls{Reservation} pending payment. The \cls{Flight Agent}
+  either \op{retries}, and the scenario continues at step 16, or leaves it
+  pending, and the scenario ends.
+\end{description}
+
+\paragraph{Postconditions}
+
+On success the \cls{Reservation} is confirmed on the new \cls{Flight} and
+\cls{Seat}, the old \cls{Seat} is free again, the old \cls{Payment} is refunded,
+the new \cls{Payment} is approved, the \cls{Confirmation} is regenerated and the
+profile of the \cls{Customer} is up to date. On every other ending the
+\cls{Reservation} is either unchanged or waiting for payment, and it never
+holds two \cls{Seat}s.
+
+\subsection*{Candidate classes}
+
+Every underlined noun was judged with the six selection characteristics: (1)
+retained information, (2) needed services, (3) multiple attributes, (4) common
+attributes, (5) common operations and (6) essential requirement. A noun is kept
+when it meets most of them; a noun with a single attribute becomes an attribute
+of another class.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{1.7cm}>{\raggedright\arraybackslash}p{5.4cm}>{\raggedright\arraybackslash}p{1.8cm}>{\raggedright\arraybackslash}p{2.4cm}@{}}
+\toprule
+\textbf{Noun} & \textbf{Decision} & \textbf{Reason} & \textbf{Meets} & \textbf{Scenarios}\\
+\midrule
+\endhead
+Customer & entity & A person who reserves seats. The system keeps name, email and phone. & 1, 3, 4, 5, 6 & UC-06, UC-10\\
+Flight Agent & entity & A role of User. Works with customers on their behalf. & 1, 3, 4, 5, 6 & UC-10\\
+Administrator & entity & A role of User. Manages flights, routes and aircraft. & 1, 3, 4, 5, 6 & UC-14\\
+Airline & entity & Operates flights. Has a code and a name. & 1, 3, 4, 6 & UC-06, UC-14\\
+Airport & entity & Start or end of a route. Has a code and a city. & 1, 3, 4, 6 & UC-06\\
+Route & entity & An origin and a destination that flights run on. & 1, 3, 4, 6 & UC-06, UC-14\\
+Aircraft & entity & Has a model and a seat layout, and gives a flight its seats. & 1, 3, 4, 5, 6 & UC-06, UC-14\\
+Flight & entity & Has a number, times and a price, and knows if it has departed. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10, UC-14\\
+Seat & entity & A numbered place on a flight, economy or business. & 1, 3, 4, 6 & UC-06, UC-10, UC-14\\
+Reservation & entity & A customer's hold on one seat. Has a state and a price. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10, UC-14\\
+Payment & entity & A simulated charge with a status. Can be approved, declined or refunded. & 1, 2, 3, 4, 5, 6 & UC-06, UC-10\\
+Promotion & entity & The monthly offer. Has a title and a description. & 1, 3, 4, 6 & UC-06\\
+Confirmation & control & Not stored. It is produced from a Reservation and a Payment by a writer class. & -- & UC-06, UC-10\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+User is not underlined in the scenarios. It is kept as an abstract entity
+because Customer, Flight Agent and Administrator share a username and a
+password hash, and the use-case diagram shows them as its specialisations.
+
+\subsubsection*{Nouns considered and rejected}
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.0cm}>{\raggedright\arraybackslash}p{8.4cm}@{}}
+\toprule
+\textbf{Noun} & \textbf{Decision} & \textbf{Reason}\\
+\midrule
+\endhead
+system, application & rejected & The software as a whole, not a thing it keeps.\\
+screen, seat map, message & boundary & Shown by view classes. They hold no data of their own.\\
+username, password & attribute & Attributes of User.\\
+name, email, phone, profile & attribute & Attributes of Customer.\\
+flight number, departure, arrival, schedule, base price & attribute & Attributes of Flight.\\
+confirmation number, price, pending payment & attribute & Attributes of Reservation (the state is its status).\\
+card type, cardholder name, card number, expiry date & attribute & Attributes of Payment. Only the last four digits are kept.\\
+seat layout & rejected & Derived from the rows and seats per row of an Aircraft, so it is not kept.\\
+history, payment records & rejected & Lists of Reservations and Payments that already exist.\\
+text file & rejected & The output of the confirmation writer, not a domain class.\\
+month & attribute & The month in which the Promotion was last shown.\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Candidate operations}
+
+Every double-underlined verb is listed with the operation that carries it out
+and the class that owns the operation. Actions of the user are handled by the
+\texttt{<<boundary>>} views, which call the controller operation shown. The
+operations of the \texttt{<<control>>} classes feed the class diagram.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{1.9cm}@{}}
+\toprule
+\textbf{Verb} & \textbf{Operation} & \textbf{Owner class} & \textbf{Scenarios}\\
+\midrule
+\endhead
+starts & \ctl{show()} & MainFrame & UC-06\\
+logs in & \ctl{authenticate(username, password)} & LoginController & UC-06, UC-10, UC-14\\
+registers & \ctl{register(username, password, name, email, phone)} & CustomerController & UC-06\\
+shows (the promotion) & \ctl{checkOnStartup()} & PromotionController & UC-06\\
+shows (the seat map) & \ctl{availableSeats(flightId)} & BookingController & UC-06\\
+shows (flight details) & \ctl{details(flightId)} & FlightSearchController & UC-06\\
+shows (results, seat map, customers, confirmation, reasons), tells & \ctl{showError(message)}, \ctl{showTable(offers)} and similar view operations & the \texttt{<<boundary>>} views & all\\
+searches & \ctl{search(criteria)}, \ctl{search(text)} & FlightSearchController, CustomerController & UC-10\\
+lists & \ctl{search(criteria)}, \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & FlightSearchController, ReservationController, PaymentController & UC-06, UC-10\\
+enters & input fields of the view, passed to \ctl{search(criteria)}, \ctl{pay(...)}, \ctl{addFlight(details)} & FlightSearchView, PaymentView, FlightManagementView & UC-06, UC-10, UC-14\\
+selects & \ctl{selectSeat(reservationId, seatNo)} for a seat; a flight or reservation is selected in the view & BookingController, views & UC-06, UC-10\\
+picks & \ctl{modify(reservationId, newFlightId, newSeatNo)}, \ctl{addFlight(details)}; the choices come from \ctl{list()} & ReservationController, FlightManagementController, RouteController, AircraftController & UC-10, UC-14\\
+chooses & menu choice in the view & CustomerDashboard, AgentDashboard, AdminDashboard & UC-06, UC-10, UC-14\\
+opens & \ctl{history(customerId)}, \ctl{recordsForCustomer(customerId)} & ReservationController, PaymentController & UC-10\\
+corrects, saves (a profile) & \ctl{update(customer)} & CustomerController & UC-10\\
+creates & \ctl{startReservation(customerId, flightId)}, \ctl{addFlight(details)} & BookingController, FlightManagementController & UC-06, UC-14\\
+validates & checks inside \ctl{addFlight(details)} & FlightManagementController & UC-14\\
+calculates & \ctl{priceFor(seatClass)} & Flight & UC-10\\
+simulates, retries & \ctl{pay(reservationId, type, details)} & PaymentController & UC-06, UC-10\\
+approves & \ctl{approve()} & Payment & UC-06, UC-10\\
+confirms & \ctl{confirmPayment()} & Reservation & UC-06, UC-10\\
+generates, regenerates, saves (a confirmation) & \ctl{write(reservation, payment)} & ConfirmationWriter & UC-06, UC-10\\
+refunds, refund & \ctl{refund()} & Payment & UC-10\\
+marks & \ctl{changeFlight(flight, seatNo, newPrice)} & Reservation & UC-10\\
+updates, saves (a schedule) & \ctl{reschedule(flightId, departure, arrival)} & ScheduleController & UC-14\\
+updates (a reservation) & \ctl{modify(reservationId, newFlightId, newSeatNo)} & ReservationController & UC-10\\
+rejects, refuses & the checks inside \ctl{selectSeat(...)}, \ctl{modify(...)}, \ctl{cancel(...)}, \ctl{reschedule(...)} & BookingController, ReservationController, ScheduleController & UC-06, UC-10, UC-14\\
+blocks, removes, deletes, archives & \ctl{removeFlight(flightId)} & FlightManagementController & UC-14\\
+adds & \ctl{addRoute(...)}, \ctl{addAircraft(...)} & RouteController, AircraftController & UC-14\\
+cancels, abandons & \ctl{cancel(reservationId)}, \ctl{cancelPending(reservationId)} & ReservationController, BookingController & UC-06\\
+releases & \ctl{cancel()} on the Reservation, which frees the seat & Reservation & UC-06\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsubsection*{Operations of use cases without a scenario}
+
+Three operations come from use cases that none of the three scenarios walks
+through. They are named in the use-case table of section B.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{5.2cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{1.9cm}@{}}
+\toprule
+\textbf{Verb} & \textbf{Operation} & \textbf{Owner class} & \textbf{Use case}\\
+\midrule
+\endhead
+views & \ctl{view(customerId)} & CustomerController & UC-03\\
+changes (flight details) & \ctl{updateFlight(flightId, details)} & FlightManagementController & UC-14\\
+views (a schedule) & \ctl{schedule(from, to)} & ScheduleController & UC-12\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Control classes and the scenarios}
+
+Each control class comes from a use case in the table of section B, and each is
+used in at least one scenario. ConfirmationWriter is a helper that
+PaymentController calls, so it has no use case of its own.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{6.7cm}@{}}
+\toprule
+\textbf{Control class} & \textbf{Use cases} & \textbf{Where a scenario uses it}\\
+\midrule
+\endhead
+\ctl{LoginController} & UC-01 & the login step of every scenario\\
+\ctl{CustomerController} & UC-02, UC-03 & UC-06 extension 3b, UC-10 steps 2 to 5\\
+\ctl{FlightSearchController} & UC-04, UC-05 & UC-06 steps 4 to 6, UC-10 steps 9 to 10\\
+\ctl{BookingController} & UC-06 & UC-06 steps 8 and 9, extension 11a\\
+\ctl{PaymentController} & UC-07, UC-08 & UC-06 steps 10 and 11, UC-10 steps 14 to 17\\
+\ctl{ReservationController} & UC-09, UC-10, UC-11 & UC-10 steps 6 to 8 and 12 to 13\\
+\ctl{ScheduleController} & UC-12, UC-13 & UC-14 steps 8 and 9\\
+\ctl{FlightManagementController} & UC-14 & UC-14 steps 3 to 7 and 10 to 11\\
+\ctl{RouteController} & UC-15 & UC-14 extension 4a\\
+\ctl{AircraftController} & UC-16 & UC-14 extension 4b\\
+\ctl{PromotionController} & UC-17 & UC-06 step 2\\
+\bottomrule
+\end{longtable}
+\endgroup

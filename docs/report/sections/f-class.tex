@@ -1,0 +1,186 @@
+\section{Class Diagram}
+
+\subsection*{First-cut class diagram: entities}
+
+Figure~\ref{fig:entities} shows the entity classes. Every entity comes from the
+candidate class table in section C. User is abstract (its name and its
+\texttt{role()} operation are in italics) and Customer, FlightAgent and
+Administrator inherit from it. Flight is composed of its Seats, and the other
+relationships are plain associations with multiplicities at both ends. Seat
+availability is derived (\texttt{/ available}) from the active Reservations.
+Promotion has no associations. The five enumerations hold the fixed value sets.
+
+\diagramland{10-class-entities}{First-cut class diagram: entity classes}{fig:entities}
+
+\subsection*{First-cut class diagram: control and boundary classes}
+
+The diagram below adds the \texttt{<<control>>} and
+\texttt{<<boundary>>} classes. Each control class comes from a use case of
+section B and its operations come from the verbs of section C. Each boundary
+class uses one control class, and the control classes use the entities they
+coordinate. A boundary class never reaches an entity directly. The three
+dashboards belong to MainFrame, which shows the promotion at start-up through
+PromotionController. ConfirmationWriter is a helper that PaymentController
+calls. The data access classes and the design patterns are added in the refined
+diagram.
+
+\diagram{11-class-control-boundary}{First-cut class diagram: control and boundary classes}
+
+\paragraph{Operations of the boundary classes.} The boundary boxes are drawn
+without operations to keep the diagram readable. The operations that the
+sequence diagrams of section D send to a view are of two kinds: the user acts on
+the view (\texttt{enter...}, \texttt{choose...}, \texttt{pick...},
+\texttt{submit...}) and the controller tells the view to show something
+(\texttt{show...}). They belong to the view classes below.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.8cm}@{}}
+\toprule
+\textbf{Boundary class} & \textbf{Operations used in the sequence diagrams}\\
+\midrule
+\endhead
+\ctl{FlightSearchView} & enterCriteria, showError, showMessage, showTable\\
+\ctl{SeatSelectionView} & chooseBook, pickSeat, showSeatMap, showPrice, showError\\
+\ctl{PaymentView} & enterDetails, showConfirmation, showError\\
+\ctl{FlightManagementView} & submitFlight, chooseRemove, showFlight, showMessage, showError\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\subsection*{Refined class diagram}
+
+The first-cut diagrams are refined in two steps: the business layer and the
+data layer. The refinement uses inheritance (the three roles inherit from
+User), realization (interfaces and the classes that implement them),
+composition (a Flight is composed of its Seats) and polymorphism (the
+payment methods and the reservation states), and applies six design patterns.
+The attributes and associations of the entities do not change.
+
+\paragraph{Design patterns.}
+
+\begin{description}
+\item[Singleton.] The database file must never be opened twice, so
+  \texttt{DatabaseConnection} has exactly one instance, reached only through
+  \texttt{getInstance()} from the composition root \texttt{AppContext}.
+\item[DAO.] Controllers must not know about SQL, so every entity has a DAO
+  interface in the data package, realized by one package-private SQLite class,
+  and the database can be replaced without touching a business class;
+  \texttt{DaoFactory} creates the DAOs.
+\item[Strategy.] Credit and debit payments authorize differently, so each is a
+  class behind the \texttt{PaymentMethod} interface and PaymentController
+  calls \texttt{authorize} without an \texttt{if} on the type;
+  \texttt{PaymentMethods.\allowbreak forType} picks the strategy.
+\item[State.] A reservation reacts differently to the same call in each of its
+  five states, so Reservation hands \texttt{assignSeat}, \texttt{confirmPayment},
+  \texttt{changeFlight}, \texttt{cancel} and \texttt{complete} to a
+  \texttt{ReservationState} object, with one class per state as in the
+  reservation state diagram.
+\item[Factory.] The code that logs in or registers a user must not name the
+  subclasses, so \texttt{UserFactory.\allowbreak create} returns the right subclass of User
+  for a role.
+\item[Observer.] The monthly promotion must reach the screen without the
+  controller knowing about Swing, so PromotionController notifies the
+  registered \texttt{PromotionListener}s and MainFrame is the listener that
+  shows the dialog.
+\end{description}
+
+\paragraph{New classes.} \texttt{AppContext} builds the controllers and the DAOs
+in one place and is the only class that calls \texttt{getInstance()}.
+\texttt{Authorizer} checks the role of the user and \texttt{SessionContext} holds
+the logged-in user; both are used by the controllers and appear in the sequence
+diagrams. The five state classes, the two payment classes and the twelve SQLite
+classes exist only to realize an interface. No class outside the data package
+uses a SQLite class.
+
+Three classes are added to the data layer and the utility package.
+ConfirmationWriter does file access, so the refinement moves it from the
+control classes to the data package; PaymentController calls it. DatabaseSeeder
+fills an empty database with demo data and hashes the demo passwords with
+\texttt{PasswordHasher} of the utility package, which the controllers also use
+for log in and registration. ChinookAir is the entry point and calls
+\texttt{AppContext}.
+
+\diagramland{12-class-refined}{Refined class diagram: business layer and design patterns}{fig:refinedbusiness}
+
+\diagramland{13-class-data}{Refined class diagram: data layer}{fig:refineddata}
+
+\paragraph{Control classes and their DAOs.} Controllers receive their DAO
+interfaces through the constructor, so the table below is also the list of
+dependencies of the data layer.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{9.8cm}@{}}
+\toprule
+\textbf{Control class} & \textbf{DAO interfaces it uses}\\
+\midrule
+\endhead
+\ctl{LoginController} & UserDao\\
+\ctl{CustomerController} & CustomerDao, UserDao\\
+\ctl{FlightSearchController} & FlightDao, SeatDao, AirportDao, AirlineDao\\
+\ctl{BookingController} & FlightDao, SeatDao, ReservationDao\\
+\ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter)\\
+\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao\\
+\ctl{FlightManagementController} & FlightDao, SeatDao, RouteDao, AirlineDao, AircraftDao, ReservationDao\\
+\ctl{RouteController} & RouteDao, AirportDao\\
+\ctl{AircraftController} & AircraftDao\\
+\ctl{ScheduleController} & FlightDao\\
+\ctl{PromotionController} & PromotionDao, AppStateDao\\
+\bottomrule
+\end{longtable}
+\endgroup
+
+\paragraph{Classes added while coding.} Writing the code added small classes that
+no first-cut or refined diagram had. The first three groups are drawn in the
+boxes \emph{Added while coding} of the refined diagrams; the presentation helpers
+only appear in this table. None of them changes a class or an operation of the
+design above. The operations that were added to existing classes are
+\texttt{airports}, \texttt{airlines} and \texttt{today} on FlightSearchController
+(the search screen lists airports and airlines through the controller, not a DAO),
+\texttt{canCancel} and \texttt{canModify} on ReservationController (so a screen
+does not repeat the rule), \texttt{isArchived} on FlightDao and
+\texttt{replaceSeats} on SeatDao.
+
+\begingroup
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{5.8cm}>{\raggedright\arraybackslash}p{5.7cm}@{}}
+\toprule
+\textbf{Package} & \textbf{Class} & \textbf{Why it exists}\\
+\midrule
+\endhead
+\ctl{business.control} & \ctl{AccessDeniedException} & thrown when the role of the user may not do a task; the screen shows one plain sentence\\
+\ctl{business.control} & \ctl{AuthenticationException} & thrown when a user name or password is wrong\\
+\ctl{business.control} & \ctl{AircraftConflicts} & shared check of FlightManagementController and ScheduleController that an aircraft is free at a time (package-private)\\
+\ctl{business.control} & \ctl{ConfirmationNumberGenerator} & interface that makes confirmation numbers, so tests can use fixed ones\\
+\ctl{business.control} & \ctl{RandomConfirmationNumberGenerator} & its real implementation: CA and six random letters or digits\\
+\ctl{business.control} & \ctl{Controllers} & one object with every controller and the session, handed to the screens by AppContext\\
+\ctl{business.control} & \ctl{SearchCriteria} & what the search screen typed: origin, destination, date, airline\\
+\ctl{business.control} & \ctl{FlightOffer} & one line of the search result: a flight, seats left, lowest price\\
+\ctl{business.control} & \ctl{FlightDetails} & what the flight form typed, for add and update of a flight\\
+\ctl{business.control} & \ctl{PaymentResult} & what came out of a payment: payment, reservation, confirmation file, message\\
+\ctl{business.entity} & \ctl{AbstractReservationState} & base of the five state classes, so a state only writes what it allows\\
+\ctl{business.entity} & \ctl{PricingPolicy} & the one place that turns a base price and a seat class into a price\\
+\ctl{business.entity} & \ctl{SeatLayout} & works out the seats of an aircraft from its rows and seats per row\\
+\ctl{business.entity} & \ctl{PaymentDetails} & the card details of a payment; only the masked number is kept\\
+\ctl{business.entity} & \ctl{AuthorizationResult} & approved or declined, with the reason; the answer of a PaymentMethod\\
+\ctl{business.entity} & \ctl{SeatUnavailableException} & thrown when another reservation holds the seat\\
+\ctl{business.entity} & \ctl{StorageException} & base of the data-layer errors, so the screens do not import the data package\\
+\ctl{data} & \ctl{DataAccessException} & a database error with a message; extends StorageException\\
+\ctl{data} & \ctl{ConfirmationWriteException} & the confirmation file could not be written\\
+\ctl{data} & \ctl{DatabaseInitializer} & creates the tables from schema.sql (package-private)\\
+\ctl{data} & \ctl{JdbcSupport} & small helpers for queries, updates and transactions (package-private)\\
+\ctl{data} & \ctl{DbDates} & writes and reads dates as ISO text (package-private)\\
+\ctl{presentation} & \ctl{Navigator, \allowbreak ViewId, \allowbreak Screen} & how a screen asks for another one, the list of screens, and the hook that runs when a screen is shown\\
+\ctl{presentation} & \ctl{Dashboard} & base of the three dashboards\\
+\ctl{presentation} & \ctl{BookingSession} & what is picked while booking or modifying: flight, customer, reservation, payment\\
+\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Dialogs} & turn typed text into values, exceptions into plain sentences, and show messages\\
+\ctl{presentation} & \ctl{SeatGridModel} & the seat map as rows and columns, without Swing\\
+\ctl{presentation} & \ctl{FlightTableModel, \allowbreak ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
+\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak ComingSoonView} & parts used by several screens, and the stand-in for a screen that is not built\\
+\bottomrule
+\end{longtable}
+\endgroup
