@@ -7,14 +7,10 @@ else
   BUILD = cd $(REPORT) && tectonic $(1)
 endif
 
-.PHONY: pdf underline-test clean
+.PHONY: pdf clean
 
 pdf:
 	$(call BUILD,main.tex)
 
-# Renders one line with a single and a double underline, to prove the tooling works.
-underline-test:
-	$(call BUILD,underline-test.tex)
-
 clean:
-	cd $(REPORT) && rm -f *.aux *.log *.toc *.out *.fls *.fdb_latexmk *.synctex.gz *.xdv main.pdf underline-test.pdf
+	cd $(REPORT) && rm -f *.aux *.log *.toc *.out *.fls *.fdb_latexmk *.synctex.gz *.xdv main.pdf
