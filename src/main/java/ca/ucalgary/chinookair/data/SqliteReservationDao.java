@@ -96,8 +96,6 @@ class SqliteReservationDao implements ReservationDao {
         }
     }
 
-    // ---- writing
-
     @Override
     public Reservation save(Reservation reservation) {
         if (reservation.id() != null) {
@@ -145,8 +143,6 @@ class SqliteReservationDao implements ReservationDao {
             throw new DataAccessException("There is no reservation with id " + reservation.id());
         }
     }
-
-    // ---- reading
 
     @Override
     public Optional<Reservation> findById(long reservationId) {

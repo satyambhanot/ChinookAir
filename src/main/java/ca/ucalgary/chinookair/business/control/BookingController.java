@@ -106,8 +106,6 @@ public class BookingController {
         reservations.update(reservation);
     }
 
-    // ---- helpers
-
     private Flight requireFlight(long flightId) {
         return flights.findById(flightId).orElseThrow(() -> new IllegalArgumentException("That flight does not exist"));
     }

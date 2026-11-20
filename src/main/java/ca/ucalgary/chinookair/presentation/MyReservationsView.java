@@ -76,8 +76,6 @@ class MyReservationsView extends JPanel implements Screen {
         filterField.onChange(text -> render());
     }
 
-    // ---- showing
-
     private void load() {
         User user = controllers.session().currentUser().orElseThrow();
         history = controllers.reservationController().history(user, owner.id());
@@ -150,8 +148,6 @@ class MyReservationsView extends JPanel implements Screen {
             breadcrumb.show(List.of());
         }
     }
-
-    // ---- actions
 
     private void cancel(Reservation reservation) {
         User user = controllers.session().currentUser().orElse(null);
@@ -228,7 +224,7 @@ class MyReservationsView extends JPanel implements Screen {
         }
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     String message() {
         return messageLabel.getText().trim();
