@@ -182,7 +182,7 @@ class AppBar extends JPanel {
         navigator.show(ViewId.LOGIN);
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     JButton homeButton() {
         return homeButton;

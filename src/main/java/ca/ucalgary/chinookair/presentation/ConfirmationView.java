@@ -227,7 +227,7 @@ class ConfirmationView extends JPanel implements Screen {
         }
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     String numberText() {
         return number.getText();

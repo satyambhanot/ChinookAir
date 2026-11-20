@@ -135,8 +135,6 @@ public class ReservationController {
         return reservation;
     }
 
-    // ---- helpers
-
     private Reservation reservation(long reservationId) {
         return reservations.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("That reservation does not exist"));

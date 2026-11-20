@@ -188,7 +188,7 @@ class RegisterView extends JPanel implements Screen {
         usernameField.requestFocusInWindow();
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     FormField usernameRow() {
         return usernameRow;

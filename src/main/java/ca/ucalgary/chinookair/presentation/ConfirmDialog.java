@@ -81,7 +81,7 @@ final class ConfirmDialog extends JDialog {
         return dialog.confirmed;
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     JButton cancelButton() {
         return cancelButton;

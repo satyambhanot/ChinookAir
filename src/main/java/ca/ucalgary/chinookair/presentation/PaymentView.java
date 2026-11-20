@@ -271,7 +271,7 @@ class PaymentView extends JPanel implements Screen {
         payButton.setText("Pay " + price);
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     /** The total of the order summary, like "$184.00". */
     String summaryTotal() {

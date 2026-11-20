@@ -88,8 +88,6 @@ public class CustomerController {
         return customers.search(text);
     }
 
-    // ---- helpers
-
     private static void checkPassword(String password) {
         if (password == null || password.length() < MIN_PASSWORD_LENGTH) {
             throw new IllegalArgumentException("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");

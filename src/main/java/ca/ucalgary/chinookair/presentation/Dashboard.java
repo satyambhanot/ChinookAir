@@ -97,7 +97,7 @@ abstract class Dashboard extends JPanel implements Screen {
         greeting.setText("Hello, " + user.get().username());
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     /** The greeting at the top, like "Hello, admin". */
     String headerText() {

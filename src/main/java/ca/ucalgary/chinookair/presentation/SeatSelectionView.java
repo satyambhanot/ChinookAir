@@ -284,7 +284,7 @@ class SeatSelectionView extends JPanel implements Screen {
         messageLabel.setText(text);
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     String message() {
         return messageLabel.getText().trim();

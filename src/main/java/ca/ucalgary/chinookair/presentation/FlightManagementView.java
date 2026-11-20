@@ -396,7 +396,7 @@ class FlightManagementView extends JPanel implements Screen {
         load();
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     /** The last message shown, wherever it appears on the screen. */
     String message() {

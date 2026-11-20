@@ -95,8 +95,6 @@ class CustomerHome extends JPanel implements Screen {
         searchButton.setMnemonic('S');
     }
 
-    // ---- building
-
     private JPanel tripCard() {
         JPanel card = new JPanel(new BorderLayout());
         SurfaceBorder.apply(card, Space.XL, Space.XL, Space.XL, Space.XL);
@@ -146,8 +144,6 @@ class CustomerHome extends JPanel implements Screen {
         title.setForeground(Theme.TEXT);
         return title;
     }
-
-    // ---- filling
 
     private void showTrip(Optional<Reservation> trip) {
         shownTrip = trip;
@@ -222,8 +218,6 @@ class CustomerHome extends JPanel implements Screen {
         row.setMaximumSize(new Dimension(Integer.MAX_VALUE, row.getPreferredSize().height));
         return row;
     }
-
-    // ---- actions
 
     private void search() {
         alert.clear();
@@ -308,7 +302,7 @@ class CustomerHome extends JPanel implements Screen {
         return originCombo;
     }
 
-    // ---- for the tests
+    // package-private only so the tests can look at the screen
 
     String greetingText() {
         return greeting.getText();
