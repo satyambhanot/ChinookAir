@@ -145,7 +145,14 @@ class MainFrameSmokeTest {
     }
 
     @Test
-    void aBuiltScreenReplacesTheComingSoonPage() {
+    void everyViewIdHasAScreen() {
+        for (ViewId view : ViewId.values()) {
+            assertNotNull(frame.screenFor(view), view.name());
+        }
+    }
+
+    @Test
+    void aRegisteredScreenIsShownInTheWindow() {
         JLabel built = new JLabel("Real login");
         frame.register(ViewId.LOGIN, built);
         frame.show(ViewId.LOGIN);

@@ -12,9 +12,7 @@ import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.EnumMap;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -34,7 +32,6 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     private final CardLayout cards = new CardLayout();
     private final JPanel content = new JPanel(cards);
     private final AppBar appBar;
-    private final Set<ViewId> added = EnumSet.noneOf(ViewId.class);
     private final Map<ViewId, Component> screens = new EnumMap<>(ViewId.class);
     private ViewId current;
     private Consumer<Promotion> promotionDisplay = this::openPromotionDialog;
@@ -98,7 +95,7 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
                 Math.max(smallest.height, Math.min(USUAL.height, room.height)));
     }
 
-    /** The screens that exist so far; the others show a "coming soon" page until their issue is done. */
+    /** Builds every screen once; each ViewId has one. */
     private void buildScreens() {
         LoginView login = new LoginView(controllers, this);
         register(ViewId.LOGIN, login);
@@ -126,14 +123,11 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         register(ViewId.AIRCRAFT_MANAGEMENT, new AircraftManagementView(controllers, this));
     }
 
-    /** Shows a screen. A screen that is not built yet shows a "coming soon" page. */
+    /** Shows a screen. */
     @Override
     public final void show(ViewId view) {
         if (view == null) {
             throw new IllegalArgumentException("A screen is required");
-        }
-        if (!added.contains(view)) {
-            register(view, new ComingSoonView(view));
         }
         current = view;
         cards.show(content, view.name());
@@ -159,11 +153,10 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         }
     }
 
-    /** Puts a built screen in place of the one that stands for it. */
+    /** Puts a built screen in the window, in place of an earlier one for the same ViewId. */
     void register(ViewId view, JComponent screen) {
         content.add(ContentPane.scrolling(new ContentPane(screen)), view.name());
         screens.put(view, screen);
-        added.add(view);
     }
 
     /**
