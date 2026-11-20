@@ -427,13 +427,7 @@ class SeatSelectionView extends JPanel implements Screen {
             booking.setReservation(controllers.bookingController().selectSeat(reservation.get().id(), chosenSeat));
             navigator.show(ViewId.PAYMENT);
         } catch (RuntimeException e) {
-            String message = ErrorMessages.forException(e);
-            try {
-                drawMap();
-            } catch (RuntimeException again) {
-                // keep the first message
-            }
-            showError(message);
+            redrawAndShowError(e);
         }
     }
 
@@ -459,14 +453,19 @@ class SeatSelectionView extends JPanel implements Screen {
                 navigator.show(ViewId.MODIFY_RESERVATION);
             }
         } catch (RuntimeException e) {
-            String message = ErrorMessages.forException(e);
-            try {
-                drawMap();
-            } catch (RuntimeException again) {
-                // keep the first message
-            }
-            showError(message);
+            redrawAndShowError(e);
         }
+    }
+
+    /** Shows what went wrong and draws the map again, because the seat may have been taken meanwhile. */
+    private void redrawAndShowError(RuntimeException problem) {
+        String message = ErrorMessages.forException(problem);
+        try {
+            drawMap();
+        } catch (RuntimeException again) {
+            // keep the first message
+        }
+        showError(message);
     }
 
     private void goBack() {
