@@ -70,6 +70,27 @@
                 <version>3.2.5</version>
             </plugin>
 
+            <!-- Coverage report in target/site/jacoco after mvn verify; it never fails the build -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Style check runs on every build, so problems show up before a PR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

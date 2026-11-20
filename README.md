@@ -72,3 +72,4 @@ mvn verify
 ```
 
 runs Checkstyle (120 columns, no unused imports, braces on every block) and the unit tests.
+The coverage report is written to `target/site/jacoco/index.html`.
