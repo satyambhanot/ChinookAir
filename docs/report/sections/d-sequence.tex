@@ -21,11 +21,11 @@ there are none and the table of flights when there are some.
 \subsection*{Book a flight (UC-06), control class BookingController}
 
 The customer chooses Book Flight and SeatSelectionView calls
-\texttt{startReservation(customerId, flightId)} on BookingController. The
+\texttt{startReservation(actor, customer, flightId)} on BookingController. The
 controller creates a Reservation, whose state is \texttt{CREATED}, and saves it
 through ReservationDao. The view then asks for \texttt{availableSeats(flightId)}
 and shows the seat map. When the customer picks a seat, the view calls
-\texttt{selectSeat(reservationId, seatNo)}. The controller loads the
+\texttt{selectSeat(actor, reservationId, seatNo)}. The controller loads the
 reservation, calls \texttt{assignSeat(seatNo, price)}, which moves it to
 \texttt{PENDING\_PAYMENT}, and updates it. If another customer took the seat
 first, ReservationDao raises \texttt{SeatUnavailableException} and the view

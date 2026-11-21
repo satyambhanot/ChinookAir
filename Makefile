@@ -19,7 +19,7 @@ clean:
 # ZIP of all the source files. The design PDF is a separate hand-in and is copied next to it.
 DIST := dist
 submission:
-	mvn -B -q clean package -DskipTests
+	mvn -B -q clean verify
 	rm -rf $(DIST) && mkdir -p $(DIST)/staging
 	zip -q -r $(DIST)/staging/ChinookAir-source.zip src pom.xml checkstyle.xml README.md
 	cp target/ChinookAir.jar $(DIST)/staging/
