@@ -175,12 +175,12 @@ does not repeat the rule), \texttt{isArchived} on FlightDao and
 \ctl{data} & \ctl{JdbcSupport} & small helpers for queries, updates and transactions (package-private)\\
 \ctl{data} & \ctl{DbDates} & writes and reads dates as ISO text (package-private)\\
 \ctl{presentation} & \ctl{Navigator, \allowbreak ViewId, \allowbreak Screen} & how a screen asks for another one, the list of screens, and the hook that runs when a screen is shown\\
-\ctl{presentation} & \ctl{Dashboard} & base of the three dashboards\\
+\ctl{presentation} & \ctl{Dashboard} & base of AgentDashboard and AdminDashboard (CustomerHome is its own screen)\\
 \ctl{presentation} & \ctl{BookingSession} & what is picked while booking or modifying: flight, customer, reservation, payment\\
-\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Dialogs} & turn typed text into values, exceptions into plain sentences, and show messages\\
+\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Alert, \allowbreak ConfirmDialog} & turn typed text into values, exceptions into plain sentences, show a message, and ask the user to confirm\\
 \ctl{presentation} & \ctl{SeatGridModel} & the seat map as rows and columns, without Swing\\
-\ctl{presentation} & \ctl{FlightTableModel, \allowbreak ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
-\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak ComingSoonView} & parts used by several screens, and the stand-in for a screen that is not built\\
+\ctl{presentation} & \ctl{ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
+\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak FlightResultList} & parts used by several screens: the customer form, the promotion text, and the list of flights found by a search\\
 \bottomrule
 \end{longtable}
 \endgroup
