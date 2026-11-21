@@ -63,6 +63,9 @@ are saved through FlightDao, and the seats of the aircraft are created through
 SeatDao. In the second half, the administrator removes a flight. The controller
 asks ReservationDao for the number of active reservations. If there are any,
 the removal is blocked with an error. If there are none, the controller deletes
-the flight or, when old reservations refer to it, archives it.
+the flight or, when old reservations refer to it, archives it. A flight that has already
+left is settled first: its confirmed reservations are completed and the ones that were
+never paid are cancelled, so it can be removed even if nobody has opened their history.
+The steps are one unit, so a failure leaves the flight and its reservations as they were.
 
 \diagramland{33-sequence-manage-flights}{Sequence diagram: manage flights (UC-14)}{fig:seqflights}

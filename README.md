@@ -18,7 +18,8 @@ java -jar target/ChinookAir.jar
 
 The first start creates a database in `~/.chinookair/chinookair.db` with demo
 flights for the next 60 days, 12 promotions and three accounts. Move the file
-with `-Dchinookair.db=/path/to/file.db`.
+with `-Dchinookair.db=/path/to/file.db`. The flights are made once, on that first start, and cover 60 days: to get a fresh set later, delete the
+file (or point `-Dchinookair.db` at a new one).
 
 | Role | Username | Password |
 |---|---|---|
@@ -54,16 +55,32 @@ Three layers, one package each:
 ```
 src/main/java/ca/ucalgary/chinookair/
 ├── ChinookAir.java          entry point
+├── AppContext.java          builds the controllers and DAOs (the only place that does)
+├── SelfTest.java            the check behind --selftest
 ├── presentation/            Swing screens (boundary)
 ├── business/
 │   ├── control/             controllers, one per use case
 │   └── entity/              domain classes
-└── data/                    SQLite connection + DAOs
+├── data/                    SQLite connection + DAOs
+└── util/                    password hashing
 docs/                        design document and UML diagrams
 ```
 
 Screens call controllers, controllers use entities and DAOs.
 Nothing in `presentation` should touch the database directly.
+
+## Self-test and hand-in
+
+```
+java -jar target/ChinookAir.jar --selftest
+```
+
+opens a throw-away in-memory database, logs in as the demo customer, searches for a flight and prints
+`SELFTEST OK` (exit code 0), without opening a window or touching your own database.
+
+`make pdf` builds the design report (`docs/report/main.pdf`) and `make submission` runs the tests and writes
+`dist/ChinookAir-submission.zip` with the jar and a ZIP of the sources, plus a copy of the design PDF.
+`-Dchinookair.today=2027-02-01` fixes the date of the program, for trying out the monthly promotion.
 
 ## Tests and style checks
 
