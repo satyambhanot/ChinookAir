@@ -20,8 +20,12 @@ jobs:
           java-version: '17'
           cache: maven
 
+      # the window tests skip themselves without a display, so give them a virtual one
+      - name: Install a virtual display
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Build and test
-        run: mvn -B verify
+        run: xvfb-run -a mvn -B verify
 
       - name: Upload jar
         uses: actions/upload-artifact@v4
