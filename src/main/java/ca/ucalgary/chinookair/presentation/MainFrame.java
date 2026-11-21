@@ -143,6 +143,13 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         }
     }
 
+    @Override
+    public void refreshBar() {
+        if (current != null) {
+            appBar.refresh(current);
+        }
+    }
+
     /** Enter presses the screen's default button and the keyboard starts in the screen's first field. */
     private void useKeyboardDefaults(Screen screen) {
         getRootPane().setDefaultButton(screen.defaultButton());

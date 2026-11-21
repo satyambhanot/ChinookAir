@@ -101,6 +101,7 @@ class ProfileView extends JPanel implements Screen {
                     form.nameField.getText(), form.emailField.getText(), form.phoneField.getText());
             // the session keeps the new data too
             controllers.session().login(saved);
+            navigator.refreshBar();
             loaded = saved;
             form.show(saved);
             updateSave();

@@ -4,4 +4,7 @@ package ca.ucalgary.chinookair.presentation;
 interface Navigator {
 
     void show(ViewId view);
+
+    /** Refreshes the navigation bar when the signed-in user's details change on the current screen. */
+    default void refreshBar() {}
 }
