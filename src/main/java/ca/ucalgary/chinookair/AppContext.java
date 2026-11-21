@@ -98,7 +98,7 @@ public final class AppContext {
                         new RandomConfirmationNumberGenerator(random), clock),
                 new PaymentController(daos.reservationDao(), daos.paymentDao(), writer, clock),
                 new ReservationController(daos.reservationDao(), daos.paymentDao(), daos.flightDao(),
-                        daos.seatDao(), clock),
+                        daos.seatDao(), writer, clock),
                 new FlightManagementController(daos.flightDao(), daos.seatDao(), daos.routeDao(),
                         daos.airlineDao(), daos.aircraftDao(), daos.reservationDao(), clock),
                 new RouteController(daos.routeDao(), daos.airportDao()),

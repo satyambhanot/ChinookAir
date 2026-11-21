@@ -98,6 +98,13 @@ final class BookingSession {
         return text;
     }
 
+    /** Starts the next booking for the same person: what an agent chose a customer for stays chosen. */
+    void clearKeepingCustomer() {
+        Customer keep = customer;
+        clear();
+        customer = keep;
+    }
+
     /** Forgets the flight and the reservation, for a new booking. */
     void clear() {
         offer = null;

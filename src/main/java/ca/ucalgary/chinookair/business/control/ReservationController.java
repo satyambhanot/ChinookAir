@@ -8,6 +8,8 @@ import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.Seat;
 import ca.ucalgary.chinookair.business.entity.User;
+import ca.ucalgary.chinookair.data.ConfirmationWriteException;
+import ca.ucalgary.chinookair.data.ConfirmationWriter;
 import ca.ucalgary.chinookair.data.FlightDao;
 import ca.ucalgary.chinookair.data.PaymentDao;
 import ca.ucalgary.chinookair.data.ReservationDao;
@@ -15,6 +17,8 @@ import ca.ucalgary.chinookair.data.SeatDao;
 import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Use cases View Reservation History, Cancel Reservation and Modify Reservation. A reservation, its
@@ -23,18 +27,22 @@ import java.util.Objects;
  */
 public class ReservationController {
 
+    private static final Logger LOG = Logger.getLogger(ReservationController.class.getName());
+
     private final ReservationDao reservations;
     private final PaymentDao payments;
     private final FlightDao flights;
     private final SeatDao seats;
+    private final ConfirmationWriter writer;
     private final Clock clock;
 
     public ReservationController(ReservationDao reservations, PaymentDao payments, FlightDao flights, SeatDao seats,
-                                 Clock clock) {
+                                 ConfirmationWriter writer, Clock clock) {
         this.reservations = reservations;
         this.payments = payments;
         this.flights = flights;
         this.seats = seats;
+        this.writer = writer;
         this.clock = clock;
     }
 
@@ -81,11 +89,15 @@ public class ReservationController {
         return reservation;
     }
 
-    /** True if the reservation can still be cancelled: it is waiting for payment or confirmed and has not left. */
+    /**
+     * True if the reservation can still be cancelled: it was started, is waiting for payment or is confirmed,
+     * and its flight has not left. A reservation that was started but never got a seat can be cancelled too,
+     * so none is left behind when a booking is abandoned.
+     */
     public boolean canCancel(Reservation reservation) {
         ReservationStatus status = reservation.status();
-        return (status == ReservationStatus.PENDING_PAYMENT || status == ReservationStatus.CONFIRMED)
-                && !reservation.flight().hasDeparted(clock);
+        return (status == ReservationStatus.CREATED || status == ReservationStatus.PENDING_PAYMENT
+                || status == ReservationStatus.CONFIRMED) && !reservation.flight().hasDeparted(clock);
     }
 
     /** True if an agent can still move the reservation: it is confirmed and its flight has not left. */
@@ -97,10 +109,13 @@ public class ReservationController {
      * Moves a confirmed reservation to another flight and seat. Only an agent may do this. If the new
      * price is the same the reservation stays confirmed; if it differs, the old payment is refunded and
      * the reservation waits for a new payment. A seat that was taken in the meantime is refused by the
-     * database before anything else changes, and the reservation stays as it was.
+     * database before anything else changes, and the reservation stays as it was. If the price is the same
+     * the confirmation file is written again with the new flight and seat; a problem with that file is
+     * logged but does not undo the change.
      *
      * @throws AccessDeniedException    if the actor is not an agent
-     * @throws IllegalArgumentException if the reservation, the flight or the seat does not exist
+     * @throws IllegalArgumentException if the reservation, the flight or the seat does not exist, or the
+     *                                  reservation already has that flight and seat
      * @throws IllegalStateException    if the reservation is not confirmed or a flight has departed
      * @throws ca.ucalgary.chinookair.business.entity.SeatUnavailableException if the seat is taken
      */
@@ -122,6 +137,9 @@ public class ReservationController {
             throw new IllegalStateException("The new flight has already departed");
         }
         String wanted = newSeatNo == null ? "" : newSeatNo.trim().toUpperCase();
+        if (newFlightId == reservation.flight().id() && wanted.equals(reservation.seatNo())) {
+            throw new IllegalArgumentException("The reservation already has that flight and seat");
+        }
         Seat seat = seats.findByFlight(newFlightId).stream().filter(s -> s.number().equals(wanted)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Seat " + wanted + " does not exist on this flight"));
@@ -131,8 +149,22 @@ public class ReservationController {
         reservations.update(reservation);
         if (reservation.status() == ReservationStatus.PENDING_PAYMENT) {
             refundApprovedPayments(reservation);
+        } else {
+            rewriteConfirmation(reservation);
         }
         return reservation;
+    }
+
+    /** The price did not change, so the paid confirmation stays valid; its file has to show the new trip. */
+    private void rewriteConfirmation(Reservation reservation) {
+        payments.findByReservation(reservation.id()).stream()
+                .filter(p -> p.status() == PaymentStatus.APPROVED).findFirst().ifPresent(payment -> {
+                    try {
+                        writer.write(reservation, payment);
+                    } catch (ConfirmationWriteException e) {
+                        LOG.log(Level.WARNING, "The confirmation file could not be written again", e);
+                    }
+                });
     }
 
     private Reservation reservation(long reservationId) {

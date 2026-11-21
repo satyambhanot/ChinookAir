@@ -81,7 +81,7 @@ class EndToEndFlowTest {
     private Reservation bookAndPay(Customer customer, FlightOffer offer, String seat) {
         Reservation started = controllers.bookingController().startReservation(customer, customer,
                 offer.flight().id());
-        Reservation waiting = controllers.bookingController().selectSeat(started.id(), seat);
+        Reservation waiting = controllers.bookingController().selectSeat(customer, started.id(), seat);
         PaymentResult paid = controllers.paymentController().pay(customer, waiting.id(), PaymentMethodType.CREDIT,
                 GOOD_CARD);
         assertEquals(PaymentStatus.APPROVED, paid.payment().status(), "step pay");
@@ -106,7 +106,7 @@ class EndToEndFlowTest {
         int seatsBefore = offer.seatsLeft();
         Reservation started = controllers.bookingController().startReservation(jo, jo, offer.flight().id());
         assertEquals(ReservationStatus.CREATED, started.status(), "step start reservation");
-        Reservation waiting = controllers.bookingController().selectSeat(started.id(), "3C");
+        Reservation waiting = controllers.bookingController().selectSeat(jo, started.id(), "3C");
         assertEquals(ReservationStatus.PENDING_PAYMENT, waiting.status(), "step select seat");
         assertEquals(0, offer.flight().priceFor(SeatClass.ECONOMY)
                 .compareTo(waiting.price()), "step seat price");

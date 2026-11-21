@@ -4,6 +4,7 @@ import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.control.PaymentResult;
 import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Reservation;
+import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Desktop;
@@ -148,7 +149,12 @@ class ConfirmationView extends JPanel implements Screen {
     }
 
     private void bookAnother() {
-        booking.clear();
+        boolean agent = controllers.session().currentUser().map(u -> u.role() == Role.AGENT).orElse(false);
+        if (agent) {
+            booking.clearKeepingCustomer();
+        } else {
+            booking.clear();
+        }
         navigator.show(ViewId.FLIGHT_SEARCH);
     }
 

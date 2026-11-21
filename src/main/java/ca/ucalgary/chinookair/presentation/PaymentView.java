@@ -52,6 +52,7 @@ class PaymentView extends JPanel implements Screen {
     final JTextField expiryField = Theme.placeholder(new JTextField(6), "MM/yy");
     final JButton payButton = Theme.primary(new JButton("Pay"));
     final JButton backButton = Theme.secondary(new JButton("Back"));
+    final JButton abandonButton = Theme.secondary(new JButton("Cancel booking"));
     private final FormField typeRow = new FormField("Card type", typeCombo).mnemonic('T');
     private final FormField nameRow = new FormField("Name on card", nameField).mnemonic('N');
     private final FormField cardRow = new FormField("Card number", cardField).mnemonic('C');
@@ -91,6 +92,7 @@ class PaymentView extends JPanel implements Screen {
         });
         payButton.setMnemonic('P');
         backButton.setMnemonic('B');
+        abandonButton.setMnemonic('C');
         messageLabel.setFont(messageLabel.getFont().deriveFont(Type.LABEL));
 
         JPanel form = new JPanel();
@@ -122,6 +124,7 @@ class PaymentView extends JPanel implements Screen {
         form.add(javax.swing.Box.createVerticalStrut(12));
         ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
+        buttons.add(abandonButton);
         buttons.add(backButton);
         buttons.add(payButton);
         buttons.setAlignmentX(LEFT_ALIGNMENT);
@@ -152,9 +155,28 @@ class PaymentView extends JPanel implements Screen {
         cardField.addActionListener(e -> pay());
         expiryField.addActionListener(e -> pay());
         payButton.addActionListener(e -> pay());
+        abandonButton.addActionListener(e -> abandon());
         // back to the seat map when booking, back to the list when paying a reservation from it
         backButton.addActionListener(e -> navigator.show(
                 booking.selectedOffer().isPresent() ? ViewId.SEAT_SELECTION : ViewId.MY_RESERVATIONS));
+    }
+
+    /** The customer gives up: the reservation is cancelled and its seat is free again. */
+    private void abandon() {
+        Optional<User> user = controllers.session().currentUser();
+        Optional<Reservation> reservation = booking.reservation();
+        if (user.isEmpty() || reservation.isEmpty()) {
+            return;
+        }
+        boolean newBooking = booking.selectedOffer().isPresent();
+        try {
+            controllers.bookingController().cancelPending(user.get(), reservation.get().id());
+        } catch (RuntimeException e) {
+            showError(ErrorMessages.forException(e));
+            return;
+        }
+        booking.setReservation(null);
+        navigator.show(newBooking ? ViewId.landingFor(user.get().role()) : ViewId.MY_RESERVATIONS);
     }
 
     private void pay() {

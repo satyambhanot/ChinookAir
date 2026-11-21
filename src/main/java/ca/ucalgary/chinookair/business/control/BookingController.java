@@ -73,12 +73,17 @@ public class BookingController {
      * reservation took the seat first, the reservation stays as it was and the
      * {@code SeatUnavailableException} of the database passes up unchanged.
      *
+     * @throws AccessDeniedException    if the actor may not change this reservation
      * @throws IllegalArgumentException if the reservation or the seat does not exist
-     * @throws IllegalStateException    if the flight has departed or the reservation already has a seat
+     * @throws IllegalStateException    if the flight has departed or was removed, or the reservation already
+     *                                  has a seat
      */
-    public Reservation selectSeat(long reservationId, String seatNo) {
-        Reservation reservation = reservation(reservationId);
+    public Reservation selectSeat(User actor, long reservationId, String seatNo) {
+        Reservation reservation = ownReservation(actor, reservationId);
         Flight flight = reservation.flight();
+        if (flights.isArchived(flight.id())) {
+            throw new IllegalStateException("That flight is no longer available");
+        }
         if (flight.hasDeparted(clock)) {
             throw new IllegalStateException("That flight has already departed");
         }
@@ -94,10 +99,11 @@ public class BookingController {
     /**
      * Gives up a reservation that is not paid yet and frees its seat.
      *
+     * @throws AccessDeniedException if the actor may not change this reservation
      * @throws IllegalStateException if the reservation is already paid, cancelled or completed
      */
-    public void cancelPending(long reservationId) {
-        Reservation reservation = reservation(reservationId);
+    public void cancelPending(User actor, long reservationId) {
+        Reservation reservation = ownReservation(actor, reservationId);
         ReservationStatus status = reservation.status();
         if (status != ReservationStatus.CREATED && status != ReservationStatus.PENDING_PAYMENT) {
             throw new IllegalStateException("Only a reservation that is not paid yet can be given up");
@@ -119,6 +125,16 @@ public class BookingController {
             throw new IllegalStateException("That flight has already departed");
         }
         return flight;
+    }
+
+    /** The reservation, if the actor may change it: a customer only their own, an agent anybody's. */
+    private Reservation ownReservation(User actor, long reservationId) {
+        Authorizer.require(actor, Role.CUSTOMER, Role.AGENT);
+        Reservation reservation = reservation(reservationId);
+        if (actor.role() == Role.CUSTOMER && !Objects.equals(actor.id(), reservation.customer().id())) {
+            throw new AccessDeniedException("You can only change your own reservations");
+        }
+        return reservation;
     }
 
     private Reservation reservation(long reservationId) {

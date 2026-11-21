@@ -3,6 +3,8 @@ package ca.ucalgary.chinookair.business.control;
 import ca.ucalgary.chinookair.business.entity.Aircraft;
 import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Flight;
+import ca.ucalgary.chinookair.business.entity.Reservation;
+import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.Route;
 import ca.ucalgary.chinookair.business.entity.SeatLayout;
@@ -69,7 +71,8 @@ public class FlightManagementController {
      *
      * @throws AccessDeniedException    if the actor is not an administrator
      * @throws IllegalArgumentException if a detail is not valid or clashes with another flight
-     * @throws IllegalStateException    if the flight was removed or the change would break a reservation
+     * @throws IllegalStateException    if the flight was removed or has departed, or the change would break a
+     *                                  reservation
      */
     public Flight updateFlight(User actor, long flightId, FlightDetails details) {
         Authorizer.require(actor, Role.ADMIN);
@@ -77,6 +80,9 @@ public class FlightManagementController {
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
         if (flights.isArchived(flightId)) {
             throw new IllegalStateException("That flight was removed");
+        }
+        if (current.hasDeparted(clock)) {
+            throw new IllegalStateException("A flight that has already departed cannot be changed");
         }
         Flight changed = checked(current, details);
         boolean routeChanged = !current.route().id().equals(changed.route().id());
@@ -103,11 +109,14 @@ public class FlightManagementController {
      * disappears from searches and schedules but those reservations stay in the history.
      *
      * @throws AccessDeniedException if the actor is not an administrator
-     * @throws IllegalStateException if there are active reservations
+     * @throws IllegalStateException if there are active reservations on a flight that has not left yet
      */
     public void removeFlight(User actor, long flightId) {
         Authorizer.require(actor, Role.ADMIN);
-        flights.findById(flightId).orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        Flight flight = flights.findById(flightId).orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        if (flight.hasDeparted(clock)) {
+            settleDepartedFlight(flightId);
+        }
         if (reservations.countActiveByFlight(flightId) > 0) {
             throw new IllegalStateException("Cannot remove a flight with active reservations");
         }
@@ -115,6 +124,23 @@ public class FlightManagementController {
             flights.delete(flightId);
         } else {
             flights.archive(flightId);
+        }
+    }
+
+    /**
+     * A flight that has left cannot have active reservations any more: the confirmed ones are completed
+     * (nobody has to open their history first) and the ones that were never paid are given up.
+     */
+    private void settleDepartedFlight(long flightId) {
+        for (Reservation reservation : reservations.findByFlight(flightId)) {
+            ReservationStatus status = reservation.status();
+            if (status == ReservationStatus.CONFIRMED) {
+                reservation.complete(clock);
+                reservations.update(reservation);
+            } else if (status == ReservationStatus.CREATED || status == ReservationStatus.PENDING_PAYMENT) {
+                reservation.cancel();
+                reservations.update(reservation);
+            }
         }
     }
 

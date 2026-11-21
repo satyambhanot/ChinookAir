@@ -111,7 +111,7 @@ class SeatSelectionViewTest {
         Customer other = controllers.customerController()
                 .register("taker" + next, "password1", "Taker", "taker" + next + "@example.com", "4035550101");
         long theirs = controllers.bookingController().startReservation(other, other, offer.flight().id()).id();
-        controllers.bookingController().selectSeat(theirs, "1A");
+        controllers.bookingController().selectSeat(other, theirs, "1A");
         view.continueButton.doClick(0);
         assertEquals("\u00D7", view.seatButtonFor("1A").getText());
         assertTrue(view.seatButtonFor("1A").getAccessibleContext().getAccessibleName().contains("taken"));
@@ -196,7 +196,7 @@ class SeatSelectionViewTest {
         Customer other = controllers.customerController()
                 .register("racer" + next, "password1", "Racer", "racer" + next + "@example.com", "4035550100");
         long theirs = controllers.bookingController().startReservation(other, other, offer.flight().id()).id();
-        controllers.bookingController().selectSeat(theirs, "1A");
+        controllers.bookingController().selectSeat(other, theirs, "1A");
 
         view.continueButton.doClick(0);
 

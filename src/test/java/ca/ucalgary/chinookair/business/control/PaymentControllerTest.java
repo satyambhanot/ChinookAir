@@ -303,4 +303,23 @@ class PaymentControllerTest {
         assertThrows(AccessDeniedException.class, () -> controller.recordsForCustomer(null, jo.id()));
         assertTrue(controller.recordsForCustomer(agent, bo.id()).isEmpty());
     }
+
+    // ---- a flight that has left
+
+    @Test
+    void aReservationOfAFlightThatHasLeftCannotBePaid() throws IOException {
+        Reservation r = pending(jo, "1A", "300.00");
+        Clock afterTakeOff = Clock.fixed(LocalDateTime.of(2026, 12, 2, 8, 30).toInstant(ZoneOffset.UTC),
+                ZoneOffset.UTC);
+        PaymentController late = new PaymentController(daos.reservationDao(), daos.paymentDao(),
+                new ConfirmationWriter(folder), afterTakeOff);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> late.pay(jo, r.id(), PaymentMethodType.CREDIT, GOOD));
+
+        assertEquals("That flight has already departed", e.getMessage());
+        assertEquals(ReservationStatus.PENDING_PAYMENT, statusOf(r));
+        assertTrue(daos.paymentDao().findByReservation(r.id()).isEmpty());
+        assertTrue(filesInFolder().isEmpty());
+    }
 }

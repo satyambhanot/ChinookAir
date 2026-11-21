@@ -68,7 +68,7 @@ public final class DatabaseSeeder {
         {"May Long Weekend", "Business class seats at 20% off for the long weekend."},
         {"Summer Starts Here", "Save 10% when you reserve a June flight before the 15th."},
         {"Canada Day Getaway", "Special fares to Toronto, Ottawa and Montreal in July."},
-        {"Stampede Special", "Fly to Calgary in July with 15% off economy."},
+        {"Summer Long Weekend", "Fly to Calgary in August with 15% off economy."},
         {"Back to School", "Students save 10% on any September flight."},
         {"Thanksgiving Fares", "Family fares for the October long weekend."},
         {"November Deals", "Save 12% on flights booked at least 14 days ahead."},

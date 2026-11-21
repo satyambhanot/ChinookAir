@@ -78,7 +78,7 @@ class MyReservationsViewTest {
     private Reservation book(String seat, boolean pay) {
         Reservation started = controllers.bookingController().startReservation(customer, customer,
                 offer.flight().id());
-        Reservation waiting = controllers.bookingController().selectSeat(started.id(), seat);
+        Reservation waiting = controllers.bookingController().selectSeat(customer, started.id(), seat);
         if (!pay) {
             return waiting;
         }

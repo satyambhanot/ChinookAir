@@ -38,6 +38,7 @@ class CustomerManagementView extends JPanel implements Screen {
     final CustomerForm form = new CustomerForm();
     final JButton newButton = Theme.secondary(new JButton("New customer"));
     final JButton saveButton = Theme.primary(new JButton("Save"));
+    final JButton bookButton = Theme.secondary(new JButton("Book a flight"));
     final JButton reservationsButton = Theme.secondary(new JButton("Reservations"));
     final JButton modifyButton = Theme.secondary(new JButton("Modify a reservation"));
     private final Alert alert = new Alert(SIDE_WIDTH - 90);
@@ -84,11 +85,13 @@ class CustomerManagementView extends JPanel implements Screen {
 
         detailsTitle.setFont(detailsTitle.getFont().deriveFont(java.awt.Font.BOLD, Type.SECTION));
         saveButton.setMnemonic('V');
+        bookButton.setMnemonic('B');
         reservationsButton.setMnemonic('R');
         modifyButton.setMnemonic('M');
         // one under the other, so both labels always fit in the narrow panel
-        JPanel secondary = new JPanel(new java.awt.GridLayout(2, 1, 0, 8));
+        JPanel secondary = new JPanel(new java.awt.GridLayout(3, 1, 0, 8));
         secondary.setOpaque(false);
+        secondary.add(bookButton);
         secondary.add(reservationsButton);
         secondary.add(modifyButton);
         JPanel save = ButtonRow.right();
@@ -126,12 +129,14 @@ class CustomerManagementView extends JPanel implements Screen {
         });
         newButton.addActionListener(e -> startNew());
         saveButton.addActionListener(e -> save());
+        bookButton.addActionListener(e -> openBooking());
         reservationsButton.addActionListener(e -> openReservations());
         modifyButton.addActionListener(e -> openModify());
     }
 
     private void updateButtons() {
         boolean chosen = table.getSelectedRow() >= 0;
+        bookButton.setEnabled(chosen);
         reservationsButton.setEnabled(chosen);
         modifyButton.setEnabled(chosen);
         saveButton.setEnabled(chosen || form.isNewCustomer());
@@ -236,6 +241,17 @@ class CustomerManagementView extends JPanel implements Screen {
         } finally {
             form.wipePassword();
         }
+    }
+
+    /** The agent books a flight for this customer: the search starts with the customer already chosen. */
+    private void openBooking() {
+        Customer chosen = selected();
+        if (chosen == null) {
+            return;
+        }
+        booking.clear();
+        booking.bookFor(chosen);
+        navigator.show(ViewId.FLIGHT_SEARCH);
     }
 
     private void openReservations() {

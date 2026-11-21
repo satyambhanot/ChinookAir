@@ -222,4 +222,17 @@ class FlightSearchControllerTest {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> controller.details(999));
         assertEquals("That flight does not exist", e.getMessage());
     }
+
+    @Test
+    void detailsOfAFlightThatLeftOrWasRemovedIsAnError() {
+        long left = daos.flightDao().search("YYC", "YVR", TODAY, "AC").get(0).id();
+        assertEquals("AC100", daos.flightDao().findById(left).orElseThrow().flightNumber());
+        assertEquals("That flight has already departed",
+                assertThrows(IllegalStateException.class, () -> controller.details(left)).getMessage());
+
+        long removed = daos.flightDao().search("YYC", "YVR", TODAY, "WS").get(0).id();
+        daos.flightDao().archive(removed);
+        assertEquals("That flight is no longer available",
+                assertThrows(IllegalStateException.class, () -> controller.details(removed)).getMessage());
+    }
 }
