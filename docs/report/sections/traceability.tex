@@ -38,6 +38,7 @@ UC-14 Manage Flights & FR-7, FR-11 & Scenario UC-14; sequence diagram Manage fli
 UC-15 Manage Routes & FR-8 & Scenario UC-14 extension 4a & \ctl{Route\allowbreak Controller} & Route, Airport\\
 UC-16 Manage Aircraft & FR-8 & Scenario UC-14 extension 4b & \ctl{Aircraft\allowbreak Controller} & Aircraft\\
 UC-17 View Monthly Promotion & FR-12 & Scenario UC-06 step 2; state diagram of the system & \ctl{Promotion\allowbreak Controller} & Promotion\\
+UC-18 Select Seat & FR-14 & Scenario UC-06 steps 7 to 9; sequence diagram and activity diagram Book flight & \ctl{Booking\allowbreak Controller} & Seat, Reservation, Flight\\
 \bottomrule
 \end{longtable}
 \endgroup
@@ -58,7 +59,7 @@ Flights, as in section C.
 \textbf{Class} & \textbf{Kind} & \textbf{Scenario steps that mention it}\\
 \midrule
 \endhead
-\ctl{Customer} & entity & UC-06 (steps 3, 3b, 9), UC-10 (steps 2 to 5)\\
+\ctl{Customer} & entity & UC-06 (steps 3, 3b, 7), UC-10 (steps 2 to 5)\\
 \ctl{FlightAgent} & entity & UC-10 (steps 1 to 19)\\
 \ctl{Administrator} & entity & UC-14 (steps 1 to 11)\\
 \ctl{User} & entity & UC-06, UC-10, UC-14 (step that logs in; parent of the three roles)\\
@@ -68,19 +69,19 @@ Flights, as in section C.
 \ctl{Aircraft} & entity & UC-06 (step 7), UC-14 (steps 4 and 7, extension 4b)\\
 \ctl{Flight} & entity & UC-06 (steps 5 to 6), UC-10 (steps 9 to 12), UC-14 (steps 4 to 11)\\
 \ctl{Seat} & entity & UC-06 (steps 7 to 8), UC-10 (steps 10 to 12), UC-14 (step 7)\\
-\ctl{Reservation} & entity & UC-06 (steps 9, 12), UC-10 (steps 6 to 13), UC-14 (steps 10 to 11)\\
+\ctl{Reservation} & entity & UC-06 (steps 7, 9, 12), UC-10 (steps 6 to 13), UC-14 (steps 10 to 11)\\
 \ctl{Payment} & entity & UC-06 (steps 10 to 11), UC-10 (steps 14 to 17)\\
 \ctl{Promotion} & entity & UC-06 (step 2)\\
 \ctl{Role} & enumeration & UC-06, UC-10, UC-14 (the role selects the dashboard after log in)\\
 \ctl{SeatClass} & enumeration & UC-06 (step 8), UC-10 (step 11): economy or business Seat\\
-\ctl{ReservationStatus} & enumeration & UC-06 (steps 9, 12), UC-10 (steps 13, 18): pending payment, confirmed\\
+\ctl{ReservationStatus} & enumeration & UC-06 (steps 7, 9, 12), UC-10 (steps 13, 18): pending payment, confirmed\\
 \ctl{PaymentStatus} & enumeration & UC-06 (steps 11, 11a), UC-10 (steps 13, 17): approved, declined, refunded\\
 \ctl{PaymentMethodType} & enumeration & UC-06 (step 10): the card type\\
 \midrule
 \ctl{LoginController} & control & UC-06, UC-10, UC-14 (the log-in step)\\
 \ctl{CustomerController} & control & UC-06 (extension 3b), UC-10 (steps 2 to 5)\\
 \ctl{FlightSearchController} & control & UC-06 (steps 4 to 6), UC-10 (steps 9 to 10)\\
-\ctl{BookingController} & control & UC-06 (steps 8 to 9, extension 11a)\\
+\ctl{BookingController} & control & UC-06 (steps 7 to 9, extension 11a)\\
 \ctl{PaymentController} & control & UC-06 (steps 10 to 11), UC-10 (steps 14 to 17)\\
 \ctl{ReservationController} & control & UC-10 (steps 6 to 8 and 12 to 13)\\
 \ctl{ScheduleController} & control & UC-14 (steps 8 to 9)\\
@@ -91,7 +92,7 @@ Flights, as in section C.
 \ctl{ConfirmationWriter} & control & UC-06 (step 13), UC-10 (step 19)\\
 \midrule
 \ctl{MainFrame} & boundary & UC-06 (step 1)\\
-\ctl{CustomerDashboard} & boundary & UC-06 (after step 3)\\
+\ctl{CustomerHome} & boundary & UC-06 (after step 3)\\
 \ctl{AgentDashboard} & boundary & UC-10 (after step 1)\\
 \ctl{AdminDashboard} & boundary & UC-14 (step 2)\\
 \ctl{PromotionDialog} & boundary & UC-06 (step 2)\\

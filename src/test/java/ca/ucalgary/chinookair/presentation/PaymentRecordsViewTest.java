@@ -56,7 +56,7 @@ class PaymentRecordsViewTest {
                 "payer" + n + "@x.ca", null);
         FlightOffer offer = controllers.flightSearchController()
                 .search(new SearchCriteria("YYC", "YVR", LocalDate.of(2026, 12, 2).plusDays(n % 20), null)).get(0);
-        Reservation waiting = controllers.bookingController().selectSeat(controllers.bookingController()
+        Reservation waiting = controllers.bookingController().selectSeat(payer, controllers.bookingController()
                 .startReservation(payer, payer, offer.flight().id()).id(), "3C");
         controllers.paymentController().pay(payer, waiting.id(), PaymentMethodType.CREDIT,
                 new PaymentDetails("Jo Smith", "4111 1111 1111 0000", "12/30"));

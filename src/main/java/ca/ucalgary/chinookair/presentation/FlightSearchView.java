@@ -5,6 +5,7 @@ import ca.ucalgary.chinookair.business.control.FlightOffer;
 import ca.ucalgary.chinookair.business.control.SearchCriteria;
 import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
+import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.time.LocalDate;
@@ -219,7 +220,18 @@ class FlightSearchView extends JPanel implements Screen {
         if (chosen == null) {
             return;
         }
-        booking.select(chosen);
+        // look at the flight again: seats may have gone, or the flight may have left or been removed
+        try {
+            FlightOffer fresh = controllers.flightSearchController().details(chosen.flight().id());
+            if (fresh.seatsLeft() == 0) {
+                showMessage("No seats left on this flight");
+                return;
+            }
+            booking.select(fresh);
+        } catch (RuntimeException e) {
+            showMessage(ErrorMessages.forException(e));
+            return;
+        }
         navigator.show(ViewId.SEAT_SELECTION);
     }
 
@@ -269,7 +281,11 @@ class FlightSearchView extends JPanel implements Screen {
         }
         // while an agent moves a reservation the booking is kept, it only picks a flight
         if (booking.modifying().isEmpty()) {
-            booking.clear();
+            if (controllers.session().currentUser().get().role() == Role.AGENT) {
+                booking.clearKeepingCustomer();
+            } else {
+                booking.clear();
+            }
         }
         heading.setText(booking.modifying().isPresent() ? "Find the new flight" : "Find flights");
         List<Airport> airports = controllers.flightSearchController().airports();

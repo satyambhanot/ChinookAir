@@ -2,7 +2,8 @@
 
 \subsection*{Use cases}
 
-Every use case has one control class, because section D asks for each
+Every use case has one control class (Select Seat, UC-18, is only reached
+through Book Flight and shares BookingController with it), because section D asks for each
 sequence diagram's use case to be represented by a control class. The goal of
 each use case is a result of value to its actor. FR-11 (database storage)
 applies to every use case that saves data; it is listed on the two use cases
@@ -32,7 +33,8 @@ UC-13 & Update Schedules & Administrator & FR-8 & \ctl{Schedule\allowbreak Contr
 UC-14 & Manage Flights & Administrator & FR-7, FR-11 & \ctl{Flight\allowbreak Management\allowbreak Controller} & Add, change or remove flights so customers see accurate flights.\\
 UC-15 & Manage Routes & Administrator & FR-8 & \ctl{Route\allowbreak Controller} & Keep the origin and destination pairs correct.\\
 UC-16 & Manage Aircraft & Administrator & FR-8 & \ctl{Aircraft\allowbreak Controller} & Keep the aircraft and their seat layouts correct.\\
-UC-17 & View Monthly Promotion & Customer & FR-12 & \ctl{Promotion\allowbreak Controller} & Learn about this month's promotion the first time the application opens.\\
+UC-17 & View Monthly Promotion & User (whoever opens the application) & FR-12 & \ctl{Promotion\allowbreak Controller} & Learn about this month's promotion the first time the application opens.\\
+UC-18 & Select Seat & Customer, Flight Agent (through Book Flight) & FR-14 & \ctl{Booking\allowbreak Controller} & Pick a free seat for a reservation and fix its price.\\
 \bottomrule
 \end{longtable}
 \endgroup

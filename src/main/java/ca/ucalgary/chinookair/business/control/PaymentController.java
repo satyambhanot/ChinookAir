@@ -47,7 +47,7 @@ public class PaymentController {
      * @throws AccessDeniedException    if the actor may not pay for this reservation
      * @throws IllegalArgumentException if the reservation does not exist or the card details are not valid;
      *                                  nothing is saved then
-     * @throws IllegalStateException    if the reservation is not waiting for payment
+     * @throws IllegalStateException    if the reservation is not waiting for payment or its flight has departed
      */
     public PaymentResult pay(User actor, long reservationId, PaymentMethodType type, PaymentDetails details) {
         Authorizer.require(actor, Role.CUSTOMER, Role.AGENT);
@@ -58,6 +58,9 @@ public class PaymentController {
         }
         if (reservation.status() != ReservationStatus.PENDING_PAYMENT) {
             throw new IllegalStateException("Only a reservation that is waiting for payment can be paid");
+        }
+        if (reservation.flight().hasDeparted(clock)) {
+            throw new IllegalStateException("That flight has already departed");
         }
         if (type == null) {
             throw new IllegalArgumentException("A card type is required");

@@ -63,7 +63,7 @@ class PaymentViewTest {
                 .get(0);
         Reservation started = controllers.bookingController().startReservation(customer, customer,
                 offer.flight().id());
-        Reservation waiting = controllers.bookingController().selectSeat(started.id(), "3C");
+        Reservation waiting = controllers.bookingController().selectSeat(customer, started.id(), "3C");
         navigator = new RecordingNavigator();
         booking = new BookingSession();
         booking.select(offer);
@@ -262,5 +262,16 @@ class PaymentViewTest {
         assertEquals("4111  1111-1111", new String(view.cardField.getPassword()));
         view.expiryField.setText("12/3x0");
         assertEquals("12/30", view.expiryField.getText());
+    }
+
+    @Test
+    void cancellingTheBookingGivesUpTheReservationAndFreesTheSeat() {
+        Reservation waiting = booking.reservation().orElseThrow();
+        view.abandonButton.doClick(0);
+        assertEquals(ViewId.landingFor(customer.role()), navigator.last());
+        Reservation stored = controllers.reservationController().history(customer, customer.id()).stream()
+                .filter(r -> r.id().equals(waiting.id())).findFirst().orElseThrow();
+        assertEquals(ReservationStatus.CANCELLED, stored.status());
+        assertTrue(booking.reservation().isEmpty());
     }
 }

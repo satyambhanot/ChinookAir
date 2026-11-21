@@ -159,7 +159,7 @@ class BookingControllerTest {
     void availableSeatsShrinkWhenASeatIsTaken() {
         assertEquals(12, controller.availableSeats(flight.id()).size());
         Reservation r = start(jo);
-        controller.selectSeat(r.id(), "2B");
+        controller.selectSeat(jo, r.id(), "2B");
         List<Seat> free = controller.availableSeats(flight.id());
         assertEquals(11, free.size());
         assertTrue(free.stream().noneMatch(s -> s.number().equals("2B")));
@@ -175,7 +175,7 @@ class BookingControllerTest {
 
     @Test
     void aBusinessSeatCostsOneAndAHalfTimesTheBase() {
-        Reservation r = controller.selectSeat(start(jo).id(), "1A");
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "1A");
         assertEquals(new BigDecimal("300.00"), r.price());
         assertEquals("1A", r.seatNo());
         assertEquals(ReservationStatus.PENDING_PAYMENT, r.status());
@@ -183,14 +183,14 @@ class BookingControllerTest {
 
     @Test
     void anEconomySeatCostsTheBase() {
-        Reservation r = controller.selectSeat(start(jo).id(), "3C");
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "3C");
         assertEquals(new BigDecimal("200.00"), r.price());
         assertEquals(ReservationStatus.PENDING_PAYMENT, r.status());
     }
 
     @Test
     void theChosenSeatIsSavedAndTheSeatNumberIsTidied() {
-        Reservation r = controller.selectSeat(start(jo).id(), " 3c ");
+        Reservation r = controller.selectSeat(jo, start(jo).id(), " 3c ");
         Reservation stored = daos.reservationDao().findById(r.id()).orElseThrow();
         assertEquals("3C", stored.seatNo());
         assertEquals(new BigDecimal("200.00"), stored.price());
@@ -199,10 +199,10 @@ class BookingControllerTest {
 
     @Test
     void theSecondCustomerLosesTheRaceAndTheFirstKeepsTheSeat() {
-        Reservation joRes = controller.selectSeat(start(jo).id(), "1A");
+        Reservation joRes = controller.selectSeat(jo, start(jo).id(), "1A");
         Reservation boRes = start(bo);
 
-        assertThrows(SeatUnavailableException.class, () -> controller.selectSeat(boRes.id(), "1A"));
+        assertThrows(SeatUnavailableException.class, () -> controller.selectSeat(bo, boRes.id(), "1A"));
 
         Reservation joStored = daos.reservationDao().findById(joRes.id()).orElseThrow();
         assertEquals("1A", joStored.seatNo());
@@ -211,30 +211,30 @@ class BookingControllerTest {
         Reservation boStored = daos.reservationDao().findById(boRes.id()).orElseThrow();
         assertEquals(ReservationStatus.CREATED, boStored.status());
         assertNull(boStored.seatNo());
-        assertEquals("1B", controller.selectSeat(boRes.id(), "1B").seatNo());
+        assertEquals("1B", controller.selectSeat(bo, boRes.id(), "1B").seatNo());
     }
 
     @Test
     void aSeatThatIsNotOnTheFlightIsRefused() {
         Reservation r = start(jo);
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> controller.selectSeat(r.id(), "99Z"));
+                () -> controller.selectSeat(jo, r.id(), "99Z"));
         assertTrue(e.getMessage().contains("does not exist on this flight"), e.getMessage());
         assertEquals(ReservationStatus.CREATED, daos.reservationDao().findById(r.id()).orElseThrow().status());
-        assertThrows(IllegalArgumentException.class, () -> controller.selectSeat(r.id(), null));
+        assertThrows(IllegalArgumentException.class, () -> controller.selectSeat(jo, r.id(), null));
     }
 
     @Test
     void aReservationThatAlreadyHasASeatCannotPickAgain() {
-        Reservation r = controller.selectSeat(start(jo).id(), "1A");
-        assertThrows(IllegalStateException.class, () -> controller.selectSeat(r.id(), "1B"));
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "1A");
+        assertThrows(IllegalStateException.class, () -> controller.selectSeat(jo, r.id(), "1B"));
         assertEquals("1A", daos.reservationDao().findById(r.id()).orElseThrow().seatNo());
     }
 
     @Test
     void anUnknownReservationIsAnError() {
-        assertThrows(IllegalArgumentException.class, () -> controller.selectSeat(999, "1A"));
-        assertThrows(IllegalArgumentException.class, () -> controller.cancelPending(999));
+        assertThrows(IllegalArgumentException.class, () -> controller.selectSeat(jo, 999, "1A"));
+        assertThrows(IllegalArgumentException.class, () -> controller.cancelPending(jo, 999));
     }
 
     @Test
@@ -242,7 +242,7 @@ class BookingControllerTest {
         Reservation r = start(jo);
         BookingController late = controllerAt(clockAt(LocalDateTime.of(2026, 12, 2, 8, 30)),
                 new RandomConfirmationNumberGenerator(new Random(1)));
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> late.selectSeat(r.id(), "1A"));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> late.selectSeat(jo, r.id(), "1A"));
         assertTrue(e.getMessage().contains("already departed"), e.getMessage());
     }
 
@@ -250,35 +250,77 @@ class BookingControllerTest {
 
     @Test
     void givingUpAPendingReservationFreesTheSeat() {
-        Reservation r = controller.selectSeat(start(jo).id(), "1A");
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "1A");
         assertEquals(11, controller.availableSeats(flight.id()).size());
-        controller.cancelPending(r.id());
+        controller.cancelPending(jo, r.id());
         assertEquals(ReservationStatus.CANCELLED, daos.reservationDao().findById(r.id()).orElseThrow().status());
         assertEquals(12, controller.availableSeats(flight.id()).size());
         // and somebody else can now take that seat
-        assertEquals("1A", controller.selectSeat(start(bo).id(), "1A").seatNo());
+        assertEquals("1A", controller.selectSeat(bo, start(bo).id(), "1A").seatNo());
     }
 
     @Test
     void aReservationWithoutASeatCanBeGivenUpToo() {
         Reservation r = start(jo);
-        controller.cancelPending(r.id());
+        controller.cancelPending(jo, r.id());
         assertEquals(ReservationStatus.CANCELLED, daos.reservationDao().findById(r.id()).orElseThrow().status());
     }
 
     @Test
     void aPaidReservationCannotBeGivenUp() {
-        Reservation r = controller.selectSeat(start(jo).id(), "1A");
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "1A");
         r.confirmPayment();
         daos.reservationDao().update(r);
-        assertThrows(IllegalStateException.class, () -> controller.cancelPending(r.id()));
+        assertThrows(IllegalStateException.class, () -> controller.cancelPending(jo, r.id()));
         assertEquals(ReservationStatus.CONFIRMED, daos.reservationDao().findById(r.id()).orElseThrow().status());
     }
 
     @Test
     void aCancelledReservationCannotBeGivenUpAgain() {
         Reservation r = start(jo);
-        controller.cancelPending(r.id());
-        assertThrows(IllegalStateException.class, () -> controller.cancelPending(r.id()));
+        controller.cancelPending(jo, r.id());
+        assertThrows(IllegalStateException.class, () -> controller.cancelPending(jo, r.id()));
+    }
+
+    // ---- who may change a reservation
+
+    @Test
+    void aCustomerCannotPickASeatForSomeoneElsesReservation() {
+        Reservation r = start(jo);
+        assertThrows(AccessDeniedException.class, () -> controller.selectSeat(bo, r.id(), "1A"));
+        assertNull(daos.reservationDao().findById(r.id()).orElseThrow().seatNo());
+    }
+
+    @Test
+    void anAgentCanPickASeatForACustomer() {
+        Reservation r = controller.startReservation(agent, jo, flight.id());
+        assertEquals("1A", controller.selectSeat(agent, r.id(), "1A").seatNo());
+    }
+
+    @Test
+    void anAdministratorOrNobodyCannotPickASeat() {
+        Reservation r = start(jo);
+        assertThrows(AccessDeniedException.class, () -> controller.selectSeat(admin, r.id(), "1A"));
+        assertThrows(AccessDeniedException.class, () -> controller.selectSeat(null, r.id(), "1A"));
+    }
+
+    @Test
+    void aCustomerCannotGiveUpSomeoneElsesReservation() {
+        Reservation r = controller.selectSeat(jo, start(jo).id(), "1A");
+        assertThrows(AccessDeniedException.class, () -> controller.cancelPending(bo, r.id()));
+        assertThrows(AccessDeniedException.class, () -> controller.cancelPending(admin, r.id()));
+        assertEquals(ReservationStatus.PENDING_PAYMENT,
+                daos.reservationDao().findById(r.id()).orElseThrow().status());
+        controller.cancelPending(agent, r.id());
+        assertEquals(ReservationStatus.CANCELLED, daos.reservationDao().findById(r.id()).orElseThrow().status());
+    }
+
+    @Test
+    void aSeatOnAFlightThatWasRemovedCannotBePicked() {
+        Reservation r = start(jo);
+        daos.flightDao().archive(flight.id());
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> controller.selectSeat(jo, r.id(), "1A"));
+        assertEquals("That flight is no longer available", e.getMessage());
     }
 }

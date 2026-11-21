@@ -227,4 +227,15 @@ class CustomerManagementViewTest {
         assertEquals(ViewId.MODIFY_RESERVATION, navigator.last());
         assertEquals(jo.id(), booking.customer().orElseThrow().id());
     }
+
+    @Test
+    void anAgentCanStartABookingForTheChosenCustomer() {
+        assertFalse(view.bookButton.isEnabled());
+        search(jo.email());
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.bookButton.isEnabled());
+        view.bookButton.doClick(0);
+        assertEquals(ViewId.FLIGHT_SEARCH, navigator.last());
+        assertEquals(jo.id(), booking.customer().orElseThrow().id());
+    }
 }

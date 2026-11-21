@@ -69,7 +69,7 @@ class CustomerHomeTest {
 
     /** Books and pays a seat on the first YYC to YVR flight of a December day. */
     private Reservation book(int day, String seat, boolean pay) {
-        Reservation reservation = controllers.bookingController().selectSeat(controllers.bookingController()
+        Reservation reservation = controllers.bookingController().selectSeat(customer, controllers.bookingController()
                 .startReservation(customer, customer, flightOnDay(day).flight().id()).id(), seat);
         if (!pay) {
             return reservation;

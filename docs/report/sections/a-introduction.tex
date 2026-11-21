@@ -43,7 +43,7 @@ access interfaces.
 
 \begin{description}
 \item[Actor] Customer or Flight Agent.
-\item[Trigger] The user chooses to search for flights from their dashboard.
+\item[Trigger] The user chooses to search for flights from the top bar or the home screen.
 \item[Steps] The user enters an origin, a destination and a date, and may pick
   an airline. The system checks the input and lists the flights on that route
   and day that have not yet departed, each with its departure and arrival
@@ -96,9 +96,11 @@ diamonds with a guard on every outgoing flow.
 The diagram below shows the login process. When the application
 opens, the system checks whether this is the first launch of the month and
 shows the promotion once. The user then enters a username and a password. The
-system rejects empty fields and a wrong username or password with the same
-message, and the user tries again. A successful login shows the dashboard for
-the role of the user: Customer, Flight Agent or Administrator.
+system shows a message for empty fields, and the same message
+(\emph{Invalid username or password}) for a wrong username and for a wrong
+password, and the user tries again. A successful login shows the start screen
+of the role of the user: the home screen of a Customer, the customer list of a
+Flight Agent or the flight list of an Administrator.
 
 \diagram{20-activity-login}{Activity diagram: Login (UC-01)}
 
@@ -116,10 +118,12 @@ user is returned to the list.
 
 \subsubsection*{Book a flight (UC-06)}
 
-The diagram below shows how a seat is reserved. The system shows the seat map
-and the user selects a seat. If the seat was taken in the meantime, the system
-says so and shows the map again. Otherwise the system creates the reservation
-and marks it pending payment, and the payment process runs (the symbol with the
+The diagram below shows how a seat is reserved. When the user chooses Book
+Flight, the system creates the reservation with a confirmation number but no
+seat yet, and shows the seat map. The user selects a seat. If the seat was taken
+in the meantime, the system says so and shows the map again. Otherwise the
+system assigns the seat and its price and marks the reservation pending
+payment, and the payment process runs (the symbol with the
 fork inside the node refers to the payment diagram). If the payment is
 declined, the user either retries or abandons, and abandoning cancels the
 reservation and releases the seat. If it is approved, the reservation is

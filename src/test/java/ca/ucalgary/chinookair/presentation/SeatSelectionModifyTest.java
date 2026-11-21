@@ -73,7 +73,7 @@ class SeatSelectionModifyTest {
         customer = controllers.customerController().register("mv" + n, "password1", "Move Er " + n,
                 "mv" + n + "@x.ca", null);
         FlightOffer first = firstFlight("YYC", "YVR", n % 7);
-        Reservation waiting = controllers.bookingController().selectSeat(controllers.bookingController()
+        Reservation waiting = controllers.bookingController().selectSeat(customer, controllers.bookingController()
                 .startReservation(customer, customer, first.flight().id()).id(), "3C");
         confirmed = controllers.paymentController().pay(customer, waiting.id(), PaymentMethodType.CREDIT,
                 new PaymentDetails("Jo Smith", "4111 1111 1111 1111", "12/30")).reservation();
@@ -145,7 +145,7 @@ class SeatSelectionModifyTest {
         view.seatButtonFor("4A").doClick(0);
         Customer racer = controllers.customerController().register("racer" + next, "password1", "Racer",
                 "racer" + next + "@x.ca", null);
-        controllers.bookingController().selectSeat(controllers.bookingController()
+        controllers.bookingController().selectSeat(racer, controllers.bookingController()
                 .startReservation(racer, racer, other.flight().id()).id(), "4A");
         view.continueButton.doClick(0);
         assertEquals(ErrorMessages.SEAT_TAKEN, view.message());

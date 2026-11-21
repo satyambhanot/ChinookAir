@@ -1,6 +1,9 @@
 # Maven build output
 target/
 
+# Hand-in archives made by `make submission`
+dist/
+
 # IDE stuff
 .idea/
 *.iml

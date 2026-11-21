@@ -59,7 +59,7 @@ class ModifyReservationViewTest {
                 "mod" + n + "@x.ca", null);
         FlightOffer offer = controllers.flightSearchController()
                 .search(new SearchCriteria("YYC", "YVR", LocalDate.of(2026, 12, 2).plusDays(n % 20), null)).get(0);
-        Reservation waiting = controllers.bookingController().selectSeat(controllers.bookingController()
+        Reservation waiting = controllers.bookingController().selectSeat(customer, controllers.bookingController()
                 .startReservation(customer, customer, offer.flight().id()).id(), "3C");
         confirmed = controllers.paymentController().pay(customer, waiting.id(), PaymentMethodType.CREDIT,
                 new PaymentDetails("Jo Smith", "4111 1111 1111 1111", "12/30")).reservation();

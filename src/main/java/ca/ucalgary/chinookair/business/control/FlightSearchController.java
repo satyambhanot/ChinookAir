@@ -82,10 +82,17 @@ public class FlightSearchController {
      * One flight with its seats left and price.
      *
      * @throws IllegalArgumentException if there is no such flight
+     * @throws IllegalStateException    if the flight was removed or has already departed
      */
     public FlightOffer details(long flightId) {
         Flight flight = flights.findById(flightId)
                 .orElseThrow(() -> new IllegalArgumentException("That flight does not exist"));
+        if (flights.isArchived(flightId)) {
+            throw new IllegalStateException("That flight is no longer available");
+        }
+        if (flight.hasDeparted(clock)) {
+            throw new IllegalStateException("That flight has already departed");
+        }
         return offerFor(flight);
     }
 

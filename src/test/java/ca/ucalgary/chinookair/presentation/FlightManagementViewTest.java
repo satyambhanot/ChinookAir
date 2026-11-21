@@ -209,7 +209,7 @@ class FlightManagementViewTest {
         Customer customer = controllers.customerController().register("fm" + n, "password1", "Fm Customer",
                 "fm" + n + "@x.ca", null);
         long flightId = view.tableModel.flightAt(rowOf(number)).id();
-        Reservation waiting = controllers.bookingController().selectSeat(controllers.bookingController()
+        Reservation waiting = controllers.bookingController().selectSeat(customer, controllers.bookingController()
                 .startReservation(customer, customer, flightId).id(), "3C");
         controllers.paymentController().pay(customer, waiting.id(), PaymentMethodType.CREDIT,
                 new PaymentDetails("Jo Smith", "4111 1111 1111 1111", "12/30"));

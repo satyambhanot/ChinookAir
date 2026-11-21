@@ -96,7 +96,8 @@ uses a SQLite class.
 
 Three classes are added to the data layer and the utility package.
 ConfirmationWriter does file access, so the refinement moves it from the
-control classes to the data package; PaymentController calls it. DatabaseSeeder
+control classes to the data package; PaymentController calls it, and so does
+ReservationController when a modified reservation keeps its price. DatabaseSeeder
 fills an empty database with demo data and hashes the demo passwords with
 \texttt{PasswordHasher} of the utility package, which the controllers also use
 for log in and registration. ChinookAir is the entry point and calls
@@ -123,7 +124,7 @@ dependencies of the data layer.
 \ctl{FlightSearchController} & FlightDao, SeatDao, AirportDao, AirlineDao\\
 \ctl{BookingController} & FlightDao, SeatDao, ReservationDao\\
 \ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter)\\
-\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao\\
+\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao (and ConfirmationWriter)\\
 \ctl{FlightManagementController} & FlightDao, SeatDao, RouteDao, AirlineDao, AircraftDao, ReservationDao\\
 \ctl{RouteController} & RouteDao, AirportDao\\
 \ctl{AircraftController} & AircraftDao\\
@@ -168,19 +169,20 @@ does not repeat the rule), \texttt{isArchived} on FlightDao and
 \ctl{business.entity} & \ctl{PaymentDetails} & the card details of a payment; only the masked number is kept\\
 \ctl{business.entity} & \ctl{AuthorizationResult} & approved or declined, with the reason; the answer of a PaymentMethod\\
 \ctl{business.entity} & \ctl{SeatUnavailableException} & thrown when another reservation holds the seat\\
-\ctl{business.entity} & \ctl{StorageException} & base of the data-layer errors, so the screens do not import the data package\\
+\ctl{business.entity} & \ctl{StorageException} & base of the database errors, so the screens do not import the data package\\
 \ctl{data} & \ctl{DataAccessException} & a database error with a message; extends StorageException\\
 \ctl{data} & \ctl{ConfirmationWriteException} & the confirmation file could not be written\\
 \ctl{data} & \ctl{DatabaseInitializer} & creates the tables from schema.sql (package-private)\\
 \ctl{data} & \ctl{JdbcSupport} & small helpers for queries, updates and transactions (package-private)\\
 \ctl{data} & \ctl{DbDates} & writes and reads dates as ISO text (package-private)\\
 \ctl{presentation} & \ctl{Navigator, \allowbreak ViewId, \allowbreak Screen} & how a screen asks for another one, the list of screens, and the hook that runs when a screen is shown\\
-\ctl{presentation} & \ctl{Dashboard} & base of the three dashboards\\
+\ctl{presentation} & \ctl{Dashboard} & base of AgentDashboard and AdminDashboard (CustomerHome is its own screen)\\
 \ctl{presentation} & \ctl{BookingSession} & what is picked while booking or modifying: flight, customer, reservation, payment\\
-\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Dialogs} & turn typed text into values, exceptions into plain sentences, and show messages\\
+\ctl{presentation} & \ctl{InputParser, \allowbreak ErrorMessages, \allowbreak Alert, \allowbreak ConfirmDialog} & turn typed text into values, exceptions into plain sentences, show a message, and ask the user to confirm\\
 \ctl{presentation} & \ctl{SeatGridModel} & the seat map as rows and columns, without Swing\\
-\ctl{presentation} & \ctl{FlightTableModel, \allowbreak ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
-\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak ComingSoonView} & parts used by several screens, and the stand-in for a screen that is not built\\
+\ctl{presentation} & \ctl{ReservationTableModel, \allowbreak CustomerTableModel, \allowbreak PaymentTableModel, \allowbreak RouteTableModel, \allowbreak AircraftTableModel, \allowbreak ScheduleTableModel} & the rows of each table\\
+\ctl{presentation} & \ctl{CustomerForm, \allowbreak PromotionPanel, \allowbreak FlightResultList} & parts of screens: the customer form (register and profile), the promotion text and the list of flights found by a search\\
+\ctl{root} & \ctl{SelfTest} & the check behind \texttt{-{}-selftest}: it opens a throw-away database, logs in and searches (package-private)\\
 \bottomrule
 \end{longtable}
 \endgroup

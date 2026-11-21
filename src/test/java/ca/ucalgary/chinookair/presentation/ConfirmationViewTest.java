@@ -63,7 +63,7 @@ class ConfirmationViewTest {
                 .search(new SearchCriteria("YYC", "YVR", LocalDate.of(2026, 12, 2).plusDays(day++ % 20), null)).get(0);
         Reservation started = controllers.bookingController().startReservation(customer, customer,
                 offer.flight().id());
-        Reservation waiting = controllers.bookingController().selectSeat(started.id(), "1A");
+        Reservation waiting = controllers.bookingController().selectSeat(customer, started.id(), "1A");
         result = controllers.paymentController().pay(customer, waiting.id(), PaymentMethodType.CREDIT,
                 new PaymentDetails("Jo Smith", "4111 1111 1111 1111", "12/30"));
         navigator = new RecordingNavigator();

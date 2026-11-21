@@ -12,6 +12,7 @@ import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.FlightAgent;
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
+import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.data.DaoFactory;
 import ca.ucalgary.chinookair.data.TestDatabase;
 import ca.ucalgary.chinookair.data.TestWorld;
@@ -344,5 +345,52 @@ class FlightManagementControllerTest {
                 LocalDateTime.of(2026, 11, 30, 8, 0), LocalDateTime.of(2026, 11, 30, 10, 0), new BigDecimal("200"));
         assertTrue(messageOf(() -> controller.updateFlight(admin, flight.id(), past))
                 .contains("must be in the future"));
+    }
+
+    // ---- a flight that has left
+
+    /** A flight that left on 25 November, saved directly because the controller only adds future flights. */
+    private Flight departedFlight() {
+        Flight flight = daos.flightDao().save(world.flight("AC900", world.yycYvr, world.ac, world.small,
+                LocalDateTime.of(2026, 11, 25, 8, 0)));
+        daos.seatDao().createSeats(flight.id(), SeatLayout.generate(world.small));
+        return flight;
+    }
+
+    private ReservationStatus statusAt(Flight flight, String seat) {
+        return daos.reservationDao().findByFlight(flight.id()).stream()
+                .filter(r -> seat.equals(r.seatNo())).findFirst().orElseThrow().status();
+    }
+
+    @Test
+    void anOutdatedFlightCanBeRemovedEvenIfNobodyOpenedTheirHistory() {
+        Flight old = departedFlight();
+        reserve(old, "1A", "CONFIRMED");
+        reserve(old, "1B", "PENDING_PAYMENT");
+        reserve(old, null, "CREATED");
+
+        controller.removeFlight(admin, old.id());
+
+        assertTrue(daos.flightDao().isArchived(old.id()));
+        assertEquals(ReservationStatus.COMPLETED, statusAt(old, "1A"));
+        assertEquals(ReservationStatus.CANCELLED, statusAt(old, "1B"));
+        assertEquals(0, daos.reservationDao().countActiveByFlight(old.id()));
+        assertEquals(3, daos.reservationDao().findByFlight(old.id()).size());
+    }
+
+    @Test
+    void aFlightThatHasNotLeftStillCannotBeRemovedWhileItHasAConfirmedReservation() {
+        Flight future = add("AC555", world.small.id(), 8, 10);
+        reserve(future, "1A", "CONFIRMED");
+        assertThrows(IllegalStateException.class, () -> controller.removeFlight(admin, future.id()));
+        assertEquals(ReservationStatus.CONFIRMED, statusAt(future, "1A"));
+    }
+
+    @Test
+    void aFlightThatHasLeftCannotBeChanged() {
+        Flight old = departedFlight();
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> controller.updateFlight(admin, old.id(), details("AC900", world.small.id(), 8, 10)));
+        assertEquals("A flight that has already departed cannot be changed", e.getMessage());
     }
 }

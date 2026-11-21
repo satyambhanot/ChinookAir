@@ -16,10 +16,13 @@ import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.business.entity.SeatUnavailableException;
+import ca.ucalgary.chinookair.data.ConfirmationWriter;
 import ca.ucalgary.chinookair.data.DaoFactory;
 import ca.ucalgary.chinookair.data.TestDatabase;
 import ca.ucalgary.chinookair.data.TestWorld;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Clock;
@@ -29,6 +32,7 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class ReservationControllerTest {
 
@@ -37,7 +41,11 @@ class ReservationControllerTest {
     private static final Clock CLOCK =
             Clock.fixed(LocalDateTime.of(2026, 12, 1, 9, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
 
+    @TempDir
+    Path folder;
+
     private Connection db;
+    private ConfirmationWriter writer;
     private TestWorld world;
     private DaoFactory daos;
     private ReservationController controller;
@@ -55,8 +63,9 @@ class ReservationControllerTest {
         db = TestDatabase.inMemory();
         world = new TestWorld(db);
         daos = DaoFactory.create(db);
+        writer = new ConfirmationWriter(folder);
         controller = new ReservationController(daos.reservationDao(), daos.paymentDao(), daos.flightDao(),
-                daos.seatDao(), CLOCK);
+                daos.seatDao(), writer, CLOCK);
         jo = daos.customerDao().findById(1).orElseThrow();
         bo = daos.customerDao().save(new Customer(null, "bwong", HASH, "Bo Wong", "bo@x.ca", null));
         agent = (FlightAgent) daos.userDao().save(new FlightAgent(null, "agent1", HASH));
@@ -117,16 +126,23 @@ class ReservationControllerTest {
     }
 
     @Test
-    void aCancelledOrCreatedReservationCannotBeCancelled() {
+    void aCancelledReservationCannotBeCancelledAgain() {
         assertFalse(controller.canCancel(reservation(jo, flightA, "1A", "300.00", ReservationStatus.CANCELLED, 0)));
-        assertFalse(controller.canCancel(reservation(jo, flightA, null, null, ReservationStatus.CREATED, 0)));
+    }
+
+    @Test
+    void aReservationThatNeverGotASeatCanBeCancelledSoNoneIsLeftBehind() {
+        Reservation started = reservation(jo, flightA, null, null, ReservationStatus.CREATED, 0);
+        assertTrue(controller.canCancel(started));
+        controller.cancel(jo, started.id());
+        assertEquals(ReservationStatus.CANCELLED, stored(started).status());
     }
 
     @Test
     void aReservationOfAFlightThatLeftCannotBeCancelled() {
         Reservation r = confirmed(jo, flightA, "1A", "300.00");
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         assertFalse(late.canCancel(r));
     }
@@ -138,7 +154,7 @@ class ReservationControllerTest {
                 reservation(jo, flightA, "1B", "300.00", ReservationStatus.PENDING_PAYMENT, 0)));
         assertFalse(controller.canModify(reservation(jo, flightA, "1C", "300.00", ReservationStatus.CANCELLED, 0)));
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         assertFalse(late.canModify(confirmed(jo, flightA, "1D", "300.00")));
     }
@@ -189,7 +205,7 @@ class ReservationControllerTest {
         Reservation r = confirmed(jo, flightA, "1A", "300.00");
         Payment p = approvedPayment(r, "300.00");
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> late.cancel(jo, r.id()));
         assertTrue(e.getMessage().contains("already departed"), e.getMessage());
@@ -375,5 +391,39 @@ class ReservationControllerTest {
         assertThrows(AccessDeniedException.class, () -> controller.history(admin, jo.id()));
         assertThrows(AccessDeniedException.class, () -> controller.history(null, jo.id()));
         assertTrue(controller.history(agent, bo.id()).isEmpty());
+    }
+
+    @Test
+    void movingToTheSamePriceWritesTheConfirmationFileAgainWithTheNewTrip() throws java.io.IOException {
+        Reservation r = confirmed(jo, flightA, "3A", "200.00");
+        approvedPayment(r, "200.00");
+
+        controller.modify(agent, r.id(), flightB.id(), "3C");
+
+        String text = Files.readString(folder.resolve(r.confirmationNumber() + ".txt"));
+        assertTrue(text.contains(flightB.flightNumber()), text);
+        assertTrue(text.contains("Seat: 3C"), text);
+    }
+
+    @Test
+    void aDifferentPriceWritesNoFileUntilTheNewPaymentIsMade() {
+        Reservation r = confirmed(jo, flightA, "3A", "200.00");
+        approvedPayment(r, "200.00");
+
+        controller.modify(agent, r.id(), flightC.id(), "3C");
+
+        assertFalse(Files.exists(folder.resolve(r.confirmationNumber() + ".txt")));
+    }
+
+    @Test
+    void movingToTheFlightAndSeatItAlreadyHasIsRefused() {
+        Reservation r = confirmed(jo, flightA, "3A", "200.00");
+        approvedPayment(r, "200.00");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> controller.modify(agent, r.id(), flightA.id(), "3a"));
+
+        assertEquals("The reservation already has that flight and seat", e.getMessage());
+        assertEquals(PaymentStatus.APPROVED, daos.paymentDao().findByReservation(r.id()).get(0).status());
     }
 }

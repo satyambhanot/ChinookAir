@@ -168,7 +168,8 @@ class SeatSelectionView extends JPanel implements Screen {
         booking.setReservation(null);
         if (earlier.isPresent() && earlier.get().id() != null) {
             try {
-                controllers.bookingController().cancelPending(earlier.get().id());
+                controllers.session().currentUser().ifPresent(user ->
+                        controllers.bookingController().cancelPending(user, earlier.get().id()));
             } catch (RuntimeException e) {
                 // it was paid or already given up: nothing to free
             }
@@ -226,7 +227,9 @@ class SeatSelectionView extends JPanel implements Screen {
             return;
         }
         try {
-            booking.setReservation(controllers.bookingController().selectSeat(reservation.get().id(), chosenSeat));
+            User user = controllers.session().currentUser().orElseThrow();
+            booking.setReservation(controllers.bookingController().selectSeat(user, reservation.get().id(),
+                    chosenSeat));
             navigator.show(ViewId.PAYMENT);
         } catch (RuntimeException e) {
             redrawAndShowError(e);

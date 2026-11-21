@@ -16,6 +16,9 @@ import javax.swing.SwingUtilities;
 public class ChinookAir {
 
     public static void main(String[] args) {
+        if (args.length > 0 && SelfTest.ARGUMENT.equals(args[0])) {
+            System.exit(SelfTest.run(System.out) ? 0 : 1);
+        }
         // Swing isn't thread safe, so build the UI on the event thread
         SwingUtilities.invokeLater(() -> {
             Theme.install();
