@@ -3,6 +3,7 @@ package ca.ucalgary.chinookair.data;
 import static ca.ucalgary.chinookair.data.TestFixtures.airport;
 import static ca.ucalgary.chinookair.data.TestFixtures.route;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -86,5 +87,15 @@ class SqliteRouteDaoTest {
     void aRouteThatIsAlreadySavedCannotBeSavedAgain() {
         Route saved = dao.save(route("YYC", "YVR"));
         assertThrows(IllegalArgumentException.class, () -> dao.save(saved));
+    }
+
+    @Test
+    void anUnusedRouteIsDeletedAndOthersStay() {
+        Route keep = dao.save(route("YYC", "YVR"));
+        Route drop = dao.save(route("YVR", "YYC"));
+        assertFalse(dao.isUsed(drop.id()));
+        dao.delete(drop.id());
+        assertTrue(dao.findById(drop.id()).isEmpty());
+        assertTrue(dao.findById(keep.id()).isPresent());
     }
 }

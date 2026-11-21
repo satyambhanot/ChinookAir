@@ -93,4 +93,14 @@ class JdbcSupportTest {
                 () -> JdbcSupport.batch(db, "INSERT INTO airline (code, name) VALUES (?, ?)", rows));
         assertEquals(0, airlines());
     }
+
+    @Test
+    void anErrorUndoesTheWorkToo() throws SQLException {
+        assertThrows(AssertionError.class, () -> JdbcSupport.transaction(db, () -> {
+            insertAirline("AC");
+            throw new AssertionError("a bug");
+        }));
+        assertEquals(0, airlines());
+        assertTrue(db.getAutoCommit());
+    }
 }

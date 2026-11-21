@@ -37,4 +37,10 @@ class RouteTest {
     void theReverseRouteIsADifferentRoute() {
         assertNotEquals(new Route(null, YYC, YVR), new Route(null, YVR, YYC));
     }
+
+    @Test
+    void twoAirportsWithTheSameCodeAreTheSameAirportEvenIfTheCityIsSpelledDifferently() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Route(null, new Airport("YYC", "Calgary"), new Airport("yyc", "Cowtown")));
+    }
 }

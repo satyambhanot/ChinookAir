@@ -2,6 +2,7 @@ package ca.ucalgary.chinookair.data;
 
 import static ca.ucalgary.chinookair.data.TestFixtures.aircraft;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,5 +65,15 @@ class SqliteAircraftDaoTest {
     void anAircraftThatIsAlreadySavedCannotBeSavedAgain() {
         Aircraft saved = dao.save(aircraft());
         assertThrows(IllegalArgumentException.class, () -> dao.save(saved));
+    }
+
+    @Test
+    void anUnusedAircraftIsDeleted() {
+        Aircraft keep = dao.save(aircraft());
+        Aircraft drop = dao.save(new Aircraft(null, "Dash 8", 20, 4));
+        assertFalse(dao.isUsed(drop.id()));
+        dao.delete(drop.id());
+        assertTrue(dao.findById(drop.id()).isEmpty());
+        assertTrue(dao.findById(keep.id()).isPresent());
     }
 }

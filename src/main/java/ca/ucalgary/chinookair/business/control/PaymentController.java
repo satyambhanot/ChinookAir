@@ -13,6 +13,7 @@ import ca.ucalgary.chinookair.data.ConfirmationWriteException;
 import ca.ucalgary.chinookair.data.ConfirmationWriter;
 import ca.ucalgary.chinookair.data.PaymentDao;
 import ca.ucalgary.chinookair.data.ReservationDao;
+import ca.ucalgary.chinookair.data.UnitOfWork;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.Clock;
@@ -30,13 +31,15 @@ public class PaymentController {
     private final ReservationDao reservations;
     private final PaymentDao payments;
     private final ConfirmationWriter writer;
+    private final UnitOfWork transactions;
     private final Clock clock;
 
     public PaymentController(ReservationDao reservations, PaymentDao payments, ConfirmationWriter writer,
-                             Clock clock) {
+                             UnitOfWork transactions, Clock clock) {
         this.reservations = reservations;
         this.payments = payments;
         this.writer = writer;
+        this.transactions = transactions;
         this.clock = clock;
     }
 
@@ -80,9 +83,12 @@ public class PaymentController {
             return new PaymentResult(payment, reservation, null, answer.message());
         }
         payment.approve();
-        payments.save(payment);
         reservation.confirmPayment();
-        reservations.update(reservation);
+        // the approved payment and the confirmed reservation are kept together or not at all
+        transactions.run(() -> {
+            payments.save(payment);
+            reservations.update(reservation);
+        });
         return approved(reservation, payment);
     }
 

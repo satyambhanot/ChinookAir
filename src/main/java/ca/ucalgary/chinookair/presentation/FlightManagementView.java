@@ -328,6 +328,7 @@ class FlightManagementView extends JPanel implements Screen {
             applyFilter();
             updateButtons();
         } catch (RuntimeException e) {
+            tableModel.setFlights(java.util.List.of());
             showError(ErrorMessages.forException(e));
         }
     }
@@ -342,6 +343,10 @@ class FlightManagementView extends JPanel implements Screen {
     /** Puts a problem under the field it is about, or in the strip when it is about the whole flight. */
     private void showError(String text) {
         shown = text;
+        if (!card.isVisible()) {
+            // the strip is on the card, which is hidden until a flight is chosen: say it where it can be seen
+            table.setEmptyText(text);
+        }
         String lower = text.toLowerCase();
         if (lower.contains("flight number")) {
             numberRow.showError(text);

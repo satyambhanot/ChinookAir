@@ -63,11 +63,11 @@ public final class DatabaseConnection {
             if (instance == this) {
                 instance = null;
             }
-        }
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            throw new DataAccessException("Could not close the database", e);
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new DataAccessException("Could not close the database", e);
+            }
         }
     }
 

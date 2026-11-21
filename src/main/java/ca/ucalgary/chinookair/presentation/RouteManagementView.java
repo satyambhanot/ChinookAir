@@ -3,6 +3,7 @@ package ca.ucalgary.chinookair.presentation;
 import ca.ucalgary.chinookair.business.control.Controllers;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.Role;
+import ca.ucalgary.chinookair.business.entity.Route;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -33,6 +34,7 @@ class RouteManagementView extends JPanel implements Screen {
     final JComboBox<Airport> originCombo = new JComboBox<>();
     final JComboBox<Airport> destinationCombo = new JComboBox<>();
     final JButton addButton = Theme.primary(new JButton("Add route"));
+    final JButton removeButton = Theme.danger(new JButton("Remove route"));
     final RouteTableModel tableModel = new RouteTableModel();
     final HintTable table = new HintTable(tableModel, "No routes yet. Add one with the form.");
     private final Alert alert = new Alert(CARD_WIDTH - 90);
@@ -63,8 +65,11 @@ class RouteManagementView extends JPanel implements Screen {
             fields.add(row);
         }
         addButton.setMnemonic('A');
+        removeButton.setMnemonic('R');
+        removeButton.setEnabled(false);
         ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
+        buttons.add(removeButton);
         buttons.add(addButton);
         JPanel south = new JPanel(new BorderLayout(0, 12));
         south.setOpaque(false);
@@ -96,6 +101,25 @@ class RouteManagementView extends JPanel implements Screen {
         originCombo.setRenderer(renderer);
         destinationCombo.setRenderer(renderer);
         addButton.addActionListener(e -> add());
+        removeButton.addActionListener(e -> remove());
+        table.getSelectionModel().addListSelectionListener(e -> removeButton.setEnabled(table.getSelectedRow() >= 0));
+    }
+
+    private void remove() {
+        User admin = controllers.session().currentUser().orElse(null);
+        int row = table.getSelectedRow();
+        if (admin == null || row < 0) {
+            return;
+        }
+        Route route = tableModel.routeAt(table.convertRowIndexToModel(row));
+        try {
+            controllers.routeController().removeRoute(admin, route.id());
+            tableModel.setRoutes(controllers.routeController().list());
+            alert.show(Alert.Kind.SUCCESS, "Removed route " + route.origin().code() + " to "
+                    + route.destination().code());
+        } catch (RuntimeException e) {
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
+        }
     }
 
     private void add() {

@@ -193,7 +193,8 @@ class ReservationTest {
         assertEquals(ReservationStatus.CREATED, r.status());
         assertNull(r.id());
         assertNull(r.seatNo());
-        assertEquals("ca12ab34", r.confirmationNumber());
+        // numbers are kept in capitals, because the lookup by number is made in capitals
+        assertEquals("CA12AB34", r.confirmationNumber());
         assertSame(CUSTOMER, r.customer());
         assertSame(FLIGHT, r.flight());
     }

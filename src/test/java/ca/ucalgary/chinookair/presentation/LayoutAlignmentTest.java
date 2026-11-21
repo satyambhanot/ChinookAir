@@ -28,6 +28,9 @@ import org.junit.jupiter.api.io.TempDir;
  */
 class LayoutAlignmentTest {
 
+    /** The login and registration screens are cards in the middle of the window, not pages with a heading. */
+    private static final java.util.Set<String> BEFORE_LOGIN = java.util.Set.of("login", "register");
+
     private static final int WIDTH = 1100;
     private static final int HEIGHT = 640;
 
@@ -120,6 +123,9 @@ class LayoutAlignmentTest {
     void everyScreenStartsItsContentAtTheSamePlaceOnThePage() {
         List<String> off = new ArrayList<>();
         for (Map.Entry<String, JComponent> entry : SCREENS.entrySet()) {
+            if (BEFORE_LOGIN.contains(entry.getKey())) {
+                continue;
+            }
             ContentPane pane = laidOut(entry.getValue(), WIDTH, HEIGHT);
             Component first = null;
             if (entry.getKey().equals("confirmation")) {
@@ -331,6 +337,9 @@ class LayoutAlignmentTest {
     void noControlSticksOutOrLosesItsWordsInTheSmallestWindow() {
         List<String> outside = new ArrayList<>();
         for (Map.Entry<String, JComponent> entry : SCREENS.entrySet()) {
+            if (BEFORE_LOGIN.contains(entry.getKey())) {
+                continue;
+            }
             ContentPane pane = laidOut(entry.getValue(), SMALL_WIDTH, SMALL_HEIGHT);
             for (Component control : all(pane, Component.class)) {
                 if (!(control instanceof javax.swing.AbstractButton || control instanceof javax.swing.JComboBox

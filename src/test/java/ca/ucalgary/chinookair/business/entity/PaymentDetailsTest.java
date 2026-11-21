@@ -80,4 +80,13 @@ class PaymentDetailsTest {
         assertDoesNotThrow(() -> details("Jo", "12", "12/30").toString());
         assertDoesNotThrow(() -> details("Jo", null, null).toString());
     }
+
+    @Test
+    void hyphensBetweenTheGroupsOfTheCardNumberAreIgnored() {
+        PaymentDetails typed = new PaymentDetails("Jo Smith", "4111-1111-1111-1111", "12/30");
+        assertEquals("4111111111111111", typed.digits());
+        assertEquals("**** **** **** 1111", typed.maskedCard());
+        assertDoesNotThrow(() -> typed.validate(Clock.fixed(LocalDateTime.of(2026, 12, 1, 9, 0)
+                .toInstant(ZoneOffset.UTC), ZoneOffset.UTC)));
+    }
 }

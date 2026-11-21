@@ -18,6 +18,9 @@ import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.business.entity.SeatUnavailableException;
 import ca.ucalgary.chinookair.data.ConfirmationWriter;
 import ca.ucalgary.chinookair.data.DaoFactory;
+import ca.ucalgary.chinookair.data.DataAccessException;
+import ca.ucalgary.chinookair.data.FailingDao;
+import ca.ucalgary.chinookair.data.PaymentDao;
 import ca.ucalgary.chinookair.data.TestDatabase;
 import ca.ucalgary.chinookair.data.TestWorld;
 import java.math.BigDecimal;
@@ -65,7 +68,7 @@ class ReservationControllerTest {
         daos = DaoFactory.create(db);
         writer = new ConfirmationWriter(folder);
         controller = new ReservationController(daos.reservationDao(), daos.paymentDao(), daos.flightDao(),
-                daos.seatDao(), writer, CLOCK);
+                daos.seatDao(), writer, daos.unitOfWork(), CLOCK);
         jo = daos.customerDao().findById(1).orElseThrow();
         bo = daos.customerDao().save(new Customer(null, "bwong", HASH, "Bo Wong", "bo@x.ca", null));
         agent = (FlightAgent) daos.userDao().save(new FlightAgent(null, "agent1", HASH));
@@ -142,7 +145,7 @@ class ReservationControllerTest {
     void aReservationOfAFlightThatLeftCannotBeCancelled() {
         Reservation r = confirmed(jo, flightA, "1A", "300.00");
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, daos.unitOfWork(), Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         assertFalse(late.canCancel(r));
     }
@@ -154,7 +157,7 @@ class ReservationControllerTest {
                 reservation(jo, flightA, "1B", "300.00", ReservationStatus.PENDING_PAYMENT, 0)));
         assertFalse(controller.canModify(reservation(jo, flightA, "1C", "300.00", ReservationStatus.CANCELLED, 0)));
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, daos.unitOfWork(), Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         assertFalse(late.canModify(confirmed(jo, flightA, "1D", "300.00")));
     }
@@ -205,7 +208,7 @@ class ReservationControllerTest {
         Reservation r = confirmed(jo, flightA, "1A", "300.00");
         Payment p = approvedPayment(r, "300.00");
         ReservationController late = new ReservationController(daos.reservationDao(), daos.paymentDao(),
-                daos.flightDao(), daos.seatDao(), writer, Clock.fixed(
+                daos.flightDao(), daos.seatDao(), writer, daos.unitOfWork(), Clock.fixed(
                         LocalDateTime.of(2026, 12, 2, 8, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC));
         IllegalStateException e = assertThrows(IllegalStateException.class, () -> late.cancel(jo, r.id()));
         assertTrue(e.getMessage().contains("already departed"), e.getMessage());
@@ -425,5 +428,37 @@ class ReservationControllerTest {
 
         assertEquals("The reservation already has that flight and seat", e.getMessage());
         assertEquals(PaymentStatus.APPROVED, daos.paymentDao().findByReservation(r.id()).get(0).status());
+    }
+
+    // ---- all or nothing
+
+    @Test
+    void ifTheRefundFailsTheCancellationIsUndone() {
+        Reservation r = confirmed(jo, flightA, "1A", "300.00");
+        Payment p = approvedPayment(r, "300.00");
+        ReservationController broken = new ReservationController(daos.reservationDao(),
+                FailingDao.failingOn(PaymentDao.class, daos.paymentDao(), "update"), daos.flightDao(),
+                daos.seatDao(), writer, daos.unitOfWork(), CLOCK);
+
+        assertThrows(DataAccessException.class, () -> broken.cancel(jo, r.id()));
+
+        assertEquals(ReservationStatus.CONFIRMED, stored(r).status());
+        assertEquals(PaymentStatus.APPROVED, paymentStatus(p));
+    }
+
+    @Test
+    void ifTheRefundFailsAfterAPriceChangeTheMoveIsUndone() {
+        Reservation r = confirmed(jo, flightA, "3A", "200.00");
+        Payment p = approvedPayment(r, "200.00");
+        ReservationController broken = new ReservationController(daos.reservationDao(),
+                FailingDao.failingOn(PaymentDao.class, daos.paymentDao(), "update"), daos.flightDao(),
+                daos.seatDao(), writer, daos.unitOfWork(), CLOCK);
+
+        assertThrows(DataAccessException.class, () -> broken.modify(agent, r.id(), flightC.id(), "3C"));
+
+        Reservation unchanged = stored(r);
+        assertEquals(flightA.id(), unchanged.flight().id());
+        assertEquals("3A", unchanged.seatNo());
+        assertEquals(PaymentStatus.APPROVED, paymentStatus(p));
     }
 }

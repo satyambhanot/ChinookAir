@@ -62,4 +62,15 @@ class SqliteRouteDao implements RouteDao {
                 });
         return new Route(id, route.origin(), route.destination());
     }
+
+    @Override
+    public boolean isUsed(long routeId) {
+        return JdbcSupport.queryOne(connection, "SELECT COUNT(*) FROM flight WHERE route_id = ?",
+                st -> st.setLong(1, routeId), row -> row.getInt(1)).orElse(0) > 0;
+    }
+
+    @Override
+    public void delete(long routeId) {
+        JdbcSupport.update(connection, "DELETE FROM route WHERE id = ?", st -> st.setLong(1, routeId));
+    }
 }

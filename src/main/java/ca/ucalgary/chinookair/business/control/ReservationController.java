@@ -14,6 +14,7 @@ import ca.ucalgary.chinookair.data.FlightDao;
 import ca.ucalgary.chinookair.data.PaymentDao;
 import ca.ucalgary.chinookair.data.ReservationDao;
 import ca.ucalgary.chinookair.data.SeatDao;
+import ca.ucalgary.chinookair.data.UnitOfWork;
 import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
@@ -34,15 +35,17 @@ public class ReservationController {
     private final FlightDao flights;
     private final SeatDao seats;
     private final ConfirmationWriter writer;
+    private final UnitOfWork transactions;
     private final Clock clock;
 
     public ReservationController(ReservationDao reservations, PaymentDao payments, FlightDao flights, SeatDao seats,
-                                 ConfirmationWriter writer, Clock clock) {
+                                 ConfirmationWriter writer, UnitOfWork transactions, Clock clock) {
         this.reservations = reservations;
         this.payments = payments;
         this.flights = flights;
         this.seats = seats;
         this.writer = writer;
+        this.transactions = transactions;
         this.clock = clock;
     }
 
@@ -84,8 +87,11 @@ public class ReservationController {
             throw new IllegalStateException("That flight has already departed");
         }
         reservation.cancel();
-        reservations.update(reservation);
-        refundApprovedPayments(reservation);
+        // the seat is freed and the money goes back together, or nothing changes
+        transactions.run(() -> {
+            reservations.update(reservation);
+            refundApprovedPayments(reservation);
+        });
         return reservation;
     }
 
@@ -146,10 +152,13 @@ public class ReservationController {
 
         reservation.changeFlight(newFlight, seat.number(), newFlight.priceFor(seat.seatClass()));
         // the update comes first: the database rejects a taken seat here, before any payment is touched
-        reservations.update(reservation);
-        if (reservation.status() == ReservationStatus.PENDING_PAYMENT) {
-            refundApprovedPayments(reservation);
-        } else {
+        transactions.run(() -> {
+            reservations.update(reservation);
+            if (reservation.status() == ReservationStatus.PENDING_PAYMENT) {
+                refundApprovedPayments(reservation);
+            }
+        });
+        if (reservation.status() == ReservationStatus.CONFIRMED) {
             rewriteConfirmation(reservation);
         }
         return reservation;

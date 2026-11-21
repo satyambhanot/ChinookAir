@@ -199,6 +199,9 @@ class CustomerManagementView extends JPanel implements Screen {
             form.clear();
             updateButtons();
         } catch (RuntimeException e) {
+            // the alert is on the card, which may be hidden: the table says it where it can be seen
+            tableModel.setCustomers(List.of());
+            table.setEmptyText(ErrorMessages.forException(e));
             alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
         }
     }
@@ -296,10 +299,5 @@ class CustomerManagementView extends JPanel implements Screen {
 
     Alert.Kind messageKind() {
         return alert.kind();
-    }
-
-    /** True while the right-hand panel shows a customer (or an empty new one) instead of the hint. */
-    boolean detailsShown() {
-        return form.isShowing() || table.getSelectedRow() >= 0 || form.isNewCustomer();
     }
 }

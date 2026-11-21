@@ -192,12 +192,4 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     Component screenFor(ViewId view) {
         return screens.get(view);
     }
-
-    AppBar appBar() {
-        return appBar;
-    }
-
-    Controllers controllers() {
-        return controllers;
-    }
 }

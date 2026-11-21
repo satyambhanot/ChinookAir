@@ -14,6 +14,9 @@ import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.data.DaoFactory;
+import ca.ucalgary.chinookair.data.DataAccessException;
+import ca.ucalgary.chinookair.data.FailingDao;
+import ca.ucalgary.chinookair.data.SeatDao;
 import ca.ucalgary.chinookair.data.TestDatabase;
 import ca.ucalgary.chinookair.data.TestWorld;
 import java.math.BigDecimal;
@@ -49,7 +52,7 @@ class FlightManagementControllerTest {
         world = new TestWorld(db);
         daos = DaoFactory.create(db);
         controller = new FlightManagementController(daos.flightDao(), daos.seatDao(), daos.routeDao(),
-                daos.airlineDao(), daos.aircraftDao(), daos.reservationDao(), CLOCK);
+                daos.airlineDao(), daos.aircraftDao(), daos.reservationDao(), daos.unitOfWork(), CLOCK);
         admin = (Administrator) daos.userDao().save(new Administrator(null, "admin", HASH));
         agent = (FlightAgent) daos.userDao().save(new FlightAgent(null, "agent1", HASH));
         jo = daos.customerDao().findById(1).orElseThrow();
@@ -392,5 +395,35 @@ class FlightManagementControllerTest {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> controller.updateFlight(admin, old.id(), details("AC900", world.small.id(), 8, 10)));
         assertEquals("A flight that has already departed cannot be changed", e.getMessage());
+    }
+
+    // ---- all or nothing
+
+    @Test
+    void ifTheSeatsCannotBeCreatedNoFlightIsLeftBehind() {
+        FlightManagementController broken = new FlightManagementController(daos.flightDao(),
+                FailingDao.failingOn(SeatDao.class, daos.seatDao(), "createSeats"), daos.routeDao(),
+                daos.airlineDao(), daos.aircraftDao(), daos.reservationDao(), daos.unitOfWork(), CLOCK);
+
+        assertThrows(DataAccessException.class,
+                () -> broken.addFlight(admin, details("AC777", world.small.id(), 8, 10)));
+
+        assertTrue(daos.flightDao().search("YYC", "YVR", DAY, null).isEmpty());
+    }
+
+    @Test
+    void ifTheSeatsCannotBeReplacedTheFlightKeepsItsOldAircraftAndTimes() {
+        Flight flight = add("AC778", world.small.id(), 8, 10);
+        FlightManagementController broken = new FlightManagementController(daos.flightDao(),
+                FailingDao.failingOn(SeatDao.class, daos.seatDao(), "replaceSeats"), daos.routeDao(),
+                daos.airlineDao(), daos.aircraftDao(), daos.reservationDao(), daos.unitOfWork(), CLOCK);
+        long other = world.big.id();
+
+        assertThrows(DataAccessException.class,
+                () -> broken.updateFlight(admin, flight.id(), details("AC778", other, 9, 11)));
+
+        Flight kept = daos.flightDao().findById(flight.id()).orElseThrow();
+        assertEquals(world.small.id(), kept.aircraft().id());
+        assertEquals(DAY.atTime(8, 0), kept.departure());
     }
 }

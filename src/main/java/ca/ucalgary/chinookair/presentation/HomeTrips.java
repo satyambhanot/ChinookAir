@@ -2,7 +2,7 @@ package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.entity.Reservation;
 import ca.ucalgary.chinookair.business.entity.ReservationStatus;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +14,13 @@ final class HomeTrips {
     }
 
     /**
-     * The trip to look forward to: the confirmed reservation whose flight leaves soonest, counting
-     * flights from the start of today on.
+     * The trip to look forward to: the confirmed reservation whose flight leaves soonest and has not
+     * left yet at {@code now}.
      */
-    static Optional<Reservation> next(List<Reservation> all, LocalDate today) {
+    static Optional<Reservation> next(List<Reservation> all, LocalDateTime now) {
         return all.stream()
                 .filter(r -> r.status() == ReservationStatus.CONFIRMED)
-                .filter(r -> !r.flight().departure().toLocalDate().isBefore(today))
+                .filter(r -> r.flight().departure().isAfter(now))
                 .min(Comparator.comparing(r -> r.flight().departure()));
     }
 

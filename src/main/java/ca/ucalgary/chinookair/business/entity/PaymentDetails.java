@@ -36,9 +36,9 @@ public record PaymentDetails(String cardholderName, String cardNumber, String ex
         }
     }
 
-    /** The card number without spaces. */
+    /** The card number without the spaces and hyphens people type between the groups. */
     public String digits() {
-        return cardNumber == null ? "" : cardNumber.replace(" ", "");
+        return cardNumber == null ? "" : cardNumber.replaceAll("[ -]", "");
     }
 
     /** The last four digits of the card. */

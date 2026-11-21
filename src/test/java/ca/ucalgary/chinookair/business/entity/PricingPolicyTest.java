@@ -35,4 +35,11 @@ class PricingPolicyTest {
         assertThrows(IllegalArgumentException.class, () -> PricingPolicy.priceFor(null, SeatClass.ECONOMY));
         assertThrows(IllegalArgumentException.class, () -> PricingPolicy.priceFor(BigDecimal.TEN, null));
     }
+
+    @Test
+    void aBasePriceOfZeroOrLessIsRefused() {
+        assertThrows(IllegalArgumentException.class, () -> PricingPolicy.priceFor(BigDecimal.ZERO, SeatClass.ECONOMY));
+        assertThrows(IllegalArgumentException.class,
+                () -> PricingPolicy.priceFor(new BigDecimal("-1.00"), SeatClass.BUSINESS));
+    }
 }

@@ -47,4 +47,15 @@ class SqliteAircraftDao implements AircraftDao {
                 });
         return new Aircraft(id, aircraft.model(), aircraft.rows(), aircraft.seatsPerRow());
     }
+
+    @Override
+    public boolean isUsed(long aircraftId) {
+        return JdbcSupport.queryOne(connection, "SELECT COUNT(*) FROM flight WHERE aircraft_id = ?",
+                st -> st.setLong(1, aircraftId), row -> row.getInt(1)).orElse(0) > 0;
+    }
+
+    @Override
+    public void delete(long aircraftId) {
+        JdbcSupport.update(connection, "DELETE FROM aircraft WHERE id = ?", st -> st.setLong(1, aircraftId));
+    }
 }

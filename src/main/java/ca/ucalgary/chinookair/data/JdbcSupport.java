@@ -82,28 +82,50 @@ final class JdbcSupport {
 
     /**
      * Runs the work in one transaction: everything it does is kept, or nothing is. Any exception
-     * undoes the work and is passed on. Inside a running transaction it joins that one instead.
+     * or error undoes the work and is passed on, and so does a commit that fails. Inside a running
+     * transaction it joins that one instead.
      */
     static <T> T transaction(Connection connection, Supplier<T> work) {
+        boolean before;
         try {
-            boolean before = connection.getAutoCommit();
+            before = connection.getAutoCommit();
             if (!before) {
                 // already inside a transaction: join it, the outer one decides to keep or undo
                 return work.get();
             }
             connection.setAutoCommit(false);
-            try {
-                T result = work.get();
-                connection.commit();
-                return result;
-            } catch (RuntimeException e) {
-                connection.rollback();
-                throw e;
-            } finally {
-                connection.setAutoCommit(before);
-            }
         } catch (SQLException e) {
             throw new DataAccessException("Transaction failed: " + e.getMessage(), e);
+        }
+        try {
+            T result = work.get();
+            connection.commit();
+            return result;
+        } catch (RuntimeException | Error e) {
+            undo(connection, e);
+            throw e;
+        } catch (SQLException e) {
+            undo(connection, e);
+            throw new DataAccessException("Transaction failed: " + e.getMessage(), e);
+        } finally {
+            restoreAutoCommit(connection);
+        }
+    }
+
+    /** Rolls back; a failure of the rollback itself is added to the problem instead of hiding it. */
+    private static void undo(Connection connection, Throwable problem) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            problem.addSuppressed(e);
+        }
+    }
+
+    private static void restoreAutoCommit(Connection connection) {
+        try {
+            connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            throw new DataAccessException("Could not end the transaction: " + e.getMessage(), e);
         }
     }
 

@@ -197,6 +197,7 @@ class ConfirmationView extends JPanel implements Screen {
         copyButton.setText("Copy");
         file = result.confirmationFile();
         subtitle.setText("Thank you, " + reservation.customer().name() + ". The amount has been paid.");
+        saved.setToolTipText(file != null ? file.toAbsolutePath().toString() : null);
         saved.setText(file != null ? "A copy of this confirmation was saved: " + file.getFileName()
                 : result.message());
         folderButton.setVisible(file != null && file.getParent() != null);

@@ -26,7 +26,7 @@ class ReservationGroupsTest {
 
     private static final Clock CLOCK =
             Clock.fixed(LocalDateTime.of(2026, 12, 1, 9, 0).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
-    private static final LocalDate TODAY = LocalDate.of(2026, 12, 1);
+    private static final LocalDateTime NOW = LocalDateTime.of(2026, 12, 1, 0, 0);
 
     @TempDir
     static Path folder;
@@ -56,18 +56,18 @@ class ReservationGroupsTest {
 
     @Test
     void aFlightThatHasNotLeftIsUpcomingAndOneThatHasIsPast() {
-        assertEquals(ReservationGroups.Group.UPCOMING, ReservationGroups.of(reservation("A", 5), TODAY));
-        assertEquals(ReservationGroups.Group.UPCOMING, ReservationGroups.of(reservation("A", 2), TODAY));
+        assertEquals(ReservationGroups.Group.UPCOMING, ReservationGroups.of(reservation("A", 5), NOW));
+        assertEquals(ReservationGroups.Group.UPCOMING, ReservationGroups.of(reservation("A", 2), NOW));
         assertEquals(ReservationGroups.Group.PAST,
-                ReservationGroups.of(reservation("A", 2), TODAY.plusDays(2)));
+                ReservationGroups.of(reservation("A", 2), NOW.plusDays(2)));
     }
 
     @Test
     void aCancelledReservationIsCancelledWhateverTheDate() {
         Reservation r = reservation("C", 5);
         r.cancel();
-        assertEquals(ReservationGroups.Group.CANCELLED, ReservationGroups.of(r, TODAY));
-        assertEquals(ReservationGroups.Group.CANCELLED, ReservationGroups.of(r, TODAY.plusDays(30)));
+        assertEquals(ReservationGroups.Group.CANCELLED, ReservationGroups.of(r, NOW));
+        assertEquals(ReservationGroups.Group.CANCELLED, ReservationGroups.of(r, NOW.plusDays(30)));
     }
 
     @Test
@@ -78,7 +78,7 @@ class ReservationGroupsTest {
         Reservation off = reservation("OFF", 6);
         off.cancel();
         Map<ReservationGroups.Group, List<Reservation>> groups =
-                ReservationGroups.split(List.of(late, soon, gone, off), TODAY.plusDays(2));
+                ReservationGroups.split(List.of(late, soon, gone, off), NOW.plusDays(2));
         assertEquals(List.of(ReservationGroups.Group.UPCOMING, ReservationGroups.Group.PAST,
                 ReservationGroups.Group.CANCELLED), List.copyOf(groups.keySet()));
         assertEquals(List.of("SOON", "LATE"), groups.get(ReservationGroups.Group.UPCOMING).stream()
@@ -90,7 +90,7 @@ class ReservationGroupsTest {
     @Test
     void aSectionWithNothingInItIsLeftOut() {
         Map<ReservationGroups.Group, List<Reservation>> groups =
-                ReservationGroups.split(List.of(reservation("ONLY", 5)), TODAY);
+                ReservationGroups.split(List.of(reservation("ONLY", 5)), NOW);
         assertEquals(1, groups.size());
         assertFalse(groups.containsKey(ReservationGroups.Group.CANCELLED));
     }

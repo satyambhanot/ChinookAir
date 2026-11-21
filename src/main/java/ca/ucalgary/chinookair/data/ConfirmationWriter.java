@@ -2,7 +2,9 @@ package ca.ucalgary.chinookair.data;
 
 import ca.ucalgary.chinookair.business.entity.Flight;
 import ca.ucalgary.chinookair.business.entity.Payment;
+import ca.ucalgary.chinookair.business.entity.PaymentStatus;
 import ca.ucalgary.chinookair.business.entity.Reservation;
+import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.Seat;
 import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import java.io.IOException;
@@ -54,6 +56,10 @@ public class ConfirmationWriter {
         }
         if (!payment.reservationId().equals(reservation.id())) {
             throw new IllegalArgumentException("That payment belongs to another reservation");
+        }
+        if (reservation.status() != ReservationStatus.CONFIRMED || payment.status() != PaymentStatus.APPROVED) {
+            throw new IllegalArgumentException("A confirmation is only written for a confirmed reservation "
+                    + "with an approved payment");
         }
         String number = reservation.confirmationNumber();
         // the number becomes a file name, so nothing like ../ may get through

@@ -64,4 +64,11 @@ class PasswordHasherTest {
     void aNullPasswordCannotBeHashed() {
         assertThrows(IllegalArgumentException.class, () -> PasswordHasher.hash(null));
     }
+
+    @Test
+    void aStoredValueWithAnExtraSeparatorAtTheEndIsNotAccepted() {
+        String stored = PasswordHasher.hash("secret");
+        assertTrue(PasswordHasher.verify("secret", stored));
+        assertFalse(PasswordHasher.verify("secret", stored + "$"));
+    }
 }

@@ -3,7 +3,7 @@ package ca.ucalgary.chinookair.presentation;
 import ca.ucalgary.chinookair.business.entity.Role;
 
 /** The screens of the program. The navigator shows one of them at a time. */
-public enum ViewId {
+enum ViewId {
     LOGIN,
     REGISTER,
     CUSTOMER_DASHBOARD,
