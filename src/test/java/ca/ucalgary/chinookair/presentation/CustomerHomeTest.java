@@ -193,7 +193,7 @@ class CustomerHomeTest {
 
     @Test
     void theNextTripLogicHandlesAnEmptyList() {
-        assertTrue(HomeTrips.next(List.of(), LocalDate.of(2026, 12, 1)).isEmpty());
+        assertTrue(HomeTrips.next(List.of(), LocalDateTime.of(2026, 12, 1, 9, 0)).isEmpty());
         assertTrue(HomeTrips.recent(List.of(), 3).isEmpty());
     }
 

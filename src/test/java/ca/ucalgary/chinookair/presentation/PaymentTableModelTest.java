@@ -27,7 +27,7 @@ class PaymentTableModelTest {
         assertEquals(InputParser.dateTime("2026-11-20 09:05"), model.getValueAt(0, 0));
         assertEquals("#12", model.getValueAt(0, 1));
         assertEquals("$300.00", model.getValueAt(0, 2));
-        assertEquals("CREDIT", model.getValueAt(0, 3));
+        assertEquals("Credit card", model.getValueAt(0, 3));
         assertEquals(Status.of(PaymentStatus.APPROVED), model.getValueAt(0, 4));
         assertEquals("**** **** **** 1111", model.getValueAt(0, 5));
         assertEquals("Amount", model.getColumnName(2));

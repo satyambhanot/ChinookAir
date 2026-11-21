@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.entity.Payment;
+import ca.ucalgary.chinookair.business.entity.PaymentMethodType;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ class PaymentTableModel extends AbstractTableModel {
             case 2:
                 return Format.money(payment.amount());
             case 3:
-                return payment.type().name();
+                return payment.type() == PaymentMethodType.DEBIT ? "Debit card" : "Credit card";
             case 4:
                 return Status.of(payment.status());
             case 5:

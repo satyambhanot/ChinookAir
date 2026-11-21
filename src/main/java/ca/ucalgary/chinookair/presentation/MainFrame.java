@@ -143,6 +143,13 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
         }
     }
 
+    @Override
+    public void refreshBar() {
+        if (current != null) {
+            appBar.refresh(current);
+        }
+    }
+
     /** Enter presses the screen's default button and the keyboard starts in the screen's first field. */
     private void useKeyboardDefaults(Screen screen) {
         getRootPane().setDefaultButton(screen.defaultButton());
@@ -191,13 +198,5 @@ public class MainFrame extends JFrame implements Navigator, PromotionListener {
     /** The screen that stands for a view, for tests. */
     Component screenFor(ViewId view) {
         return screens.get(view);
-    }
-
-    AppBar appBar() {
-        return appBar;
-    }
-
-    Controllers controllers() {
-        return controllers;
     }
 }

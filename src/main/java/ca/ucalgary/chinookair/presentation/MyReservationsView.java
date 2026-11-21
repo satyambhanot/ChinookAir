@@ -9,7 +9,7 @@ import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -87,14 +87,14 @@ class MyReservationsView extends JPanel implements Screen {
         list.removeAll();
         cards.clear();
         sectionTitles.clear();
-        LocalDate today = controllers.flightSearchController().today();
+        LocalDateTime now = controllers.flightSearchController().now();
         List<Reservation> shown = history.stream()
                 .filter(r -> ReservationGroups.matches(r, filterField.getText())).toList();
         if (shown.isEmpty()) {
             showEmpty(history.isEmpty());
         } else {
             for (Map.Entry<ReservationGroups.Group, List<Reservation>> section
-                    : ReservationGroups.split(shown, today).entrySet()) {
+                    : ReservationGroups.split(shown, now).entrySet()) {
                 list.add(sectionTitle(section.getKey().title() + " (" + section.getValue().size() + ")"));
                 for (Reservation reservation : section.getValue()) {
                     ReservationCard card = new ReservationCard(reservation,

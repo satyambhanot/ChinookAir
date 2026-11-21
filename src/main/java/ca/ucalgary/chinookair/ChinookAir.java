@@ -34,6 +34,8 @@ public class ChinookAir {
     private static void load(SplashWindow splash) {
         try {
             Controllers controllers = AppContext.create();
+            // quitting from the menu skips the window, so the database is also closed when the program ends
+            Runtime.getRuntime().addShutdownHook(new Thread(controllers.shutdown(), "close-database"));
             SwingUtilities.invokeLater(() -> {
                 new MainFrame(controllers).setVisible(true);
                 splash.dispose();

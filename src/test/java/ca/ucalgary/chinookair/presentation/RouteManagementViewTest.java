@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ca.ucalgary.chinookair.AppContext;
@@ -125,5 +126,31 @@ class RouteManagementViewTest {
         view.addButton.doClick(0);
         assertEquals(Alert.Kind.ERROR, view.messageKind());
         assertEquals("Route already exists", view.message());
+    }
+
+    @Test
+    void aRouteJustAddedCanBeRemovedButASeededOneWithFlightsCannot() {
+        assertFalse(view.removeButton.isEnabled());
+        chooseAFreePair();
+        view.addButton.doClick(0);
+        int rows = view.tableModel.getRowCount();
+        // the new route is in the table somewhere: choose it by its airports
+        String pair = view.message().replace("Added route ", "").replace(" to ", "-");
+        for (int i = 0; i < rows; i++) {
+            ca.ucalgary.chinookair.business.entity.Route r = view.tableModel.routeAt(i);
+            if ((r.origin().code() + "-" + r.destination().code()).equals(pair)) {
+                view.table.setRowSelectionInterval(i, i);
+            }
+        }
+        assertTrue(view.removeButton.isEnabled());
+        view.removeButton.doClick(0);
+        assertEquals(rows - 1, view.tableModel.getRowCount());
+        assertTrue(view.message().startsWith("Removed route"), view.message());
+
+        // a seeded route has flights, so the controller refuses and the table keeps it
+        view.table.setRowSelectionInterval(0, 0);
+        view.removeButton.doClick(0);
+        assertEquals(rows - 1, view.tableModel.getRowCount());
+        assertEquals(Alert.Kind.ERROR, view.messageKind());
     }
 }

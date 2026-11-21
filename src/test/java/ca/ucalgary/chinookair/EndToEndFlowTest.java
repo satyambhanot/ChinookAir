@@ -166,4 +166,52 @@ class EndToEndFlowTest {
                 .anyMatch(p -> p.reservationId().equals(second.id()) && p.status() == PaymentStatus.REFUNDED),
                 "step old payment refunded after modify");
     }
+
+    /**
+     * Two runs of the program on one database file: first a customer books and an agent moves the seat, then, after
+     * take-off, the administrator removes the flight that nobody has opened the history of.
+     */
+    @org.junit.jupiter.api.Test
+    void aMovedSeatKeepsTheConfirmationCurrentAndADepartedFlightWithABookingCanBeRemoved() throws IOException {
+        String url = "jdbc:sqlite:" + confirmations.resolve("e2e.db");
+        long flightId;
+        Path file;
+        Controllers first = AppContext.create(url, CLOCK, confirmations);
+        try {
+            User jo = first.loginController().authenticate(DatabaseSeeder.CUSTOMER_USERNAME,
+                    DatabaseSeeder.CUSTOMER_PASSWORD);
+            FlightOffer offer = first.flightSearchController().search(new SearchCriteria("YYC", "YVR", TOMORROW, null))
+                    .get(0);
+            flightId = offer.flight().id();
+            Reservation started = first.bookingController().startReservation(jo, (Customer) jo, flightId);
+            Reservation waiting = first.bookingController().selectSeat(jo, started.id(), "3C");
+            PaymentResult paid = first.paymentController().pay(jo, waiting.id(), PaymentMethodType.CREDIT, GOOD_CARD);
+            file = paid.confirmationFile();
+            assertTrue(Files.readString(file).contains("Seat: 3C"), "step first confirmation");
+
+            User agent = first.loginController().authenticate(DatabaseSeeder.AGENT_USERNAME,
+                    DatabaseSeeder.AGENT_PASSWORD);
+            Reservation moved = first.reservationController().modify(agent, waiting.id(), flightId, "3D");
+            assertEquals(ReservationStatus.CONFIRMED, moved.status(), "step same price stays confirmed");
+            String text = Files.readString(file);
+            assertTrue(text.contains("Seat: 3D") && !text.contains("Seat: 3C"), "step file shows the new seat");
+        } finally {
+            first.shutdown().run();
+        }
+
+        Clock afterTakeOff = Clock.fixed(LocalDateTime.of(2026, 12, 3, 10, 0).toInstant(ZoneOffset.UTC),
+                ZoneOffset.UTC);
+        Controllers second = AppContext.create(url, afterTakeOff, confirmations);
+        try {
+            User admin = second.loginController().authenticate(DatabaseSeeder.ADMIN_USERNAME,
+                    DatabaseSeeder.ADMIN_PASSWORD);
+            second.flightManagementController().removeFlight(admin, flightId);
+            User jo = second.loginController().authenticate(DatabaseSeeder.CUSTOMER_USERNAME,
+                    DatabaseSeeder.CUSTOMER_PASSWORD);
+            List<Reservation> history = second.reservationController().history(jo, jo.id());
+            assertEquals(ReservationStatus.COMPLETED, history.get(0).status(), "step history keeps the trip");
+        } finally {
+            second.shutdown().run();
+        }
+    }
 }

@@ -15,6 +15,7 @@ import ca.ucalgary.chinookair.data.FlightDao;
 import ca.ucalgary.chinookair.data.ReservationDao;
 import ca.ucalgary.chinookair.data.RouteDao;
 import ca.ucalgary.chinookair.data.SeatDao;
+import ca.ucalgary.chinookair.data.UnitOfWork;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
@@ -31,16 +32,19 @@ public class FlightManagementController {
     private final AirlineDao airlines;
     private final AircraftDao aircraft;
     private final ReservationDao reservations;
+    private final UnitOfWork transactions;
     private final Clock clock;
 
     public FlightManagementController(FlightDao flights, SeatDao seats, RouteDao routes, AirlineDao airlines,
-                                      AircraftDao aircraft, ReservationDao reservations, Clock clock) {
+                                      AircraftDao aircraft, ReservationDao reservations, UnitOfWork transactions,
+                                      Clock clock) {
         this.flights = flights;
         this.seats = seats;
         this.routes = routes;
         this.airlines = airlines;
         this.aircraft = aircraft;
         this.reservations = reservations;
+        this.transactions = transactions;
         this.clock = clock;
     }
 
@@ -54,15 +58,12 @@ public class FlightManagementController {
     public Flight addFlight(User actor, FlightDetails details) {
         Authorizer.require(actor, Role.ADMIN);
         Flight flight = checked(null, details);
-        Flight saved = flights.save(flight);
-        try {
+        // a flight without seats is no use to anybody, so the flight and its seats are kept together
+        return transactions.call(() -> {
+            Flight saved = flights.save(flight);
             seats.createSeats(saved.id(), SeatLayout.generate(saved.aircraft()));
-        } catch (RuntimeException e) {
-            // a flight without seats is no use to anybody, so take it back out
-            flights.delete(saved.id());
-            throw e;
-        }
-        return saved;
+            return saved;
+        });
     }
 
     /**
@@ -96,10 +97,12 @@ public class FlightManagementController {
                 throw new IllegalStateException("Cannot change the aircraft of a flight that already has reservations");
             }
         }
-        flights.update(changed);
-        if (aircraftChanged) {
-            seats.replaceSeats(flightId, SeatLayout.generate(changed.aircraft()));
-        }
+        transactions.run(() -> {
+            flights.update(changed);
+            if (aircraftChanged) {
+                seats.replaceSeats(flightId, SeatLayout.generate(changed.aircraft()));
+            }
+        });
         return changed;
     }
 
@@ -114,17 +117,20 @@ public class FlightManagementController {
     public void removeFlight(User actor, long flightId) {
         Authorizer.require(actor, Role.ADMIN);
         Flight flight = flights.findById(flightId).orElseThrow(() -> new IllegalArgumentException("Flight not found"));
-        if (flight.hasDeparted(clock)) {
-            settleDepartedFlight(flightId);
-        }
-        if (reservations.countActiveByFlight(flightId) > 0) {
-            throw new IllegalStateException("Cannot remove a flight with active reservations");
-        }
-        if (reservations.findByFlight(flightId).isEmpty()) {
-            flights.delete(flightId);
-        } else {
-            flights.archive(flightId);
-        }
+        transactions.run(() -> {
+            if (flight.hasDeparted(clock)) {
+                settleDepartedFlight(flightId);
+            }
+            if (reservations.countActiveByFlight(flightId) > 0) {
+                // nothing was changed above for a flight that has not left, and the unit undoes the rest
+                throw new IllegalStateException("Cannot remove a flight with active reservations");
+            }
+            if (reservations.findByFlight(flightId).isEmpty()) {
+                flights.delete(flightId);
+            } else {
+                flights.archive(flightId);
+            }
+        });
     }
 
     /**

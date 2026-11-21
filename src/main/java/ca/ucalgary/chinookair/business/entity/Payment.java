@@ -35,6 +35,9 @@ public final class Payment {
         if (amount == null || amount.signum() <= 0) {
             throw new IllegalArgumentException("The amount must be greater than 0");
         }
+        if (amount.scale() > 2) {
+            throw new IllegalArgumentException("The amount can have at most 2 decimals");
+        }
         if (type == null || status == null || createdAt == null) {
             throw new IllegalArgumentException("A payment needs a type, a status and a creation time");
         }

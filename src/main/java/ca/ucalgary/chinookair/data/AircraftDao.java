@@ -18,4 +18,14 @@ public interface AircraftDao {
      * @throws IllegalArgumentException if the aircraft already has an id
      */
     Aircraft save(Aircraft aircraft);
+
+    /** True if a flight, even a removed one, flies this aircraft. */
+    boolean isUsed(long aircraftId);
+
+    /**
+     * Deletes an aircraft that no flight uses.
+     *
+     * @throws DataAccessException if a flight still uses it
+     */
+    void delete(long aircraftId);
 }

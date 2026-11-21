@@ -92,7 +92,7 @@ class PaymentView extends JPanel implements Screen {
         });
         payButton.setMnemonic('P');
         backButton.setMnemonic('B');
-        abandonButton.setMnemonic('C');
+        abandonButton.setMnemonic('K');
         messageLabel.setFont(messageLabel.getFont().deriveFont(Type.LABEL));
 
         JPanel form = new JPanel();

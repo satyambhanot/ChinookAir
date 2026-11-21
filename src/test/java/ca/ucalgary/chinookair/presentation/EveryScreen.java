@@ -40,10 +40,14 @@ final class EveryScreen {
         controllers = c;
         BookingSession booking = new BookingSession();
 
+        screens.put("login", shown(new LoginView(c, navigator)));
+        screens.put("register", shown(new RegisterView(c, navigator, (name, password) -> { })));
+
         c.session().login(c.loginController()
                 .authenticate(DatabaseSeeder.CUSTOMER_USERNAME, DatabaseSeeder.CUSTOMER_PASSWORD));
         screens.put("customer home", shown(new CustomerHome(c, navigator, booking)));
         FlightSearchView search = new FlightSearchView(c, navigator, booking);
+        search.onShow();
         screens.put("find flights", search);
         FlightOffer offer = c.flightSearchController()
                 .search(new SearchCriteria("YYC", "YVR", LocalDate.of(2026, 12, 2), null)).get(0);
@@ -65,21 +69,23 @@ final class EveryScreen {
         screens.put("confirmation", confirmation);
         screens.put("my reservations", shown(new MyReservationsView(c, navigator, booking)));
         profile = new ProfileView(c, navigator);
+        profile.onShow();
         screens.put("profile", profile);
 
         c.session().login(c.loginController()
                 .authenticate(DatabaseSeeder.AGENT_USERNAME, DatabaseSeeder.AGENT_PASSWORD));
         screens.put("agent home", shown(new AgentDashboard(c, navigator)));
-        screens.put("customers", new CustomerManagementView(c, navigator, booking));
-        screens.put("payment records", new PaymentRecordsView(c, navigator));
-        screens.put("schedule", new ScheduleView(c, navigator));
+        screens.put("customers", shown(new CustomerManagementView(c, navigator, booking)));
+        screens.put("modify reservation", shown(new ModifyReservationView(c, navigator, booking)));
+        screens.put("payment records", shown(new PaymentRecordsView(c, navigator)));
+        screens.put("schedule", shown(new ScheduleView(c, navigator)));
 
         c.session().login(c.loginController()
                 .authenticate(DatabaseSeeder.ADMIN_USERNAME, DatabaseSeeder.ADMIN_PASSWORD));
         screens.put("admin home", shown(new AdminDashboard(c, navigator)));
-        screens.put("flights", new FlightManagementView(c, navigator));
-        screens.put("routes", new RouteManagementView(c, navigator));
-        screens.put("aircraft", new AircraftManagementView(c, navigator));
+        screens.put("flights", shown(new FlightManagementView(c, navigator)));
+        screens.put("routes", shown(new RouteManagementView(c, navigator)));
+        screens.put("aircraft", shown(new AircraftManagementView(c, navigator)));
     }
 
     /** Opens a screen the way the window does, while the right person is logged in. */

@@ -38,15 +38,16 @@ architecture test (\texttt{ArchitectureTest}) checks.
 \item Public: the controllers and Authorizer, SessionContext
   and PromotionListener; the entities, the enumerations, UserFactory
   and PaymentMethods with its PaymentMethod interface;
-  the DAO interfaces, DaoFactory, DatabaseConnection,
+  the DAO interfaces, UnitOfWork, DaoFactory, DatabaseConnection,
   DatabaseSeeder and ConfirmationWriter; PasswordHasher;
-  MainFrame.
+  MainFrame, SplashWindow, Theme and Brand, which the entry point uses.
 \item Package-private: the twelve Sqlite\dots Dao classes, which only
-  DaoFactory creates and everyone else reaches through the interface;
+  DaoFactory creates and everyone else reaches through the interface (SqliteUnitOfWork too);
   the five Reservation state classes and ReservationState, which only
   Reservation uses; CreditCardPayment and DebitCardPayment,
-  which only PaymentMethods creates; and the views and dashboards,
-  which only MainFrame and the other views use.
+  which only PaymentMethods creates; PricingPolicy, which only Flight uses; and the
+  views, dashboards and helpers such as Navigator and ViewId, which only MainFrame and the
+  other presentation classes use.
 \end{itemize}
 
 Small helper and value types that the implementation adds inside a package, for

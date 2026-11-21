@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * A customer's hold on one seat on one flight. The actions are handed to the
@@ -34,7 +35,7 @@ public final class Reservation {
             throw new IllegalArgumentException("A reservation needs a customer, a flight and a creation time");
         }
         this.id = id;
-        this.confirmationNumber = confirmationNumber.trim();
+        this.confirmationNumber = confirmationNumber.trim().toUpperCase(Locale.ROOT);
         this.customer = customer;
         this.flight = flight;
         this.seatNo = seatNo;
@@ -143,7 +144,10 @@ public final class Reservation {
         return state.status();
     }
 
-    /** True while the reservation holds its seat: created, waiting for payment, or confirmed. */
+    /**
+     * True while the reservation is still alive: started, waiting for payment, or confirmed. A started one
+     * has no seat yet; only the other two hold one.
+     */
     public boolean isActive() {
         ReservationStatus status = status();
         return status == ReservationStatus.CREATED || status == ReservationStatus.PENDING_PAYMENT

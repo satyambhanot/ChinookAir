@@ -14,6 +14,10 @@ class AircraftTableModel extends AbstractTableModel {
     private final transient List<Aircraft> aircraft = new ArrayList<>();
 
     /** Replaces all rows. */
+    Aircraft aircraftAt(int modelRow) {
+        return aircraft.get(modelRow);
+    }
+
     void setAircraft(List<Aircraft> newAircraft) {
         aircraft.clear();
         aircraft.addAll(newAircraft);
@@ -51,7 +55,7 @@ class AircraftTableModel extends AbstractTableModel {
             case 2:
                 return plane.seatsPerRow();
             case 3:
-                return plane.rows() * plane.seatsPerRow();
+                return plane.seatCount();
             default:
                 throw new IndexOutOfBoundsException("No column " + column);
         }

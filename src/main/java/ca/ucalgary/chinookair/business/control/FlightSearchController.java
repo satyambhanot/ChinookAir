@@ -3,14 +3,19 @@ package ca.ucalgary.chinookair.business.control;
 import ca.ucalgary.chinookair.business.entity.Airline;
 import ca.ucalgary.chinookair.business.entity.Airport;
 import ca.ucalgary.chinookair.business.entity.Flight;
+import ca.ucalgary.chinookair.business.entity.Seat;
 import ca.ucalgary.chinookair.business.entity.SeatClass;
+import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.data.AirlineDao;
 import ca.ucalgary.chinookair.data.AirportDao;
 import ca.ucalgary.chinookair.data.FlightDao;
 import ca.ucalgary.chinookair.data.SeatDao;
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /** Use cases Find Available Flights and View Flight Details. */
@@ -34,6 +39,11 @@ public class FlightSearchController {
     /** Today by the program's clock, the day the search screen starts with. */
     public LocalDate today() {
         return LocalDate.now(clock);
+    }
+
+    /** The moment now by the program's clock, which tells a flight that has left from one that has not. */
+    public LocalDateTime now() {
+        return LocalDateTime.now(clock);
     }
 
     /** Every airport, sorted by code, for the origin and destination lists of the search screen. */
@@ -97,8 +107,14 @@ public class FlightSearchController {
     }
 
     private FlightOffer offerFor(Flight flight) {
-        // the lowest price is the economy price
-        return new FlightOffer(flight, seats.countAvailable(flight.id()), flight.priceFor(SeatClass.ECONOMY));
+        return new FlightOffer(flight, seats.countAvailable(flight.id()), lowestPrice(flight));
+    }
+
+    /** The cheapest seat class the aircraft really has: a one-row aircraft has business seats only. */
+    private static BigDecimal lowestPrice(Flight flight) {
+        return SeatLayout.generate(flight.aircraft()).stream().map(Seat::seatClass).distinct()
+                .map(flight::priceFor).min(Comparator.naturalOrder())
+                .orElse(flight.priceFor(SeatClass.ECONOMY));
     }
 
     private static String airportCode(String input, String what) {

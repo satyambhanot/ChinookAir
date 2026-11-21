@@ -20,6 +20,9 @@ import ca.ucalgary.chinookair.business.entity.ReservationStatus;
 import ca.ucalgary.chinookair.business.entity.SeatLayout;
 import ca.ucalgary.chinookair.data.ConfirmationWriter;
 import ca.ucalgary.chinookair.data.DaoFactory;
+import ca.ucalgary.chinookair.data.DataAccessException;
+import ca.ucalgary.chinookair.data.FailingDao;
+import ca.ucalgary.chinookair.data.ReservationDao;
 import ca.ucalgary.chinookair.data.TestDatabase;
 import ca.ucalgary.chinookair.data.TestWorld;
 import java.io.IOException;
@@ -81,7 +84,7 @@ class PaymentControllerTest {
 
     private PaymentController controllerWriting(Path directory) {
         return new PaymentController(daos.reservationDao(), daos.paymentDao(), new ConfirmationWriter(directory),
-                CLOCK);
+                daos.unitOfWork(), CLOCK);
     }
 
     /** A reservation of the customer that waits for payment at the given price. */
@@ -312,7 +315,7 @@ class PaymentControllerTest {
         Clock afterTakeOff = Clock.fixed(LocalDateTime.of(2026, 12, 2, 8, 30).toInstant(ZoneOffset.UTC),
                 ZoneOffset.UTC);
         PaymentController late = new PaymentController(daos.reservationDao(), daos.paymentDao(),
-                new ConfirmationWriter(folder), afterTakeOff);
+                new ConfirmationWriter(folder), daos.unitOfWork(), afterTakeOff);
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> late.pay(jo, r.id(), PaymentMethodType.CREDIT, GOOD));
@@ -321,5 +324,20 @@ class PaymentControllerTest {
         assertEquals(ReservationStatus.PENDING_PAYMENT, statusOf(r));
         assertTrue(daos.paymentDao().findByReservation(r.id()).isEmpty());
         assertTrue(filesInFolder().isEmpty());
+    }
+
+    // ---- all or nothing
+
+    @Test
+    void ifTheReservationCannotBeSavedTheApprovedPaymentIsNotKept() {
+        Reservation r = pending(jo, "1A", "300.00");
+        PaymentController broken = new PaymentController(
+                FailingDao.failingOn(ReservationDao.class, daos.reservationDao(), "update"),
+                daos.paymentDao(), new ConfirmationWriter(folder), daos.unitOfWork(), CLOCK);
+
+        assertThrows(DataAccessException.class, () -> broken.pay(jo, r.id(), PaymentMethodType.CREDIT, GOOD));
+
+        assertEquals(ReservationStatus.PENDING_PAYMENT, statusOf(r));
+        assertTrue(daos.paymentDao().findByReservation(r.id()).isEmpty());
     }
 }

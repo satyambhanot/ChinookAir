@@ -54,7 +54,8 @@ the view (\texttt{enter...}, \texttt{choose...}, \texttt{pick...},
 The first-cut diagrams are refined in two steps: the business layer and the
 data layer. The refinement uses inheritance (the three roles inherit from
 User), realization (interfaces and the classes that implement them),
-composition (a Flight is composed of its Seats) and polymorphism (the
+composition (a Flight is composed of its Seats: they are created with it and deleted with it
+by the database, and the Flight object itself does not hold a list of them) and polymorphism (the
 payment methods and the reservation states), and applies six design patterns.
 The attributes and associations of the entities do not change.
 
@@ -62,8 +63,10 @@ The attributes and associations of the entities do not change.
 
 \begin{description}
 \item[Singleton.] The database file must never be opened twice, so
-  \texttt{DatabaseConnection} has exactly one instance, reached only through
-  \texttt{getInstance()} from the composition root \texttt{AppContext}.
+  \texttt{DatabaseConnection} has exactly one instance for the real database, reached only through
+  \texttt{getInstance()} from the composition root \texttt{AppContext}. The test entry
+  \texttt{forUrl} makes a separate instance for an in-memory database, and only tests and
+  \texttt{SelfTest} use it.
 \item[DAO.] Controllers must not know about SQL, so every entity has a DAO
   interface in the data package, realized by one package-private SQLite class,
   and the database can be replaced without touching a business class;
@@ -77,9 +80,10 @@ The attributes and associations of the entities do not change.
   \texttt{changeFlight}, \texttt{cancel} and \texttt{complete} to a
   \texttt{ReservationState} object, with one class per state as in the
   reservation state diagram.
-\item[Factory.] The code that logs in or registers a user must not name the
+\item[Factory.] The code that rebuilds a user from the database must not name the
   subclasses, so \texttt{UserFactory.\allowbreak create} returns the right subclass of User
-  for a role.
+  for a role; \texttt{SqliteUserDao} is its caller. Registration only ever makes a Customer, so
+  CustomerController creates that class directly.
 \item[Observer.] The monthly promotion must reach the screen without the
   controller knowing about Swing, so PromotionController notifies the
   registered \texttt{PromotionListener}s and MainFrame is the listener that
@@ -123,9 +127,9 @@ dependencies of the data layer.
 \ctl{CustomerController} & CustomerDao, UserDao\\
 \ctl{FlightSearchController} & FlightDao, SeatDao, AirportDao, AirlineDao\\
 \ctl{BookingController} & FlightDao, SeatDao, ReservationDao\\
-\ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter)\\
-\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao (and ConfirmationWriter)\\
-\ctl{FlightManagementController} & FlightDao, SeatDao, RouteDao, AirlineDao, AircraftDao, ReservationDao\\
+\ctl{PaymentController} & ReservationDao, PaymentDao (and ConfirmationWriter, UnitOfWork)\\
+\ctl{ReservationController} & ReservationDao, PaymentDao, FlightDao, SeatDao (and ConfirmationWriter, UnitOfWork)\\
+\ctl{FlightManagementController} & FlightDao, SeatDao, RouteDao, AirlineDao, AircraftDao, ReservationDao (and UnitOfWork)\\
 \ctl{RouteController} & RouteDao, AirportDao\\
 \ctl{AircraftController} & AircraftDao\\
 \ctl{ScheduleController} & FlightDao\\
@@ -139,11 +143,16 @@ no first-cut or refined diagram had. The first three groups are drawn in the
 boxes \emph{Added while coding} of the refined diagrams; the presentation helpers
 only appear in this table. None of them changes a class or an operation of the
 design above. The operations that were added to existing classes are
-\texttt{airports}, \texttt{airlines} and \texttt{today} on FlightSearchController
+\texttt{airports}, \texttt{airlines}, \texttt{today} and \texttt{now} on FlightSearchController
 (the search screen lists airports and airlines through the controller, not a DAO),
 \texttt{canCancel} and \texttt{canModify} on ReservationController (so a screen
-does not repeat the rule), \texttt{isArchived} on FlightDao and
-\texttt{replaceSeats} on SeatDao.
+does not repeat the rule), \texttt{removeRoute} on RouteController and
+\texttt{removeAircraft} on AircraftController (only when no flight uses them, which
+\texttt{isUsed} and \texttt{delete} on RouteDao and AircraftDao check),
+\texttt{isArchived} on FlightDao and \texttt{replaceSeats} on SeatDao. The operations that
+change a reservation (\texttt{startReservation}, \texttt{selectSeat} and
+\texttt{cancelPending}) take the acting user as their first parameter, like the other
+protected operations; the control and sequence diagrams show it for the booking ones.
 
 \begingroup
 \small
@@ -172,6 +181,7 @@ does not repeat the rule), \texttt{isArchived} on FlightDao and
 \ctl{business.entity} & \ctl{StorageException} & base of the database errors, so the screens do not import the data package\\
 \ctl{data} & \ctl{DataAccessException} & a database error with a message; extends StorageException\\
 \ctl{data} & \ctl{ConfirmationWriteException} & the confirmation file could not be written\\
+\ctl{data} & \ctl{UnitOfWork, \allowbreak SqliteUnitOfWork} & keeps several changes together, all or nothing, so a payment and its reservation (or a flight and its seats) are never half saved; used by PaymentController, ReservationController and FlightManagementController\\
 \ctl{data} & \ctl{DatabaseInitializer} & creates the tables from schema.sql (package-private)\\
 \ctl{data} & \ctl{JdbcSupport} & small helpers for queries, updates and transactions (package-private)\\
 \ctl{data} & \ctl{DbDates} & writes and reads dates as ISO text (package-private)\\

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 /** How the price of a seat follows from the base price of its flight. */
-public final class PricingPolicy {
+final class PricingPolicy {
 
     private static final BigDecimal BUSINESS_FACTOR = new BigDecimal("1.5");
 
@@ -15,6 +15,9 @@ public final class PricingPolicy {
     public static BigDecimal priceFor(BigDecimal base, SeatClass seatClass) {
         if (base == null || seatClass == null) {
             throw new IllegalArgumentException("A base price and a seat class are required");
+        }
+        if (base.signum() <= 0) {
+            throw new IllegalArgumentException("The base price must be greater than 0");
         }
         BigDecimal price = seatClass == SeatClass.BUSINESS ? base.multiply(BUSINESS_FACTOR) : base;
         return price.setScale(2, RoundingMode.HALF_UP);

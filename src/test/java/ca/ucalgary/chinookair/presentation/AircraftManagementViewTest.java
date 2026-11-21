@@ -157,4 +157,16 @@ class AircraftManagementViewTest {
         FocusTesting.leave(view.rowsField);
         assertFalse(view.rowsRow().hasError());
     }
+
+    @Test
+    void anAircraftJustAddedCanBeRemovedButOneWithFlightsCannot() {
+        assertFalse(view.removeButton.isEnabled());
+        view.table.setRowSelectionInterval(0, 0);
+        assertTrue(view.removeButton.isEnabled());
+        int rows = view.tableModel.getRowCount();
+        // the first seeded aircraft flies seeded flights
+        view.removeButton.doClick(0);
+        assertEquals(rows, view.tableModel.getRowCount());
+        assertTrue(view.message().startsWith("Cannot remove"), view.message());
+    }
 }

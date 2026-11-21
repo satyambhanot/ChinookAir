@@ -42,7 +42,7 @@ public final class PasswordHasher {
         if (password == null || stored == null) {
             return false;
         }
-        String[] parts = stored.split("\\$");
+        String[] parts = stored.split("\\$", -1);
         if (parts.length != 4 || !PREFIX.equals(parts[0])) {
             return false;
         }

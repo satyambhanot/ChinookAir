@@ -26,6 +26,22 @@ public class AircraftController {
         return aircraft.save(new Aircraft(null, model, rows, seatsPerRow));
     }
 
+    /**
+     * Removes an aircraft that no flight uses. Only an administrator may.
+     *
+     * @throws AccessDeniedException    if the actor is not an administrator
+     * @throws IllegalArgumentException if there is no such aircraft
+     * @throws IllegalStateException    if a flight uses the aircraft
+     */
+    public void removeAircraft(User actor, long aircraftId) {
+        Authorizer.require(actor, Role.ADMIN);
+        aircraft.findById(aircraftId).orElseThrow(() -> new IllegalArgumentException("Aircraft not found"));
+        if (aircraft.isUsed(aircraftId)) {
+            throw new IllegalStateException("Cannot remove an aircraft that flights use");
+        }
+        aircraft.delete(aircraftId);
+    }
+
     /** All aircraft, oldest first. */
     public List<Aircraft> list() {
         return aircraft.findAll();

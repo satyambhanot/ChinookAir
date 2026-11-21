@@ -142,4 +142,10 @@ class PaymentTest {
         assertTrue(p.toString().contains(MASKED));
         assertFalse(p.toString().contains("4111"));
     }
+
+    @Test
+    void anAmountWithMoreThanTwoDecimalsIsRefused() {
+        assertThrows(IllegalArgumentException.class, () -> new Payment(1L, new BigDecimal("10.005"),
+                PaymentMethodType.CREDIT, "**** **** **** 1111", LocalDateTime.of(2026, 12, 1, 9, 0)));
+    }
 }

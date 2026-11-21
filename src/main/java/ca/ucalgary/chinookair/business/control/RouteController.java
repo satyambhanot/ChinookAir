@@ -37,6 +37,22 @@ public class RouteController {
         return routes.save(route);
     }
 
+    /**
+     * Removes a route that no flight uses. Only an administrator may.
+     *
+     * @throws AccessDeniedException    if the actor is not an administrator
+     * @throws IllegalArgumentException if there is no such route
+     * @throws IllegalStateException    if a flight is scheduled on the route
+     */
+    public void removeRoute(User actor, long routeId) {
+        Authorizer.require(actor, Role.ADMIN);
+        routes.findById(routeId).orElseThrow(() -> new IllegalArgumentException("Route not found"));
+        if (routes.isUsed(routeId)) {
+            throw new IllegalStateException("Cannot remove a route that flights are scheduled on");
+        }
+        routes.delete(routeId);
+    }
+
     /** All routes, sorted by origin and then destination. */
     public List<Route> list() {
         return routes.findAll();

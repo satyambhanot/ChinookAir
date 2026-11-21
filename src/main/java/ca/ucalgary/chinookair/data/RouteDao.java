@@ -22,4 +22,14 @@ public interface RouteDao {
      * @throws DataAccessException      if an airport is not saved or the route exists
      */
     Route save(Route route);
+
+    /** True if a flight, even a removed one, is scheduled on the route. */
+    boolean isUsed(long routeId);
+
+    /**
+     * Deletes a route that no flight uses.
+     *
+     * @throws DataAccessException if a flight still uses it
+     */
+    void delete(long routeId);
 }

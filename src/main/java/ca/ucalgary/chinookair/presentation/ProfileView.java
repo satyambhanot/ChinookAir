@@ -101,6 +101,7 @@ class ProfileView extends JPanel implements Screen {
                     form.nameField.getText(), form.emailField.getText(), form.phoneField.getText());
             // the session keeps the new data too
             controllers.session().login(saved);
+            navigator.refreshBar();
             loaded = saved;
             form.show(saved);
             updateSave();
@@ -127,7 +128,15 @@ class ProfileView extends JPanel implements Screen {
             navigator.show(ViewId.LOGIN);
             return;
         }
-        loaded = (Customer) user.get();
+        Customer shown = (Customer) user.get();
+        try {
+            // what is stored, in case the profile was changed somewhere else since the login
+            shown = controllers.customerController().view(user.get(), user.get().id());
+            controllers.session().login(shown);
+        } catch (RuntimeException e) {
+            // the data of the login is good enough to show
+        }
+        loaded = shown;
         form.show(loaded);
         alert.clear();
         updateSave();

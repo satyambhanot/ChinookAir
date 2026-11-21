@@ -249,8 +249,7 @@ class CustomerHome extends JPanel implements Screen {
         greeting.setText("Hello, " + HomeTrips.firstName(customer.name(), customer.username()));
         alert.clear();
         List<Reservation> history = controllers.reservationController().history(customer, customer.id());
-        LocalDate today = controllers.flightSearchController().today();
-        showTrip(HomeTrips.next(history, today));
+        showTrip(HomeTrips.next(history, controllers.flightSearchController().now()));
         showRecent(HomeTrips.recent(history, RECENT_COUNT));
         fillSearch();
     }

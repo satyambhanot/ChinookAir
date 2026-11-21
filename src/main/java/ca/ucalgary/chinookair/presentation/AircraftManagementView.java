@@ -1,6 +1,7 @@
 package ca.ucalgary.chinookair.presentation;
 
 import ca.ucalgary.chinookair.business.control.Controllers;
+import ca.ucalgary.chinookair.business.entity.Aircraft;
 import ca.ucalgary.chinookair.business.entity.Role;
 import ca.ucalgary.chinookair.business.entity.User;
 import java.awt.BorderLayout;
@@ -32,6 +33,7 @@ class AircraftManagementView extends JPanel implements Screen {
     final JTextField rowsField = new JTextField(4);
     final JTextField seatsField = new JTextField(4);
     final JButton addButton = Theme.primary(new JButton("Add aircraft"));
+    final JButton removeButton = Theme.danger(new JButton("Remove aircraft"));
     final AircraftTableModel tableModel = new AircraftTableModel();
     final HintTable table = new HintTable(tableModel, "No aircraft yet. Add one with the form.");
     private final FormField modelRow = new FormField("Model", modelField).mnemonic('M');
@@ -68,8 +70,11 @@ class AircraftManagementView extends JPanel implements Screen {
         total.setAlignmentX(LEFT_ALIGNMENT);
         fields.add(total);
         addButton.setMnemonic('A');
+        removeButton.setMnemonic('V');
+        removeButton.setEnabled(false);
         ButtonRow buttons = ButtonRow.right();
         buttons.setOpaque(false);
+        buttons.add(removeButton);
         buttons.add(addButton);
         JPanel south = new JPanel(new BorderLayout(0, 12));
         south.setOpaque(false);
@@ -113,6 +118,8 @@ class AircraftManagementView extends JPanel implements Screen {
         rowsField.addActionListener(e -> add());
         seatsField.addActionListener(e -> add());
         addButton.addActionListener(e -> add());
+        removeButton.addActionListener(e -> remove());
+        table.getSelectionModel().addListSelectionListener(e -> removeButton.setEnabled(table.getSelectedRow() >= 0));
     }
 
     /** The number of seats of a plane with these rows and seats per row, or empty if either is not a number. */
@@ -129,6 +136,23 @@ class AircraftManagementView extends JPanel implements Screen {
     private void showTotal() {
         Optional<Integer> seats = seatCount(rowsField.getText(), seatsField.getText());
         total.setText(seats.map(n -> n + " seats in total").orElse(" "));
+    }
+
+    private void remove() {
+        User admin = controllers.session().currentUser().orElse(null);
+        int row = table.getSelectedRow();
+        if (admin == null || row < 0) {
+            return;
+        }
+        Aircraft plane = tableModel.aircraftAt(table.convertRowIndexToModel(row));
+        clearErrors();
+        try {
+            controllers.aircraftController().removeAircraft(admin, plane.id());
+            tableModel.setAircraft(controllers.aircraftController().list());
+            alert.show(Alert.Kind.SUCCESS, "Removed " + plane.model());
+        } catch (RuntimeException e) {
+            alert.show(Alert.Kind.ERROR, ErrorMessages.forException(e));
+        }
     }
 
     private void add() {

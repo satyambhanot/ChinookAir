@@ -21,6 +21,7 @@ public final class DaoFactory {
     private final PaymentDao paymentDao;
     private final PromotionDao promotionDao;
     private final AppStateDao appStateDao;
+    private final UnitOfWork unitOfWork;
 
     private DaoFactory(Connection connection) {
         airlineDao = new SqliteAirlineDao(connection);
@@ -36,6 +37,7 @@ public final class DaoFactory {
         paymentDao = new SqlitePaymentDao(connection);
         promotionDao = new SqlitePromotionDao(connection);
         appStateDao = new SqliteAppStateDao(connection);
+        unitOfWork = new SqliteUnitOfWork(connection);
     }
 
     /** @param connection an open connection to a database that is already set up */
@@ -44,6 +46,11 @@ public final class DaoFactory {
             throw new IllegalArgumentException("A connection is required");
         }
         return new DaoFactory(connection);
+    }
+
+    /** Keeps changes made through the DAOs of this factory together: all or nothing. */
+    public UnitOfWork unitOfWork() {
+        return unitOfWork;
     }
 
     public AirlineDao airlineDao() {
